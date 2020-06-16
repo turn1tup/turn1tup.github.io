@@ -5,14 +5,14 @@
   
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
-  <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>SQL注入类型详解 | Hexo</title>
+  <link rel="dns-prefetch" href="https://turn1tup.github.io">
+  <title>SQL注入类型详解 | turn1tup&#39;s bolg</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="该文章首发于信安之路（2018-01-25） https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s&#x2F;BQVS7alMSdy3_SQuMymkug 笔者最初学习 SQL 注入时，大家对于 SQL 注入类型的归类让我头脑一片混乱，后来笔者发现其实大家都是根据 sqlmap 上给出的“类型”来划分的。所以，今天在这里，笔者根据自己所学所知来对 SQL 注入进行一个分类，以及讲解一些在注入时十分重要而有用">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SQL注入类型详解">
-<meta property="og:url" content="http://yoursite.com/2020/06/15/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:url" content="https://turn1tup.github.io/2020/06/15/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="turn1tup&#39;s bolg">
 <meta property="og:description" content="该文章首发于信安之路（2018-01-25） https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s&#x2F;BQVS7alMSdy3_SQuMymkug 笔者最初学习 SQL 注入时，大家对于 SQL 注入类型的归类让我头脑一片混乱，后来笔者发现其实大家都是根据 sqlmap 上给出的“类型”来划分的。所以，今天在这里，笔者根据自己所学所知来对 SQL 注入进行一个分类，以及讲解一些在注入时十分重要而有用">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/sGfPWsuKAffuiaibN49MdKZ4BYWPLcYYgq1SsOc9uiaXicFaPyflkMwt5H16hTwTfjylrcYQnL4K8ib9vbPAV7GEOAg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
@@ -28,11 +28,11 @@
 <meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/sGfPWsuKAffuiaibN49MdKZ4BYWPLcYYgqduYcdRz0aWLDTHWarfwtcGiaNWLkmOsDjuqTqVbiaJkWYJB4o3lXNxtw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
 <meta property="article:published_time" content="2020-06-16T05:44:52.676Z">
 <meta property="article:modified_time" content="2020-06-16T05:44:52.676Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://mmbiz.qpic.cn/mmbiz_png/sGfPWsuKAffuiaibN49MdKZ4BYWPLcYYgq1SsOc9uiaXicFaPyflkMwt5H16hTwTfjylrcYQnL4K8ib9vbPAV7GEOAg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
   
-    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s bolg" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -62,7 +62,7 @@
 			<img src="" class="js-avatar">
 		</a>
 		<hgroup>
-		  <h1 class="header-author"><a href="/">John Doe</a></h1>
+		  <h1 class="header-author"><a href="/">turn1tup</a></h1>
 		</hgroup>
 		
 
@@ -120,7 +120,7 @@
 				<img src="" class="js-avatar">
 			</div>
 			<hgroup>
-			  <h1 class="header-author js-header-author">John Doe</h1>
+			  <h1 class="header-author js-header-author">turn1tup</h1>
 			</hgroup>
 			
 			
@@ -385,7 +385,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/06/15/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=https://turn1tup.github.io/2020/06/15/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -448,7 +448,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2020 John Doe
+    		&copy; 2020 turn1tup
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
