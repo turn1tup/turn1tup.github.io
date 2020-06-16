@@ -165,7 +165,7 @@
 
         
         <a href="/2020/06/16/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/" class="archive-article-date">
-  	<time datetime="2020-06-16T15:36:13.673Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-16</time>
+  	<time datetime="2020-06-16T15:39:52.429Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-16</time>
 </a>
         
       </header>
@@ -179,7 +179,7 @@
 <p>普通代理这里有个“小坑”，放到后面和大家说。</p>
 <h4 id="隧道代理"><a href="#隧道代理" class="headerlink" title="隧道代理"></a>隧道代理</h4><p>首先，客户端向代理服务器发送HTTP请求，方法为CONNECT，表示请求代理服务器与目的服务器的特定端口建立TCP连接，之后代理服务器对客户端与目标服务器之间的数据进行盲转发。</p>
 <p>具体如下图（《HTTP权威指南》第八章）：</p>
-<p><img src="%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86//15.png" alt="img"></p>
+<p><img src="/2020/06/16/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/15.png" alt="img"></p>
 <p>假如我们为浏览器设置了WEB代理，在访问HTTPS类型网站时，会使用隧道代理的方式来进行访问；遇到HTTP类型网站，为了减小不必要的开销，浏览器则通常采用普通代理的方式来进行访问。</p>
 <p>这里有篇文章，写得很详细：</p>
 <p><a href="https://imququ.com/post/web-proxy.html" target="_blank" rel="noopener">https://imququ.com/post/web-proxy.html</a></p>
@@ -195,11 +195,11 @@
 
 <p>这里有一个很大的问题：很多代理服务器似乎对访问的域名/IP/端口做了一些限制，完全“开放”的websocket代理服务器数量上就可能更少了。之前笔者收集代理服务器都是通过对一些免费的网站进行爬取，这种收集到的代理在这种用途中的可用性惨不忍睹，选择收费的或是通过Shodan搜索Header中的关键字来进行收集整理或许是更好的方法。</p>
 <p>在建立套接字后，有的服务会直接返回banner数据，这种情况下，直接选择接收下一个TCP包即可；有的就需要客户端这边发送些数据才能探测到关于该服务的信息；以及还有其他情况。笔者写了一个简单的py脚本，进行了一些测试，结果如下：</p>
-<p><img src="%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86//6.png" alt="img"></p>
-<p><img src="%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86//7.png" alt="img"></p>
-<p><img src="%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86//8.png" alt="img"></p>
+<p><img src="/2020/06/16/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/6.png" alt="img"></p>
+<p><img src="/2020/06/16/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/7.png" alt="img"></p>
+<p><img src="/2020/06/16/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/8.png" alt="img"></p>
 <p>banner信息在代理服务器返回状态码的时候就返回的情况：</p>
-<p><img src="%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86//9.png" alt="img"></p>
+<p><img src="/2020/06/16/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/9.png" alt="img"></p>
 <p>脚本：</p>
 <p><a href="https://pan.baidu.com/s/1U9MeVfrZgwDsq43EGTGYUA" target="_blank" rel="noopener">https://pan.baidu.com/s/1U9MeVfrZgwDsq43EGTGYUA</a></p>
 <p>到头想来，这样搞端口扫描成本太大了，目标得重要到啥程度啊。</p>
@@ -227,8 +227,8 @@
 
 
 <p>熟悉URL结构的同学们知道，<code>:@</code>在这里是指认证信息。而，<code>lijiejie</code>还额外删去了协议名称与分隔符<code>scheme://</code>，笔者也不知道其中具体原因，正常来说，只会返回400。<br>而添加了认证信息的HTTP请求被代理服务器接收到后，会将认证信息取出，设置给<code>Authorization</code> header字段，如：</p>
-<p><img src="%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86//14.png" alt="img"></p>
-<p><img src="%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86//13.png" alt="img"></p>
+<p><img src="/2020/06/16/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/14.png" alt="img"></p>
+<p><img src="/2020/06/16/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/13.png" alt="img"></p>
 <p>另外，笔者发现有些人的HTTP请求喜欢加上<code>Authorization: Basic Og==</code>头部字段，难道这里有什么猫腻吗…</p>
 <p>协议类型<code>scheme</code>还可以更改为其他，诸如 ftp、gopher、file等，具体情况要看代理服务器的支持能力。</p>
 <p>关于反向代理，还有一个比较有意思的地方。有些程序员为了降低服务的的带宽压力，在客户端发送HTTP POST 数据包之前，会将客户端请求体内的数据进行压缩，然后在头部指明压缩类型，如gzip，数据包类似下面这样</p>
