@@ -2,6 +2,16 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <script>
+    (function(){
+	            if('{{ page.password }}'){
+			                if (prompt('请输入文章密码') !== '{{ page.password }}'){
+						                alert('密码错误！');
+								                history.back();
+										            }
+					        }
+		        })();
+  </script>
   
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
@@ -26,8 +36,8 @@
 <meta property="og:image" content="https://turn1tup.github.io/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/SCANNER_STATE_START_OF_MARKUP.png">
 <meta property="og:image" content="https://turn1tup.github.io/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/xml11_space_char.png">
 <meta property="og:image" content="https://turn1tup.github.io/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/xml11Configuration.png">
-<meta property="article:published_time" content="2020-06-28T11:23:39.308Z">
-<meta property="article:modified_time" content="2020-06-28T11:23:39.308Z">
+<meta property="article:published_time" content="2020-06-28T12:27:45.616Z">
+<meta property="article:modified_time" content="2020-06-28T12:27:45.588Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/magic_charset.png">
@@ -179,7 +189,7 @@
 
         
         <a href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/" class="archive-article-date">
-  	<time datetime="2020-06-28T11:23:39.308Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-28</time>
+  	<time datetime="2020-06-28T12:27:45.616Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-28</time>
 </a>
         
       </header>
