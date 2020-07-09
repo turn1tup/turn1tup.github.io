@@ -165,7 +165,7 @@
 
         
         <a href="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/" class="archive-article-date">
-  	<time datetime="2020-07-09T09:28:00.388Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-09</time>
+  	<time datetime="2020-07-09T09:32:49.812Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-09</time>
 </a>
         
       </header>
@@ -193,21 +193,26 @@
 <p>apache-tomcat-9.0.30-src\java\org\apache\jasper\compiler\ParserController.java，getPageEncodingForJspSyntax</p>
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPageEncodingForJspSyntax.png" alt></p>
 <p>从代码来看，指令标签有好几种：</p>
-<p>&lt;jsp:directive.page  /&gt; </p>
-<p>&lt;%@ page  %&gt;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page  &#x2F;&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page  %&gt;</span><br></pre></td></tr></table></figure>
+
 <p>声明字符编码的方式至少有两种：</p>
-<p>pageEncoding=”UTF-16be”</p>
-<p>contentType=”charset=utf-16be”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pageEncoding&#x3D;&quot;UTF-16be&quot;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">contentType&#x3D;&quot;charset&#x3D;utf-16be&quot;</span><br></pre></td></tr></table></figure>
+
 <h1 id="2-实战讲解"><a href="#2-实战讲解" class="headerlink" title="2 实战讲解"></a>2 实战讲解</h1><h2 id="2-1-charset"><a href="#2-1-charset" class="headerlink" title="2.1 charset"></a>2.1 charset</h2><p>通过阅读代码流程，我们可以得到如下表格，该表格用于Magic Charset方法，而XML的Declare Charset也可以使用，笔者在这里就不再描述了，参考笔者的关于xerces解析的文章即可 <a href="https://www.anquanke.com/post/id/209826" target="_blank" rel="noopener">WAF Bypass之xerces解析</a>。</p>
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/magic_charset.png" alt></p>
 <p>有如下原始JSP文件，jsp_xml.jsp:</p>
-<?xml version="1.0" encoding="UTF-8"?>
-<p>&lt;jsp:root xmlns:jsp=”<a href="http://java.sun.com/JSP/Page&quot;" target="_blank" rel="noopener">http://java.sun.com/JSP/Page&quot;</a><br>  version=”1.2”&gt;<br>&lt;jsp:directive.page contentType=”text/html”/&gt;<br><a href="jsp:declaration">jsp:declaration</a><br><br><a href="jsp:scriptlet">jsp:scriptlet</a><br>out.write(“I’m turn1tup!”);<br><br><a href="jsp:text">jsp:text</a><br><br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;jsp:root xmlns:jsp&#x3D;&quot;http:&#x2F;&#x2F;java.sun.com&#x2F;JSP&#x2F;Page&quot;</span><br><span class="line">  version&#x3D;&quot;1.2&quot;&gt;</span><br><span class="line">&lt;jsp:directive.page contentType&#x3D;&quot;text&#x2F;html&quot;&#x2F;&gt;</span><br><span class="line">&lt;jsp:declaration&gt;</span><br><span class="line">&lt;&#x2F;jsp:declaration&gt;</span><br><span class="line">&lt;jsp:scriptlet&gt;</span><br><span class="line">out.write(&quot;I&#39;m turn1tup!&quot;);</span><br><span class="line">&lt;&#x2F;jsp:scriptlet&gt;</span><br><span class="line">&lt;jsp:text&gt;</span><br><span class="line">&lt;&#x2F;jsp:text&gt;</span><br><span class="line">&lt;&#x2F;jsp:root&gt;</span><br></pre></td></tr></table></figure>
+
 <p>使用UTF-16BE字符集进行编码：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%00%3C%00%3F%00x%00m%00l%00%20%00v%00e%00r%00s%00i%00o%00n%00%3D%00%22%001%00.%000%00%22%00%20%00e%00n%00c%00o%00d%00i%00n%00g%00%3D%00%22%00U%00T%00F%00-%001%006%00b%00e%00%22%00%3F%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00r%00o%00o%00t%00%20%00x%00m%00l%00n%00s%00%3A%00j%00s%00p%00%3D%00%22%00h%00t%00t%00p%00%3A%00&#x2F;%00&#x2F;%00j%00a%00v%00a%00.%00s%00u%00n%00.%00c%00o%00m%00&#x2F;%00J%00S%00P%00&#x2F;%00P%00a%00g%00e%00%22%00%0A%00%20%00%20%00v%00e%00r%00s%00i%00o%00n%00%3D%00%22%001%00.%002%00%22%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00d%00i%00r%00e%00c%00t%00i%00v%00e%00.%00p%00a%00g%00e%00%20%00c%00o%00n%00t%00e%00n%00t%00T%00y%00p%00e%00%3D%00%22%00t%00e%00x%00t%00&#x2F;%00h%00t%00m%00l%00%22%00&#x2F;%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00d%00e%00c%00l%00a%00r%00a%00t%00i%00o%00n%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00d%00e%00c%00l%00a%00r%00a%00t%00i%00o%00n%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00s%00c%00r%00i%00p%00t%00l%00e%00t%00%3E%00%0A%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00s%00c%00r%00i%00p%00t%00l%00e%00t%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00t%00e%00x%00t%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00t%00e%00x%00t%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00r%00o%00o%00t%00%3E%00%0A</span><br></pre></td></tr></table></figure>
 
 <p>使用CP037进行编码：</p>
-<p>Lo%A7%94%93%40%A5%85%99%A2%89%96%95%7E%7F%F1K%F0%7F%40%85%95%83%96%84%89%95%87%7E%7F%83%97%F0%F3%F7%7Fon%25L%91%A2%97z%99%96%96%A3%40%A7%94%93%95%A2z%91%A2%97%7E%7F%88%A3%A3%97zaa%91%81%A5%81K%A2%A4%95K%83%96%94a%D1%E2%D7a%D7%81%87%85%7F%25%40%40%A5%85%99%A2%89%96%95%7E%7F%F1K%F2%7Fn%25L%91%A2%97z%84%89%99%85%83%A3%89%A5%85K%97%81%87%85%40%83%96%95%A3%85%95%A3%E3%A8%97%85%7E%7F%A3%85%A7%A3a%88%A3%94%93%7Fan%25L%91%A2%97z%84%85%83%93%81%99%81%A3%89%96%95n%25La%91%A2%97z%84%85%83%93%81%99%81%A3%89%96%95n%25L%91%A2%97z%A2%83%99%89%97%A3%93%85%A3n%25%96%A4%A3K%A6%99%89%A3%85M%7F%C9%7D%94%40%A3%A4%99%95%F1%A3%A4%97Z%7F%5D%5E%25La%91%A2%97z%A2%83%99%89%97%A3%93%85%A3n%25L%91%A2%97z%A3%85%A7%A3n%25La%91%A2%97z%A3%85%A7%A3n%25La%91%A2%97z%99%96%96%A3n%25</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Lo%A7%94%93%40%A5%85%99%A2%89%96%95%7E%7F%F1K%F0%7F%40%85%95%83%96%84%89%95%87%7E%7F%83%97%F0%F3%F7%7Fon%25L%91%A2%97z%99%96%96%A3%40%A7%94%93%95%A2z%91%A2%97%7E%7F%88%A3%A3%97zaa%91%81%A5%81K%A2%A4%95K%83%96%94a%D1%E2%D7a%D7%81%87%85%7F%25%40%40%A5%85%99%A2%89%96%95%7E%7F%F1K%F2%7Fn%25L%91%A2%97z%84%89%99%85%83%A3%89%A5%85K%97%81%87%85%40%83%96%95%A3%85%95%A3%E3%A8%97%85%7E%7F%A3%85%A7%A3a%88%A3%94%93%7Fan%25L%91%A2%97z%84%85%83%93%81%99%81%A3%89%96%95n%25La%91%A2%97z%84%85%83%93%81%99%81%A3%89%96%95n%25L%91%A2%97z%A2%83%99%89%97%A3%93%85%A3n%25%96%A4%A3K%A6%99%89%A3%85M%7F%C9%7D%94%40%A3%A4%99%95%F1%A3%A4%97Z%7F%5D%5E%25La%91%A2%97z%A2%83%99%89%97%A3%93%85%A3n%25L%91%A2%97z%A3%85%A7%A3n%25La%91%A2%97z%A3%85%A7%A3n%25La%91%A2%97z%99%96%96%A3n%25</span><br></pre></td></tr></table></figure>
+
 <p>编码方式可参考 <a href="https://github.com/turn1tup/scripts/blob/master/charset_test.py" target="_blank" rel="noopener">https://github.com/turn1tup/scripts/blob/master/charset_test.py</a> ：</p>
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/charset_test_py.png" alt></p>
 <p>对于以下代码，我们也可以对其进行编码</p>
