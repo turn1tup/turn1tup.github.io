@@ -24,8 +24,8 @@
 <meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPageEncodingForJspSyntax.png">
 <meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/magic_charset.png">
 <meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/charset_test_py.png">
-<meta property="article:published_time" content="2020-07-09T09:32:49.812Z">
-<meta property="article:modified_time" content="2020-07-09T09:32:49.812Z">
+<meta property="article:published_time" content="2020-07-09T09:46:51.516Z">
+<meta property="article:modified_time" content="2020-07-09T09:46:51.516Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/tomcat_jsp_xml_example.png">
@@ -177,7 +177,7 @@
 
         
         <a href="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/" class="archive-article-date">
-  	<time datetime="2020-07-09T09:32:49.812Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-09</time>
+  	<time datetime="2020-07-09T09:46:51.516Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-09</time>
 </a>
         
       </header>
@@ -188,10 +188,10 @@
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/tomcat_jsp_xml_example.png" alt></p>
 <p>随后笔者翻开Tomcat的解析代码，对其进行了一番静态代码审阅，果然有蹊跷，后面又调试看了看。</p>
 <h1 id="2-代码要点简析"><a href="#2-代码要点简析" class="headerlink" title="2 代码要点简析"></a>2 代码要点简析</h1><p>对于脚本jsp文件，会通过EncodingDetector进行字符集类型的探测，该处代码要点较多，也是主逻辑，所以整片代码放上来了。</p>
-<p>apache-tomcat-9.0.35\lib\jasper.jar!\org\apache\jasper\compiler\ParserController.class：determineSyntaxAndEncoding</p>
+<p>apache-tomcat-9.0.35/lib/jasper.jar!/org/apache/jasper/compiler/ParserController.class：determineSyntaxAndEncoding</p>
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/determineSyntaxAndEncoding2.png" alt></p>
 <p>编码探测过程在该类初始化方法中进行，首先会使用processBom方法，根据文件的前4个字节探测字符集类型，这里的代码和xerces的Magic Charset中的字符集类型探测代码有着异曲同工之妙…；之后会使用getPrologEncoding方法尝试获取文件的declare charset，declare charset优先级高于magic charset。</p>
-<p>D:\turn1tup\program_java\apache-tomcat-9.0.35\lib\jasper.jar!\org\apache\jasper\compiler\EncodingDetector.class</p>
+<p>apache-tomcat-9.0.35/lib/jasper.jar!/org/apache/jasper/compiler/EncodingDetector.class</p>
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/EncodingDetector.png" alt></p>
 <p>processBom方法会调用parseBom方法根据文件头4个字节返回字符集类型：</p>
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/processBom.png" alt></p>
@@ -199,10 +199,10 @@
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPrologEncoding.png" alt></p>
 <p>但并非processBom或getPrologEncoding得到的字符集就能被成功，后续创建字符流读取器会检查自身是否支持这些字符集。</p>
 <p>这一步中也会做字符集别名的映射查找，一番操作过后，如果该字符集未读取器不支持的，最后会抛出异常。如UTF-32BE字符集，在getPrologEncoding方法中会抛出异常（不支持），在processBom中虽然不会抛出异常，但是其过程中得到的字符集名称为ISO-10646-UCS-4。而在InputStreamReader中不支持该字符集，也无别名映射（想想也是，ISO-10646-UCS-4这个名字根本也无法判断大端小端，而且代码流程中也没有传递大小端这一变量）。</p>
-<p>C:\Program Files\Java\jdk1.8.0_191\src.zip!\java\nio\charset\Charset.java</p>
+<p>jdk1.8.0_191/src.zip!/java/nio/charset/Charset.java</p>
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/flowToCharsetLoolup.png" alt></p>
 <p>ParserController.class：determineSyntaxAndEncoding方法中，如果文件没有带BOM，会触发getPageEncodingForJspSyntax函数流程</p>
-<p>apache-tomcat-9.0.30-src\java\org\apache\jasper\compiler\ParserController.java，getPageEncodingForJspSyntax</p>
+<p>apache-tomcat-9.0.30-src/java/org/apache/jasper/compiler/ParserController.java，getPageEncodingForJspSyntax</p>
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPageEncodingForJspSyntax.png" alt></p>
 <p>从代码来看，指令标签有好几种：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page  &#x2F;&gt;</span><br></pre></td></tr></table></figure>
@@ -228,7 +228,7 @@
 <p>编码方式可参考 <a href="https://github.com/turn1tup/scripts/blob/master/charset_test.py" target="_blank" rel="noopener">https://github.com/turn1tup/scripts/blob/master/charset_test.py</a> ：</p>
 <p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/charset_test_py.png" alt></p>
 <p>对于以下代码，我们也可以对其进行编码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;% out.write(&quot;I\&#39;m turn1tup!&quot;);  %&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;% out.write(&quot;I&#x2F;&#39;m turn1tup!&quot;);  %&gt;</span><br></pre></td></tr></table></figure>
 
 <p>使用UTF-16BE编码，需带BOM标识：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%FE%FF%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
