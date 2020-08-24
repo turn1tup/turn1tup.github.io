@@ -11,28 +11,35 @@
   <meta name="description" content="0.刚刚开搞，未写完，先放上来，防止太监。 1.引言最近看了看OpenRASP，而做完一件事情，最好能写篇文章总结总结吧，也当作笔记。对于OpenRASP网上已有一些文章，但纸上得来终觉浅，自己阅读一番再另外写篇文章，也还行。 如文中有错误，还望师傅们指出，十分感谢。 2.阅读前准备工作一开始还需要将open-rasp安装到Tomcat，这里按照官方文档指引即可。 2.1编译编译V8引擎笔者在这里">
 <meta property="og:type" content="article">
 <meta property="og:title" content="OpenRASP学习笔记">
-<meta property="og:url" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:url" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s bolg">
 <meta property="og:description" content="0.刚刚开搞，未写完，先放上来，防止太监。 1.引言最近看了看OpenRASP，而做完一件事情，最好能写篇文章总结总结吧，也当作笔记。对于OpenRASP网上已有一些文章，但纸上得来终觉浅，自己阅读一番再另外写篇文章，也还行。 如文中有错误，还望师傅们指出，十分感谢。 2.阅读前准备工作一开始还需要将open-rasp安装到Tomcat，这里按照官方文档指引即可。 2.1编译编译V8引擎笔者在这里">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compile.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/idea_remote_debug.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/asm.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp.jar_manifest.mf.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp-engine.jar_manifest.mf.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_init.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/addJarToBootstrap.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleContainer_static_code.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleLoader_construct.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_start.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleContainer_start.png">
-<meta property="article:published_time" content="2020-08-23T14:11:50.192Z">
-<meta property="article:modified_time" content="2020-08-23T14:11:50.192Z">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compile.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/idea_remote_debug.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/asm.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp.jar_manifest.mf.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp-engine.jar_manifest.mf.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_init.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/addJarToBootstrap.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleContainer_static_code.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleLoader_construct.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_start.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleContainer_start.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/v8_load.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_loadConfig.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/log_loadConfig.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_Initialize.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Context_setKeys.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_UpdatePlugin_stringlist.png">
+<meta property="og:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_UpdatePlugin.png">
+<meta property="article:published_time" content="2020-08-24T17:02:13.999Z">
+<meta property="article:modified_time" content="2020-08-24T17:02:13.999Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compile.png">
+<meta name="twitter:image" content="https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compile.png">
   
     <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s bolg" type="application/atom+xml">
   
@@ -180,8 +187,8 @@
   
 
         
-        <a href="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
-  	<time datetime="2020-08-23T14:11:50.192Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-23</time>
+        <a href="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
+  	<time datetime="2020-08-24T17:02:13.999Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-24</time>
 </a>
         
       </header>
@@ -205,22 +212,22 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn install:install-file -Dfile&#x3D;D:\share\v8-1.0-SNAPSHOT.jar -DgroupId&#x3D;com.baidu.openrasp -DartifactId&#x3D;v8 -Dpackaging&#x3D;jar -Dversion&#x3D;1.0-SNAPSHOT</span><br></pre></td></tr></table></figure>
 
 <p>编译<code>rasp-boot</code></p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compile.png" alt></p>
-<p>由于<code>rasp-engine</code>依赖<code>rasp-boot</code>，所以需要<code>rasp-boot</code>将加入到maven仓库中</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compile.png" alt></p>
+<p>由于<code>rasp-engine</code>依赖<code>rasp-boot</code>，所以需要将<code>rasp-boot</code>加入到maven仓库中</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">mvn install:install-file -Dfile&#x3D;D:\turn1tup\program_java\RASP\openrasp\agent\java\boot\target\rasp-boot-1.3.4-shaded.jar -DgroupId&#x3D;com.baidu.openrasp -DartifactId&#x3D;rasp-boot -Dpackaging&#x3D;jar -Dversion&#x3D;1.3.4</span><br></pre></td></tr></table></figure>
 
-<p>同样操作，编译<code>rasp-engine</code></p>
+<p>同样操作编译<code>rasp-engine</code>即可。</p>
 <h3 id="Debug"><a href="#Debug" class="headerlink" title="Debug"></a>Debug</h3><p>Windows下，在Tomcat的catalina.bat的open-rasp配置后添加一行JDWP配置：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if &quot;%ACTION%&quot; &#x3D;&#x3D; &quot;start&quot; set JAVA_OPTS&#x3D;&quot;-javaagent:%CATALINA_HOME%\rasp\rasp.jar&quot; %JAVA_OPTS%</span><br><span class="line">if &quot;%ACTION%&quot; &#x3D;&#x3D; &quot;start&quot; set JAVA_OPTS&#x3D;-agentlib:jdwp&#x3D;transport&#x3D;dt_socket,address&#x3D;1043,server&#x3D;y,suspend&#x3D;y %JAVA_OPTS%</span><br></pre></td></tr></table></figure>
 
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/idea_remote_debug.png" alt></p>
 <p>IDEA中将编译后的JAR包加入到项目Libraries，随后配置远程调试</p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/idea_remote_debug.png" alt></p>
 <p>断点打到程序最开始执行的地方，从最开始的地方看起。</p>
 <p>openrasp\agent\java\boot\src\main\java\com\baidu\openrasp\Agent.java</p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png" alt></p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png" alt></p>
 <h1 id="3-工作原理"><a href="#3-工作原理" class="headerlink" title="3.工作原理"></a>3.工作原理</h1><p>这块技术之前没接触过，笔者翻阅了前辈们写的文章与官方文档，大致了解了一番，这里也简单叙述一下。</p>
 <h2 id="JVM-TI接口"><a href="#JVM-TI接口" class="headerlink" title="JVM TI接口"></a>JVM TI接口</h2><p>JAVA虚拟机开放了一个叫 JVM Tool Interface (JVM TI)  的接口，通过该接口，对于运行于JVM的程序，我们可以查看和控制。</p>
-<p>实现了JVM TI的客户端，称为agent，agent与jvm运行在同一进程并直接与jvm直接通信。agent能通过三种方式被执行，①Agent Start-Up (OnLoad phase)：在JAVA程序的main函数执行之前执行agent，java命令中需通过-javaagent参数来指定agent，实现方式为premain ②Agent Start-Up (OnLoad phase) ：对于正在运行的JAVA程序，通过JVM进程通信，动态加载agent，实现方式为attatch机制 ③Agent Shutdown：在虚拟机的library 将要被卸载时执行，该方式忽略。</p>
+<p>实现了JVM TI接口的程序，称为agent，agent与jvm运行在同一进程并直接与jvm进行通信。agent能通过三种方式被执行，①Agent Start-Up (OnLoad phase)：在JAVA程序的main函数执行之前执行agent，java命令中需通过-javaagent参数来指定agent，实现方式为premain ②Agent Start-Up (Live phase) ：对于正在运行的JAVA程序，通过JVM进程间通信，动态加载agent，实现方式为attatch机制 ③Agent Shutdown：在虚拟机的library 将要被卸载时执行，该方式忽略。</p>
 <p>OpenRASP实现了前面两种加载方式，在比较第一种与第二种方式的优劣势时，<a href="https://www.anquanke.com/post/id/187415" target="_blank" rel="noopener">浅谈RASP</a>文中说明到，attatch机制由于JVM本身的进程保护机制，会导致重复字节码的插入问题，造成重复告警，增加业务压力，而解决该问题的方法又另外会带来业务压力。</p>
 <h2 id="字节码操作"><a href="#字节码操作" class="headerlink" title="字节码操作"></a>字节码操作</h2><p>通过agent，我们可以访问与修改JVM中的JAVA类，这时候获取到的相关的数据为JAVA字节码，通常通过asm字节码操作框架进行字节码操作。</p>
 <p>引用<a href="https://www.anquanke.com/post/id/187415" target="_blank" rel="noopener">浅谈RASP</a>中对ASM的说明：</p>
@@ -237,41 +244,68 @@
 </li>
 </ul>
 </blockquote>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/asm.png" alt></p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/asm.png" alt></p>
 <h1 id="4-代码"><a href="#4-代码" class="headerlink" title="4.代码"></a>4.代码</h1><h2 id="4-1框架逻辑"><a href="#4-1框架逻辑" class="headerlink" title="4.1框架逻辑"></a>4.1框架逻辑</h2><h2 id="4-2-具体实现"><a href="#4-2-具体实现" class="headerlink" title="4.2 具体实现"></a>4.2 具体实现</h2><h3 id="manifest"><a href="#manifest" class="headerlink" title="manifest"></a>manifest</h3><p>rasp.jar的MANIFEST.MF文件：</p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp.jar_manifest.mf.png" alt></p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp.jar_manifest.mf.png" alt></p>
 <p>rasp-engine.jar：</p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp-engine.jar_manifest.mf.png" alt></p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp-engine.jar_manifest.mf.png" alt></p>
 <h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>下面的图片代码，主要根据堆栈信息从上到下放置</p>
 <p>标题数字代表了当前代码逻辑位置</p>
-<h3 id="1-init"><a href="#1-init" class="headerlink" title="1 init"></a>1 init</h3><p>agent\java\boot\src\main\java\com\baidu\openrasp\Agent.java</p>
-<p>主程序入口</p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png" alt></p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_init.png" alt></p>
+<h3 id="1-premain"><a href="#1-premain" class="headerlink" title="1 premain"></a>1 premain</h3><p>从premain启动的OnLoad phase方式，调用了init进行了addJarToBootstrap、readVersion、rasp-engine模块执行操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">堆栈信息：</span><br><span class="line">init:92, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
+
+<p>init:92, Agent (com.baidu.openrasp)</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_init.png" alt></p>
+<p>premain:71, Agent (com.baidu.openrasp)</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png" alt></p>
+<p>另外没看懂attach方式（agentmain）是怎么实现的，有点奇怪，先放着，后面再回顾。</p>
 <h3 id="1-1-addJarToBootstrap"><a href="#1-1-addJarToBootstrap" class="headerlink" title="1-1 addJarToBootstrap"></a>1-1 addJarToBootstrap</h3><p>将rasp.jar添加到bootstrap classloader中，确保rasp的类加载器与jvm的类加载器一致，相关知识： <a href="https://juejin.im/post/6844903838927814669" target="_blank" rel="noopener">双亲委派机制</a></p>
-<p>openrasp\agent\java\boot\src\main\java\com\baidu\openrasp\JarFileHelper.java</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">堆栈信息：</span><br><span class="line">addJarToBootstrap:40, JarFileHelper (com.baidu.openrasp)</span><br><span class="line">init:92, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/addJarToBootstrap.png" alt></p>
+<p>addJarToBootstrap:40, JarFileHelper (com.baidu.openrasp)</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/addJarToBootstrap.png" alt></p>
 <p><code>appendToBootstrapClassLoaderSearch</code>为JVM接口类<code>Instrumentation</code>的方法，JDK注释中说明到，该方法为JVM的内置类加载器。</p>
 <h3 id="1-2-1-装载rasp-engine-jar"><a href="#1-2-1-装载rasp-engine-jar" class="headerlink" title="1-2-1 装载rasp-engine.jar"></a>1-2-1 装载rasp-engine.jar</h3><p>ModuleContainer实现Module接口（吐槽，应该叫IModule..），在实例化ModuleContainer时，执行该类的静态代码，静态代码中使用moduleClassLoader（实际就是sun.misc.Launcher$ExtClassLoader）加载rasp-engine.jar，并将其中的入口类EngineBoot（同样实现Module接口）实例化，赋值给module变量。</p>
-<p>com\baidu\openrasp\ModuleLoader.java</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;init&gt;:73, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:88, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;init&gt;:54, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:88, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
 
-<p><init>:73, ModuleContainer (com.baidu.openrasp)</init></p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleContainer_static_code.png" alt></p>
+<p><init>:54, ModuleContainer (com.baidu.openrasp)</init></p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleContainer_static_code.png" alt></p>
 <p><init>:88, ModuleLoader (com.baidu.openrasp)</init></p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleLoader_construct.png" alt></p>
-<h3 id="1-2-2-start-EngineBoot"><a href="#1-2-2-start-EngineBoot" class="headerlink" title="1-2-2 start:EngineBoot"></a>1-2-2 start:EngineBoot</h3><p>ModuleContainer调用了rasp-engine.jar的入口类EngineBoot 的start方法</p>
-<p>com\baidu\openrasp\EngineBoot.java</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleLoader_construct.png" alt></p>
+<h3 id="1-2-2-start-EngineBoot"><a href="#1-2-2-start-EngineBoot" class="headerlink" title="1-2-2 start:EngineBoot"></a>1-2-2 start:EngineBoot</h3><p>ModuleContainer调用了rasp-engine.jar的入口类EngineBoot 的start方法，start方法中涉及到的操作如子标题：加载V8引擎、加载日志系统</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">start:49, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
 
 <p>start:49, EngineBoot (com.baidu.openrasp)</p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_start.png" alt></p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_start.png" alt></p>
 <p>start:78, ModuleContainer (com.baidu.openrasp)</p>
-<p><img src="/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleContainer_start.png" alt></p>
-<h3 id="1-2-2-1-加载V8引擎"><a href="#1-2-2-1-加载V8引擎" class="headerlink" title="1-2-2-1 加载V8引擎"></a>1-2-2-1 加载V8引擎</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">load:9, Loader (com.baidu.openrasp.v8)</span><br><span class="line">start:57, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleContainer_start.png" alt></p>
+<h3 id="1-2-2-1-加载V8引擎"><a href="#1-2-2-1-加载V8引擎" class="headerlink" title="1-2-2-1 加载V8引擎"></a>1-2-2-1 加载V8引擎</h3><p>没啥好看的，就是加载V8引擎，后面用来执行JS插件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">load:9, Loader (com.baidu.openrasp.v8)</span><br><span class="line">start:57, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
 
+<p>start:57, EngineBoot (com.baidu.openrasp)</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/v8_load.png" alt></p>
+<h3 id="1-2-2-2-加载日志系统"><a href="#1-2-2-2-加载日志系统" class="headerlink" title="1-2-2-2 加载日志系统"></a>1-2-2-2 加载日志系统</h3><p>简单了解一下即可，主要就是初始化本地日志系统，如果用户配置了syslog（远程日志传输），则添syslog appender。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">loadConfig:125, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:63, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
+
+<p>loadConfig:125, EngineBoot (com.baidu.openrasp)</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_loadConfig.png" alt></p>
+<p>start:63, EngineBoot (com.baidu.openrasp)</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/log_loadConfig.png" alt></p>
+<h3 id="1-2-2-3-初始化插件系统"><a href="#1-2-2-3-初始化插件系统" class="headerlink" title="1-2-2-3 初始化插件系统"></a>1-2-2-3 初始化插件系统</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Initialize:66, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_Initialize.png" alt></p>
+<h3 id="1-2-2-3-1-初始化传参变量"><a href="#1-2-2-3-1-初始化传参变量" class="headerlink" title="1-2-2-3-1 初始化传参变量"></a>1-2-2-3-1 初始化传参变量</h3><p>插件JS中，获取到的数据来源于V8引擎的传递，这里先对传递的一些参数变量进行初始化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">setKeys:39, Context (com.baidu.openrasp.plugin.js)</span><br><span class="line">Initialize:88, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
+
+<p>setKeys:39, Context (com.baidu.openrasp.plugin.js)</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Context_setKeys.png" alt></p>
+<h3 id="1-2-2-3-2-执行JS插件"><a href="#1-2-2-3-2-执行JS插件" class="headerlink" title="1-2-2-3-2 执行JS插件"></a>1-2-2-3-2 执行JS插件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">UpdatePlugin:239, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">UpdatePlugin:218, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">Initialize:90, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
+
+<p>UpdatePlugin:239, JS (com.baidu.openrasp.plugin.js)</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_UpdatePlugin_stringlist.png" alt></p>
+<p>UpdatePlugin:218, JS (com.baidu.openrasp.plugin.js)</p>
+<p>读取插件文件夹下的.js文件，限定读取的JS文件最大10MB。</p>
+<p><img src="/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_UpdatePlugin.png" alt></p>
 <h1 id="5-绕过技术分析"><a href="#5-绕过技术分析" class="headerlink" title="5.绕过技术分析"></a>5.绕过技术分析</h1><h2 id="现有思路"><a href="#现有思路" class="headerlink" title="现有思路"></a>现有思路</h2><p>…</p>
 <h1 id="相关参考"><a href="#相关参考" class="headerlink" title="相关参考"></a>相关参考</h1><p><a href="https://rasp.baidu.com/doc/" target="_blank" rel="noopener">https://rasp.baidu.com/doc/</a> 官方手册</p>
 <p><a href="https://www.codenong.com/cs106462275/" target="_blank" rel="noopener">https://www.codenong.com/cs106462275/</a>    </p>
@@ -364,7 +398,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=https://turn1tup.github.io/2020/08/23/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=https://turn1tup.github.io/2020/08/24/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" alt="微信分享二维码">
     </div>
 </div>
 
