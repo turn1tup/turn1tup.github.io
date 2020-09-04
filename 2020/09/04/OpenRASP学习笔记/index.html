@@ -44,8 +44,8 @@
 <meta property="og:image" content="https://turn1tup.github.io/2020/09/04/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/FileOutoutStreamHook_hookMethod.png">
 <meta property="og:image" content="https://turn1tup.github.io/2020/09/04/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AbstractClassHook_transformClass.png">
 <meta property="og:image" content="https://turn1tup.github.io/2020/09/04/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_start_Cloud.png">
-<meta property="article:published_time" content="2020-09-04T10:20:01.056Z">
-<meta property="article:modified_time" content="2020-09-04T10:20:01.056Z">
+<meta property="article:published_time" content="2020-09-04T10:24:52.648Z">
+<meta property="article:modified_time" content="2020-09-04T10:24:52.648Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2020/09/04/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compile.png">
@@ -197,7 +197,7 @@
 
         
         <a href="/2020/09/04/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
-  	<time datetime="2020-09-04T10:20:01.056Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-04</time>
+  	<time datetime="2020-09-04T10:24:52.648Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-04</time>
 </a>
         
       </header>
@@ -304,7 +304,7 @@
 <h3 id="1-2-2-1-加载V8引擎"><a href="#1-2-2-1-加载V8引擎" class="headerlink" title="1-2-2-1 加载V8引擎"></a>1-2-2-1 加载V8引擎</h3><p>这里不太关注，就是加载V8 JS引擎，后面用来执行JS插件，传递上下文数据。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">load:9, Loader (com.baidu.openrasp.v8)</span><br><span class="line">start:57, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
 
-<h3 id="1-2-2-2-加载配置"><a href="#1-2-2-2-加载配置" class="headerlink" title="1-2-2-2 加载配置"></a>1-2-2-2 加载配置</h3><p>大致应该是初始化本地日志系统，如果用户配置了syslog（远程日志传输），则添syslog appender。另外会读取用户配置<code>openrasp.yml</code>，设备相关配置变量，包括禁止hook哪些类。</p>
+<h3 id="1-2-2-2-加载配置"><a href="#1-2-2-2-加载配置" class="headerlink" title="1-2-2-2 加载配置"></a>1-2-2-2 加载配置</h3><p>大致应该是初始化本地日志系统，如果用户配置了syslog（远程日志传输），则添syslog appender。另外会读取用户配置<code>openrasp.yml</code>，赋值相关配置变量，包括hook类的开关等。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">loadConfigFromFile:207, Config (com.baidu.openrasp.config)</span><br><span class="line">init:144, Config (com.baidu.openrasp.config)</span><br><span class="line">&lt;clinit&gt;:124, Config (com.baidu.openrasp.config)</span><br><span class="line">setLogMaxBackup:234, DynamicConfigAppender (com.baidu.openrasp.cloud.syslog)</span><br><span class="line">initLog4jLogger:133, DynamicConfigAppender (com.baidu.openrasp.cloud.syslog)</span><br><span class="line">ConfigFileAppender:36, LogConfig (com.baidu.openrasp.messaging)</span><br><span class="line">loadConfig:118, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:63, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br><span class="line">invoke0:-1, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:62, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:43, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:498, Method (java.lang.reflect)</span><br><span class="line">loadClassAndStartAgent:386, InstrumentationImpl (sun.instrument)</span><br><span class="line">loadClassAndCallPremain:401, InstrumentationImpl (sun.instrument)</span><br></pre></td></tr></table></figure>
 
 <p><code>loadConfigFromFile:207, Config (com.baidu.openrasp.config)</code></p>
