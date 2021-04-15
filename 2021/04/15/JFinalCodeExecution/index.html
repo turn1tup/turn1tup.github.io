@@ -8,17 +8,17 @@
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
   <title>JFinalCodeExecution | turn1tup&#39;s bolg</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="JFinal Code ExcutionJFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does som">
+  <meta name="description" content="JFinal Code ExecutionJFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does so">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JFinalCodeExecution">
 <meta property="og:url" content="https://turn1tup.github.io/2021/04/15/JFinalCodeExecution/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s bolg">
-<meta property="og:description" content="JFinal Code ExcutionJFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does som">
+<meta property="og:description" content="JFinal Code ExecutionJFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does so">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://turn1tup.github.io/2021/04/15/JFinalCodeExecution/block_class.png">
 <meta property="og:image" content="https://turn1tup.github.io/2021/04/15/JFinalCodeExecution/TestMain.png">
-<meta property="article:published_time" content="2021-04-15T14:00:18.983Z">
-<meta property="article:modified_time" content="2021-04-15T14:00:18.983Z">
+<meta property="article:published_time" content="2021-04-15T14:09:06.103Z">
+<meta property="article:modified_time" content="2021-04-15T14:09:06.103Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2021/04/15/JFinalCodeExecution/block_class.png">
@@ -170,14 +170,14 @@
 
         
         <a href="/2021/04/15/JFinalCodeExecution/" class="archive-article-date">
-  	<time datetime="2021-04-15T14:00:18.983Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
+  	<time datetime="2021-04-15T14:09:06.103Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="JFinal-Code-Excution"><a href="#JFinal-Code-Excution" class="headerlink" title="JFinal Code Excution"></a>JFinal Code Excution</h1><p>JFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does some blacklist restrictions, but there are bypass problems.</p>
+        <h1 id="JFinal-Code-Execution"><a href="#JFinal-Code-Execution" class="headerlink" title="JFinal Code Execution"></a>JFinal Code Execution</h1><p>JFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does some blacklist restrictions, but there are bypass problems.</p>
 <p>JFinal only allows users to invoke static methods, and in com.jfinal.template.expr.ast.MethodKit we can see JFinal do some blacklist to restrict code execution. After debugging, we found a total of 16 classes that were masked.</p>
 <p><img src="/2021/04/15/JFinalCodeExecution/block_class.png" alt></p>
 <p>But most Web applications contain a number of third-party libraries that are available in static methods.</p>

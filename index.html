@@ -165,14 +165,14 @@
 
         
         <a href="/2021/04/15/JFinalCodeExecution/" class="archive-article-date">
-  	<time datetime="2021-04-15T14:00:18.983Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
+  	<time datetime="2021-04-15T14:09:06.103Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="JFinal-Code-Excution"><a href="#JFinal-Code-Excution" class="headerlink" title="JFinal Code Excution"></a>JFinal Code Excution</h1><p>JFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does some blacklist restrictions, but there are bypass problems.</p>
+        <h1 id="JFinal-Code-Execution"><a href="#JFinal-Code-Execution" class="headerlink" title="JFinal Code Execution"></a>JFinal Code Execution</h1><p>JFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does some blacklist restrictions, but there are bypass problems.</p>
 <p>JFinal only allows users to invoke static methods, and in com.jfinal.template.expr.ast.MethodKit we can see JFinal do some blacklist to restrict code execution. After debugging, we found a total of 16 classes that were masked.</p>
 <p><img src="/2021/04/15/JFinalCodeExecution/block_class.png" alt></p>
 <p>But most Web applications contain a number of third-party libraries that are available in static methods.</p>
