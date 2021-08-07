@@ -165,15 +165,14 @@
 
         
         <a href="/2021/08/07/Flink-Memory-Shell/" class="archive-article-date">
-  	<time datetime="2021-08-07T13:01:26.442Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-08-07</time>
+  	<time datetime="2021-08-08T04:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-08-07</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>title: Flink-Memory-Shell<br>date: 2021/8/7 21:00:00</p>
-<h1 id="Flink-Memory-Shell"><a href="#Flink-Memory-Shell" class="headerlink" title="Flink-Memory-Shell"></a>Flink-Memory-Shell</h1><p><code>Apache Flink</code>情况下如何写内存马，本文对这一有趣实践过程做了一个记录。</p>
+        <h1 id="Flink-Memory-Shell"><a href="#Flink-Memory-Shell" class="headerlink" title="Flink-Memory-Shell"></a>Flink-Memory-Shell</h1><p><code>Apache Flink</code>情况下如何写内存马，本文对这一有趣实践过程做了一个记录。</p>
 <h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>首先目标机器Flink版本为1.3.2、1.9.0，Flink底层是使用的<code>Netty</code>作为多功能socket服务器，我们可以有两种解决思路：①注册控制器(行不通)；②通过JVMTI ATTACH机制Hook关键方法来写内存马。</p>
 <h3 id="①-注册控制器-Failed"><a href="#①-注册控制器-Failed" class="headerlink" title="① 注册控制器(Failed)"></a>① 注册控制器(Failed)</h3><p>寻找类似<code>Tomcat</code>、<code>Spring</code>的功能类，注册自己的Controller、Servlet，这里拿1.9.0代码来举例，jobmanager的web服务器启动与初始化位于<code>org.apache.flink.runtime.rest.RestServerEndpoint#start</code>。</p>
 <p>这里将自定义的控制器<code>handler</code>注册到路由器<code>router</code>，所以我们需要只需要参考<code>Flink</code>的业务代码，写好自己的<code>Handler</code>然后注册到该<code>route</code>变量即可。但很可惜，笔者找了一圈，没有发现相关的静态变量，无法获取到该路由对象。要不就是想办法添加一个自定义的<code>SocketChannel</code>，但这个方法更加不现实。既然这种写内存马的方式似乎行不通，我们直接换个维度来”干“。</p>
