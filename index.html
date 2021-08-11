@@ -211,10 +211,10 @@
 <p>上图的<code>o.t.s.e.StandardExpressionParser#parseExpression</code>不重要，我们这里略过，其随后会走到<code>org.thymeleaf.standard.expression.StandardExpressionPreprocessor#preprocess</code>方法：这里的<code>input</code>变量就是上面<code>viewTemplateName</code>前后分别拼接了<code>~{</code>、<code>}</code>后的字符串，随后这里使用<code>PREPROCESS_EVAL_PATTERN</code>正则对<code>input</code>进行匹配，正则内容为<code>\_\_(.*?)\_\_</code> ，随后获取正则命中后的元组内容，即非贪婪匹配的<code>.*?</code>，随后讲该元组内容传入<code>parseExpression</code>方法并在这里触发了EL表达式代码执行。</p>
 <p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/StandardExpressionPreprocessor_preprocess.png" alt></p>
 <h2 id="POC构造"><a href="#POC构造" class="headerlink" title="POC构造"></a>POC构造</h2><p>由触发的代码流程梳理可以得出触发表达式的条件：</p>
-<p>①用户传入的字符串拼接到了视图引擎名称<code>viewTemplateName</code>中</p>
-<p>②视图引擎名称中需要包含<code>::</code>字符串</p>
-<p>③被执行表达式字符串前后需要带有两个下划线，即<code>__${EL}__</code></p>
-<p>④如果POC在URI中，由于URI格式化的原因且我们的POC中带有<code>.</code>符号，所以需要在URI末尾添加<code>.</code></p>
+<p>①用户传入的字符串拼接到了Controller方法的返回值中，或URI路径拼接了用户的输入且Controller方法参数中不带有<code>ServletResponse</code>类型的参数；</p>
+<p>②视图引擎名称中需要包含<code>::</code>字符串；</p>
+<p>③被执行表达式字符串前后需要带有两个下划线，即<code>__${EL}__</code>；</p>
+<p>④如果POC在URI中，由于URI格式化的原因且我们的POC中带有<code>.</code>符号，所以需要在URI末尾添加<code>.</code>。</p>
 <p>于是，我们可以构造出与作者有所差异的POC</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;path HTTP&#x2F;1.1</span><br><span class="line">Host: 127.0.0.1:8090</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Content-Length: 120</span><br><span class="line"></span><br><span class="line">lang&#x3D;::__$&#123;new java.util.Scanner(T(java.lang.Runtime).getRuntime().exec(&quot;calc&quot;).getInputStream()).next()&#125;_______________</span><br></pre></td></tr></table></figure>
 
