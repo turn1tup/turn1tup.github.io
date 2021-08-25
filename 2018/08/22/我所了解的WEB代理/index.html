@@ -6,25 +6,27 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
-  <title>DOM型XSS的三个接收器 | turn1tup&#39;s bolg</title>
+  <title>我所了解的WEB代理 | turn1tup&#39;s bolg</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="DOM型XSS的三个接收器 翻译 原文链接 https:&#x2F;&#x2F;brutelogic.com.br&#x2F;blog&#x2F;dom-based-xss-the-3-sinks&#x2F;  前言最常见的XSS是基于源的（普通XSS），这意味着被注入的JavaScript代码被传输到服务器后又传输到客户端，并在客户端这里被执行。但还有另外一种主要类型————DOM型XSS，被注入的恶意代码的输入来源，与服务器无关，DOM型XS">
+  <meta name="description" content="在这里，和大家聊聊我自己所知道的一些关于Web代理的知识。 WEB代理的类型Web代理，有普通代理和隧道代理两种，下面简单说说这两种类型。 普通代理该类型最为简单，代理服务器作为中间人，转发客户端的HTTP请求给目标主机，之后将目标主机的HTTP响应报文回送给客户端。 普通代理这里有个“小坑”，放到后面和大家说。 隧道代理首先，客户端向代理服务器发送HTTP请求，方法为CONNECT，表示请求代理">
 <meta property="og:type" content="article">
-<meta property="og:title" content="DOM型XSS的三个接收器">
-<meta property="og:url" content="https://turn1tup.github.io/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/index.html">
+<meta property="og:title" content="我所了解的WEB代理">
+<meta property="og:url" content="https://turn1tup.github.io/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s bolg">
-<meta property="og:description" content="DOM型XSS的三个接收器 翻译 原文链接 https:&#x2F;&#x2F;brutelogic.com.br&#x2F;blog&#x2F;dom-based-xss-the-3-sinks&#x2F;  前言最常见的XSS是基于源的（普通XSS），这意味着被注入的JavaScript代码被传输到服务器后又传输到客户端，并在客户端这里被执行。但还有另外一种主要类型————DOM型XSS，被注入的恶意代码的输入来源，与服务器无关，DOM型XS">
+<meta property="og:description" content="在这里，和大家聊聊我自己所知道的一些关于Web代理的知识。 WEB代理的类型Web代理，有普通代理和隧道代理两种，下面简单说说这两种类型。 普通代理该类型最为简单，代理服务器作为中间人，转发客户端的HTTP请求给目标主机，之后将目标主机的HTTP响应报文回送给客户端。 普通代理这里有个“小坑”，放到后面和大家说。 隧道代理首先，客户端向代理服务器发送HTTP请求，方法为CONNECT，表示请求代理">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://turn1tup.github.io/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/1.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/2.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/3.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/4.png">
-<meta property="og:image" content="https://turn1tup.github.io/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/5.png">
-<meta property="article:published_time" content="2020-06-16T15:30:16.409Z">
-<meta property="article:modified_time" content="2020-06-16T15:30:16.409Z">
+<meta property="og:image" content="https://turn1tup.github.io/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/15.png">
+<meta property="og:image" content="https://turn1tup.github.io/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/6.png">
+<meta property="og:image" content="https://turn1tup.github.io/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/7.png">
+<meta property="og:image" content="https://turn1tup.github.io/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/8.png">
+<meta property="og:image" content="https://turn1tup.github.io/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/9.png">
+<meta property="og:image" content="https://turn1tup.github.io/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/14.png">
+<meta property="og:image" content="https://turn1tup.github.io/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/13.png">
+<meta property="article:published_time" content="2018-08-23T04:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-25T01:43:40.360Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://turn1tup.github.io/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/1.png">
+<meta name="twitter:image" content="https://turn1tup.github.io/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/15.png">
   
     <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s bolg" type="application/atom+xml">
   
@@ -160,66 +162,98 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-DOM型XSS的三个接收器" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-我所了解的WEB代理" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      DOM型XSS的三个接收器
+      我所了解的WEB代理
     </h1>
   
 
         
-        <a href="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/" class="archive-article-date">
-  	<time datetime="2020-06-16T15:30:16.409Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-16</time>
+        <a href="/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/" class="archive-article-date">
+  	<time datetime="2018-08-23T04:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-22</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="DOM型XSS的三个接收器"><a href="#DOM型XSS的三个接收器" class="headerlink" title="DOM型XSS的三个接收器"></a>DOM型XSS的三个接收器</h1><blockquote>
-<p>翻译</p>
-<p>原文链接 <a href="https://brutelogic.com.br/blog/dom-based-xss-the-3-sinks/" target="_blank" rel="noopener">https://brutelogic.com.br/blog/dom-based-xss-the-3-sinks/</a></p>
+        <p>在这里，和大家聊聊我自己所知道的一些关于Web代理的知识。</p>
+<h2 id="WEB代理的类型"><a href="#WEB代理的类型" class="headerlink" title="WEB代理的类型"></a>WEB代理的类型</h2><p>Web代理，有普通代理和隧道代理两种，下面简单说说这两种类型。</p>
+<h4 id="普通代理"><a href="#普通代理" class="headerlink" title="普通代理"></a>普通代理</h4><p>该类型最为简单，代理服务器作为中间人，转发客户端的HTTP请求给目标主机，之后将目标主机的HTTP响应报文回送给客户端。</p>
+<p>普通代理这里有个“小坑”，放到后面和大家说。</p>
+<h4 id="隧道代理"><a href="#隧道代理" class="headerlink" title="隧道代理"></a>隧道代理</h4><p>首先，客户端向代理服务器发送HTTP请求，方法为CONNECT，表示请求代理服务器与目的服务器的特定端口建立TCP连接，之后代理服务器对客户端与目标服务器之间的数据进行盲转发。</p>
+<p>具体如下图（《HTTP权威指南》第八章）：</p>
+<p><img src="/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/15.png" alt="img"></p>
+<p>假如我们为浏览器设置了WEB代理，在访问HTTPS类型网站时，会使用隧道代理的方式来进行访问；遇到HTTP类型网站，为了减小不必要的开销，浏览器则通常采用普通代理的方式来进行访问。</p>
+<p>这里有篇文章，写得很详细：</p>
+<p><a href="https://imququ.com/post/web-proxy.html" target="_blank" rel="noopener">https://imququ.com/post/web-proxy.html</a></p>
+<h2 id="扫端口"><a href="#扫端口" class="headerlink" title="扫端口"></a>扫端口</h2><p>在渗透测试时，遇到某些WAF时，你会发现连扫端口都没法扫，而WEB扫描/暴力破解，在遇到有WAF时则可以通过Web代理服务器（大量）来进行绕过。于是笔者就幻想着有没有类似WEB代理的东西，能够解决扫端口时被WAF屏蔽的情况。起初我想了想，摇了摇头，“不可能，WEB代理服务器不是与HTTP协议相关吗，这是应用层的东西，扫端口的话，应该是传输层的东西”</p>
+<p>现在想想也是好笑，当时都没搞明白Web代理具体是个什么样的东西，实现方法都有哪些。</p>
+<p>其实，通过<code>WebSocket代理</code>就可以做到“通过代理进行端口扫描”，当然，该种情况下只能进行TCP端口的信息嗅探，而扫描的结果不只是端口是否存活，同样可以判别端口的服务类型。</p>
+<p>原理十分简单。</p>
+<p>第一步判断端口是否开放。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CONNECT http:&#x2F;&#x2F;www.test.com:8080 HTTP&#x2F;1.1</span><br><span class="line">Host: www.test.com:8080</span><br></pre></td></tr></table></figure>
+
+<p>如果目标端口为开放的状态，会返回200；未开放的，代理服务器会返回<code>503</code>状态信息，大致分别如下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HTTP&#x2F;1.1 200 Connection established</span><br><span class="line">HTTP&#x2F;1.1 503 Service Unavailable</span><br><span class="line">Server: squid&#x2F;3.3.8</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>这里有一个很大的问题：很多代理服务器似乎对访问的域名/IP/端口做了一些限制，完全“开放”的websocket代理服务器数量上就可能更少了。之前笔者收集代理服务器都是通过对一些免费的网站进行爬取，这种收集到的代理在这种用途中的可用性惨不忍睹，选择收费的或是通过Shodan搜索Header中的关键字来进行收集整理或许是更好的方法。</p>
+<p>在建立套接字后，有的服务会直接返回banner数据，这种情况下，直接选择接收下一个TCP包即可；有的就需要客户端这边发送些数据才能探测到关于该服务的信息；以及还有其他情况。笔者写了一个简单的py脚本，进行了一些测试，结果如下：</p>
+<p><img src="/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/6.png" alt="img"></p>
+<p><img src="/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/7.png" alt="img"></p>
+<p><img src="/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/8.png" alt="img"></p>
+<p>banner信息在代理服务器返回状态码的时候就返回的情况：</p>
+<p><img src="/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/9.png" alt="img"></p>
+<p>脚本：</p>
+<p><a href="https://pan.baidu.com/s/1U9MeVfrZgwDsq43EGTGYUA" target="_blank" rel="noopener">https://pan.baidu.com/s/1U9MeVfrZgwDsq43EGTGYUA</a></p>
+<p>到头想来，这样搞端口扫描成本太大了，目标得重要到啥程度啊。</p>
+<h2 id="一个小坑"><a href="#一个小坑" class="headerlink" title="一个小坑"></a>一个小坑</h2><p>前阵子，笔者在写代码时，被这个坑了大半天，当时解决了这个问题，但还是云里雾里的。之后翻开《Web之困》，发现书中已有说明。</p>
+<p>引用《Web之困》一书<code>3.1.3</code>小节中的一段话：</p>
+<blockquote>
+<p>GET <a href="http://www.fuzzybunnies.com/" target="_blank" rel="noopener">http://www.fuzzybunnies.com/</a> HTTP/1.1<br>Host: <a href="http://www.fuzzybunnies.com/" target="_blank" rel="noopener">www.fuzzybunnies.com</a><br>…</p>
+<p>上述例子和普通的HTTP请求最大的语法差异，就是请求内容里的第一行，这时候是一个完整的URL，通过这项信息代理服务器才知道用户要连接的目标服务器在哪里。这项信息实际上有点多余，因为在Host请求头里也标识了主机名称；这种重复是因为这两套机制其实是相互独立发展起来的。为了避免客户端和服务器串通一气，如果Host请求头的信息与请求行里的URL不匹配时，代理服务器应以请求行里的URL为准，或者用特定的“URL-Host”数据对和缓存内容联起来，而不能只根据其中一项信息做出判断。</p>
 </blockquote>
-<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最常见的XSS是基于源的（普通XSS），这意味着被注入的JavaScript代码被传输到服务器后又传输到客户端，并在客户端这里被执行。<br>但还有另外一种主要类型————DOM型XSS，被注入的恶意代码的输入来源，与服务器无关，DOM型XSS既不是反射也不是存储：该种XSS是由客户端的原生JavaScript代码产生的。<br>DOM型XSS与基于原码的XSS（普通XSS）十分相似，所以它也被归纳为反射型XSS和存储型XSS的子类。当浏览器通过JS引擎与本地端的存储，提供反射/存储机制时，DOOM型XSS与基于原码的XSS就基本没有什么区别了。<br>然而，不同于简单的请求/响应模型，想要发现DOM型XSS，可能需要对代码进行大量分析。而通过静态甚至是动态的分析工具，都难以发现DOM型XSS漏洞。</p>
-<h3 id="源与接收器（Sources-and-sinks）"><a href="#源与接收器（Sources-and-sinks）" class="headerlink" title="源与接收器（Sources and sinks）"></a>源与接收器（Sources and sinks）</h3><p>DOM（文档对象模型）是由服务器传输过来的HTML文档与JavaScript代码生成的。也许你知道，JavaScript代码以脚本块和/或导入库的方式嵌入到HTML文档中。通过将所有HTML元素转换为对象后，我们可以通过JavaScript对其进行操作，即便是在浏览器运行期间的也可对其进行更改。</p>
-<p>XSS的触发逻辑，在服务端与客户端下都是一样（普通与DOM型）：我们需要找到相应的输入点与输出点。例如，在PHP服务端中，我们通常认为<code>$_GET[&quot;var&quot;]</code>或<code>$_POST[&quot;var&quot;]</code>这些是输入点，而<code>echo</code>或<code>print</code>这些命令是输出点，这也构成了XSS触发的条件。</p>
-<p>在客户端源这边，我们有源与接收器（sources and sinks）。源指的是DOM对象的众多属性，比如document.location,document.referer,window.name 甚至还有url参数（在处理后）这好比服务端的XSS。该列表非常庞大，因为HTML所有的内容都能被JavaScript所操作，并成为潜在的接收源（source of sinks）。</p>
-<p>因此，为了让我们更容易研究基于DOM的XSS，我们先来看看接收器，因为只有3个主要情况。下面是一个演示它们的页面。如果你对XSS有足够的经验或者只想训练自己，请立即停止阅读，并按照<code>#hack2learn</code>原则对其进行XSS。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">演示界面：</span><br><span class="line">https:&#x2F;&#x2F;brutelogic.com.br&#x2F;tests&#x2F;sinks.html</span><br></pre></td></tr></table></figure>
+<p>至此，笔者才恍然大悟，又回想起很久之前在浏览一些网站发生的“奇怪的事情”。有那么一两个网站，笔者在浏览器中进行访问是正常的，但用<code>BurpSuit</code>的<code>Repeater</code>去访问时却发生<code>HTTP 400</code>的情况，之后尝试把请求行中的URI改为完整的URL，访问就正常了，当时也不知道啥回事，没深究就这样过去了…由于问题复现不了，具体症结现在也理不清了，但很可能是Web代理引发的问题。问了一些朋友，有的遇到过，不过没解决。不知道同学们遇到过没。</p>
+<h2 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h2><p>反向代理，按照笔者的理解，客户端把反向代理服务器当作真正的后台服务器即可。反向代理服务接收到客户端的请求后，如有需要会向真正的后台服务器请求资源，并返回给客户端，而客户端无需感知这是不是一台反向代理服务器。</p>
+<p>笔者问了一些渗透测试得朋友在工作中遇到反向代理这种情况，很多说太高大上了，基本没遇到。但笔者经常遇到啊…难道是他们没发现？(懵逼)</p>
+<p>测试时，遇到一些网站HTTP响应报文的头部有<code>Ngnix</code>字样，则很可能存在反向代理，而要发现反向代理背后的服务器中间件类型也很简单，只要让后端服务器发送一些非200的响应报文就好，似乎反向代理服务器对非200的报文是直接返回的，这可能是配置问题。比如发送一些代理服务器觉得正常但后端服务器无法识别的报文，例如让后端服务器返回400。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HTTP &#x2F;% HTTP&#x2F;1.1</span><br><span class="line">Host: www.test.com</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
-<h3 id="三个接收器"><a href="#三个接收器" class="headerlink" title="三个接收器"></a>三个接收器</h3><p>在我们的演示页面中，我们有如下的源码：</p>
-<p><img src="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/1.png" alt="img"></p>
-<p>body中只有一个p元素，这个元素被该页面下的JS代码动态更新，这里并没有导入，也没有使用库。源码中通过三行注释分别标记出了三个示例，分别标记每个案例的代码片段的起始位置。</p>
-<p>在第一个案例文档接收器（Document Sink）之前，该代码通过API来处理URL参数的值：在获取<code>document.location.search</code>属性之后，我们创建一个实现了<a href="https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams" target="_blank" rel="noopener">URLSearchParams</a>的对象。</p>
-<p><img src="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/2.png" alt="img"></p>
-<h4 id="文档接收器-（DOCUMENT-SINK）"><a href="#文档接收器-（DOCUMENT-SINK）" class="headerlink" title="文档接收器 （DOCUMENT SINK）"></a>文档接收器 （DOCUMENT SINK）</h4><p>在文档接收器中，本机JavaScript代码使用受攻击者控制或提供的数据来更新当前文档。它可以在DOM中插入带有JS代码的全新HTML标记或是一个新的带有JS代码事件的属性。</p>
-<p><img src="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/3.png" alt="img"></p>
-<p>URL参数<code>name</code>的值被存在<code>username</code>变量中，以便稍后用于更新文档。如果该变量不为null，则使用字符串<code>Hello</code>拼接URL中<code>name</code>参数的值来更新p元素。这使得攻击者可以插入HTML代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;brutelogic.com.br&#x2F;tests&#x2F;sinks.html?name&#x3D;&lt;img+src+onerror&#x3D;alert(1)&gt;</span><br></pre></td></tr></table></figure>
+<p>关于反向代理，有些地方很有意思。反代如果配置不当，就可能变为正代，然后就发生了内网漫游的安全问题。国外与国内都有类型的案例。贴两篇国内的文章：</p>
+<p><a href="http://wooyun.jozxing.cc/static/bugs/wooyun-2016-0191121.html" target="_blank" rel="noopener">http://wooyun.jozxing.cc/static/bugs/wooyun-2016-0191121.html</a> （lijiejie)</p>
+<p><a href="https://mp.weixin.qq.com/s/EtUmfMxxJjYNl7nIOKkRmA%EF%BC%88ChaMd5%EF%BC%89" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/EtUmfMxxJjYNl7nIOKkRmA（ChaMd5）</a></p>
+<p>把HTTP请求的URI改为完整URI形式即可测试，如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET http:&#x2F;&#x2F;office.test.com HTTP&#x2F;1.1</span><br><span class="line">Host: www.test.com</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
-<p>需要注意的是，经典的<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>不起作用。还有其他几个XSS向量也如此，因为它是一个DOM插入而不是简单的源反射。只有少数情况下，上面的payload才会有作用。</p>
-<p>文档接收器可以以多种方式出现：使用innerHTML和outerHTML元素属性，使用document.write()，document.writeln()函数以及JavaScript库提供的任何其他方式来更新元素或文档。</p>
-<h4 id="位置接收器（LOCATION-SINK）"><a href="#位置接收器（LOCATION-SINK）" class="headerlink" title="位置接收器（LOCATION SINK）"></a>位置接收器（LOCATION SINK）</h4><p>在位置接收器中，本机JavaScript代码使用受攻击者控制或提供的数据更新文档的位置。通过这种方式，可以使用现代浏览器的一个有趣功能：JavaScript伪协议。</p>
-<p><img src="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/4.png" alt="img"></p>
-<p>通过获取<code>redir</code>参数的值，上面的代码可以将浏览器重定向到另一个地址，加载另一个文档。在跳转后的地址站点中攻击目标应用程序是没有用的，因为我们脱离了上下文。</p>
-<p>但是通过使用JavaScript伪协议，这是一种将JavaScript代码直接运行到浏览器地址栏中的方法，可以在当前文档中运行JS代码。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;brutelogic.com.br&#x2F;tests&#x2F;sinks.html?redir&#x3D;javascript:alert(1）</span><br></pre></td></tr></table></figure>
+<p>而<code>lijiejie</code>的漏洞POC比较有意思，他给出的POC是这样的（后来学习了更多的知识，笔者才知道这是Apache的一个SSRF漏洞）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET :@office.test.com HTTP&#x2F;1.1</span><br><span class="line">Host: www.test.com</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
-<p>过去，当应用程序过滤器和WAF（Web应用程序防火墙）过滤<code>javascript</code>关键字时，可使用data URI技巧来替换。但是现代浏览器做了一些安全措施，如为JS执行提供空白上下文（空白上下文应该是指没有数据），甚至不再允许跳转（应该指data URI情况下）。</p>
-<h4 id="执行接收器（EXECUTION-SINK）"><a href="#执行接收器（EXECUTION-SINK）" class="headerlink" title="执行接收器（EXECUTION SINK）"></a>执行接收器（EXECUTION SINK）</h4><p>在执行接收器（Execution Sink）中，本机JavaScript代码使用受攻击者控制或提供的数据来更新其自己的代码流。</p>
-<p><img src="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/5.png" alt="img"></p>
-<p>通常<code>eval</code>会是一个庞大复杂代码的一部分，在这里只使用一个非常简单的代码：仅有3个变量，变量名分别是三个股票的名称：Nasdaq, Dow Jones and S&amp;P 500 。它们的值并不来自于一个真实应用程序的数据库，因此它们不会变化。</p>
-<p>创建<code>market</code>对象，从URL获取<code>index</code>参数的值后，这里使用<code>toString()</code>尝试确保该值最终是字符串（只是一种愚蠢的方式）。该代码之后使用<code>eval</code>函数动态地为<code>market</code>对象创建<code>index</code>属性。最后，获取<code>market.index</code>的值显示在p标签中。</p>
-<p>攻击者可以通过以下代码来进行XSS：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;brutelogic.com.br&#x2F;tests&#x2F;sinks.html?index&#x3D;alert(1）</span><br></pre></td></tr></table></figure>
 
-<p>因为该代码将被执行，所以看起来很简单。在现实世界的应用程序中，很可能需要根据代码流程进行一些测试才能找到漏洞点。</p>
-<p>除<code>eval</code>之外的其他执行接收器(execution sinks)是<code>setInterval</code>和<code>setTimeout</code>函数和模板文字。</p>
-<p>以上所诉的就是我们在寻找DOM型的XSS时应该注意的3个接收器(sinks)。</p>
+
+<p>熟悉URL结构的同学们知道，<code>:@</code>在这里是指认证信息。而，<code>lijiejie</code>还额外删去了协议名称与分隔符<code>scheme://</code>，笔者也不知道其中具体原因，正常来说，只会返回400。<br>而添加了认证信息的HTTP请求被代理服务器接收到后，会将认证信息取出，设置给<code>Authorization</code> header字段，如：</p>
+<p><img src="/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/14.png" alt="img"></p>
+<p><img src="/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/13.png" alt="img"></p>
+<p>另外，笔者发现有些人的HTTP请求喜欢加上<code>Authorization: Basic Og==</code>头部字段，难道这里有什么猫腻吗…</p>
+<p>协议类型<code>scheme</code>还可以更改为其他，诸如 ftp、gopher、file等，具体情况要看代理服务器的支持能力。</p>
+<p>关于反向代理，还有一个比较有意思的地方。有些程序员为了降低服务的的带宽压力，在客户端发送HTTP POST 数据包之前，会将客户端请求体内的数据进行压缩，然后在头部指明压缩类型，如gzip，数据包类似下面这样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;index.php HTTP&#x2F;1.1</span><br><span class="line">Host: www.test.com</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded; charset&#x3D;UTF-8</span><br><span class="line">Content-Encoding: gzip</span><br><span class="line">Content-Length: 38</span><br><span class="line"></span><br><span class="line">...._.&#123;[...L.-....S(N.IM.Q0....0.</span><br><span class="line">....</span><br></pre></td></tr></table></figure>
+
+<p>当防火墙处于最外层，流量先经过防火墙后再经过反向代理，假如防火墙不支持解压HTTP Request的包体，或是无法识别该类型的压缩，则十分可能发生安全问题。</p>
+<p>另外提一下，有些同学可能对URI与URL有点混淆，记住URL是URI的子集即可。</p>
+<h2 id="HTTP转发扩展"><a href="#HTTP转发扩展" class="headerlink" title="HTTP转发扩展"></a>HTTP转发扩展</h2><p>RFC7239文档中说到，在很多情况下，用户网络中存在着代理，而这些代理又屏蔽了客户端的很多信息，诸如IP地址。所以文档提议增加X-Forwarded-For等字段，方便进行访问控制、诊断等。其中还说到，这些字段对反向代理也应起作用。</p>
+<p><a href="https://tools.ietf.org/html/rfc7239" target="_blank" rel="noopener">https://tools.ietf.org/html/rfc7239</a></p>
+<p>在提供Web代理IP的网站上，我们可以发现其提供的代理存在匿名与非匿名两种，通过查看代理服务器的HTTP请求是否带有<code>X-Forwarded-For</code>字段即可判断代理是否匿名。很多代理是非开放的，需要认证信息<code>Proxy-Authorization</code></p>
+<p>关于代理转发扩展，除了<code>X-Forwarded-For</code>该种的，还有很多，比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">X-Originating-IP: 127.0.0.1</span><br><span class="line">X-Remote-IP: 127.0.0.1</span><br><span class="line">X-Remote-Addr: 127.0.0.1</span><br><span class="line">X-Client-IP: 127.0.0.1</span><br></pre></td></tr></table></figure>
+
+<p>除了<code>X-Forwarded-For</code>，其他都是非标准字段。在<code>BurpSuit</code>插件商店中，有款名为<code>Bypass WAF</code>的插件，能让Burp的所有请求自动添加这些头部字段，还做了其他很多扩展，感兴趣的同学可以看看。</p>
+<p><a href="https://www.codewatch.org/blog/?p=408" target="_blank" rel="noopener">https://www.codewatch.org/blog/?p=408</a></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>刚刚接触HTTP时，Web代理的相关知识一直获取到的不多，后来慢慢发现其实还是很重要的。这篇文章也是对自己在web代理知识方面的一个小结，由于笔者水平有限，如果有错误的地方，欢迎大家指出。</p>
 
       
 
@@ -304,7 +338,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=https://turn1tup.github.io/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=https://turn1tup.github.io/2018/08/22/%E6%88%91%E6%89%80%E4%BA%86%E8%A7%A3%E7%9A%84WEB%E4%BB%A3%E7%90%86/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -318,18 +352,18 @@
   
 <nav id="article-nav">
   
-    <a href="/2020/06/16/%E8%AF%BBdirsearch%E6%9C%89%E6%84%9F/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2020/06/15/%E5%AF%B9%E8%BF%87WAF%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%A4%E7%9F%A5/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          读dirsearch有感
+          对过WAF的一些认知
         
       </div>
     </a>
   
   
-    <a href="/2020/06/15/%E5%AF%B9%E8%BF%87WAF%E7%9A%84%E4%B8%80%E4%BA%9B%E8%AE%A4%E7%9F%A5/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">对过WAF的一些认知</div>
+    <a href="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">SQL注入类型详解</div>
       <i class="icon-circle-right"></i>
     </a>
   
