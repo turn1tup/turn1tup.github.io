@@ -16,7 +16,7 @@
 <meta property="og:description" content="RASP版IDS的设想其实在最初接触到RASP的时候，就有过这个瞎想，当时倒是不在意这个想法，笔者所在公司业务语言为JAVA，而笔者在做了一些红队工作后，不经意又重新拾起这个瞎想。随后在思考的过程中，笔者发现已有字节的 Elkeid 实现了该想法，不过关于RASP采集到的数据的如何处理的，字节倒是没有开源，但从目前其文档描述来看，是一个十分优秀的框架了。 Open-RASP的优弊关于RASP，成熟">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-10-26T05:00:00.000Z">
-<meta property="article:modified_time" content="2021-10-26T13:09:09.292Z">
+<meta property="article:modified_time" content="2021-10-26T13:30:33.228Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
   
@@ -183,7 +183,7 @@
 <p>1、影响业务稳定：由于防护实体耦合业务程序，RASP本身是否稳定也影响了业务，具体来说就是如果业务流程触发了钩子，后续钩子的处理过程相当于业务流程的其中一环，这也让业务方比较担忧；</p>
 <p>2、高专业性：与以往的防火墙规则不同，要求维护RASP的人员具备十分高的专业能力，如代码能力、对实际安全问题的深入思考与落地能力。就笔者个人感觉，Open-RASP维护者力有不逮，如反序列化问题解决得并不是很好，太过依赖命令执行结合上文的堆栈信息，这导致了该点上容易被绕过，但也许是作者综合考虑了性能等因素才这么做。</p>
 <p>3、难部署</p>
-<h2 id="RASP-IDS"><a href="#RASP-IDS" class="headerlink" title="RASP-IDS"></a>RASP-IDS</h2><p>如果将分析引擎放到其他进程或是主机上，我们能做的事情就很具有想象空间了。</p>
+<h2 id="RASP-IDS"><a href="#RASP-IDS" class="headerlink" title="RASP-IDS"></a>RASP-IDS</h2><p>如果将分析引擎放到其他进程或是主机上，我们能做的事情就很具有想象空间了，这里的讨论我就不重复叙述RASP本身优缺点问题了：。</p>
 <p>优点：</p>
 <p>1、不影响业务：触发hook点之后另起线程进行rpc通信传输hook点参数及堆栈信息，这对业务影响很低，这样一来，业务方与安全方都能其乐融融；</p>
 <p>2、更强的检测能力（很有想象空间）：比如针对反序列化的检测上，open-rasp力有不逮的原因就是反序列化点本身不是危害，危害的是反序列化后的污点、利用点，攻击者可以写文件、写内存马、命令执行等，另外可以起新线程清空堆栈信息来写文件、命令执行，但首先于agent与业务耦合，open-rasp无法或不敢做太多；</p>
@@ -191,8 +191,7 @@
 <p>缺点：</p>
 <p>1、无法拦截攻击；</p>
 <p>2、新增资源消耗：由于笔者还未测试，不知道hook后agent的rpc带来的带宽、CPU会不会很大，目前只是个疑问，另外设计上要考虑可能的dos情况；</p>
-<p>3、难部署。</p>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>这个项目应该是个又价值的项目，也是未来的趋势吧，笔者也将其作为后续的研究规划，想来也算可以。</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>这个项目应该是个有价值的项目，也是未来的趋势吧，笔者目前想法比较粗糙，希望在后续实践中完善认知。</p>
 
       
 
