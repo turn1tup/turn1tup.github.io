@@ -8,15 +8,15 @@
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
   <title>RASP版IDS的设想 | turn1tup&#39;s bolg</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="RASP版IDS的设想其实在最初接触到RASP的时候，就有过这个瞎想，当时倒是不在意这个想法，笔者所在公司业务语言为JAVA，而笔者在做了一些红队工作后，不经意又重新拾起这个瞎想。随后在思考的过程中，笔者发现已有字节的 Elkeid 实现了该想法，不过关于RASP采集到的数据的如何处理的，字节倒是没有开源，但从目前其文档描述来看，是一个十分优秀的框架了。 Open-RASP的优弊关于RASP，成熟">
+  <meta name="description" content="2021&#x2F;10&#x2F;25 RASP版IDS的设想其实在最初接触到RASP的时候，就有过这个瞎想，当时倒是不在意这个想法，笔者所在公司业务语言为JAVA，而笔者在做了一些红队工作后，不经意又重新拾起这个瞎想。随后在思考的过程中，笔者发现已有字节的 Elkeid 实现了该想法，不过关于RASP采集到的数据的如何处理的，字节倒是没有开源，但从目前其文档描述来看，是一个十分优秀的框架了。 Open-RASP的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RASP版IDS的设想">
 <meta property="og:url" content="https://turn1tup.github.io/2021/10/25/RASP%E7%89%88IDS%E7%9A%84%E8%AE%BE%E6%83%B3/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s bolg">
-<meta property="og:description" content="RASP版IDS的设想其实在最初接触到RASP的时候，就有过这个瞎想，当时倒是不在意这个想法，笔者所在公司业务语言为JAVA，而笔者在做了一些红队工作后，不经意又重新拾起这个瞎想。随后在思考的过程中，笔者发现已有字节的 Elkeid 实现了该想法，不过关于RASP采集到的数据的如何处理的，字节倒是没有开源，但从目前其文档描述来看，是一个十分优秀的框架了。 Open-RASP的优弊关于RASP，成熟">
+<meta property="og:description" content="2021&#x2F;10&#x2F;25 RASP版IDS的设想其实在最初接触到RASP的时候，就有过这个瞎想，当时倒是不在意这个想法，笔者所在公司业务语言为JAVA，而笔者在做了一些红队工作后，不经意又重新拾起这个瞎想。随后在思考的过程中，笔者发现已有字节的 Elkeid 实现了该想法，不过关于RASP采集到的数据的如何处理的，字节倒是没有开源，但从目前其文档描述来看，是一个十分优秀的框架了。 Open-RASP的">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-10-26T05:00:00.000Z">
-<meta property="article:modified_time" content="2021-10-26T13:30:33.228Z">
+<meta property="article:modified_time" content="2021-11-09T13:58:22.101Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
   
@@ -174,7 +174,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="RASP版IDS的设想"><a href="#RASP版IDS的设想" class="headerlink" title="RASP版IDS的设想"></a>RASP版IDS的设想</h1><p>其实在最初接触到RASP的时候，就有过这个瞎想，当时倒是不在意这个想法，笔者所在公司业务语言为JAVA，而笔者在做了一些红队工作后，不经意又重新拾起这个瞎想。随后在思考的过程中，笔者发现已有字节的 <a href="https://github.com/bytedance/Elkeid" target="_blank" rel="noopener">Elkeid</a> 实现了该想法，不过关于RASP采集到的数据的如何处理的，字节倒是没有开源，但从目前其文档描述来看，是一个十分优秀的框架了。</p>
+        <h1 id="2021-10-25-RASP版IDS的设想"><a href="#2021-10-25-RASP版IDS的设想" class="headerlink" title="2021/10/25 RASP版IDS的设想"></a>2021/10/25 RASP版IDS的设想</h1><p>其实在最初接触到RASP的时候，就有过这个瞎想，当时倒是不在意这个想法，笔者所在公司业务语言为JAVA，而笔者在做了一些红队工作后，不经意又重新拾起这个瞎想。随后在思考的过程中，笔者发现已有字节的 <a href="https://github.com/bytedance/Elkeid" target="_blank" rel="noopener">Elkeid</a> 实现了该想法，不过关于RASP采集到的数据的如何处理的，字节倒是没有开源，但从目前其文档描述来看，是一个十分优秀的框架了。</p>
 <h2 id="Open-RASP的优弊"><a href="#Open-RASP的优弊" class="headerlink" title="Open-RASP的优弊"></a>Open-RASP的优弊</h2><p>关于RASP，成熟且开源的就是百度的这款了，这里先思考他目前的状况。</p>
 <p>优点嘛，</p>
 <p>1、低误报，低bypass风险：直接获取程序运行过程中的具体数据，知道数据具体情况，这让告警或拦截误报率低，且除非程序自身的逻辑问题、或是更低维度的情况，也不会出现bypass；</p>
@@ -192,6 +192,23 @@
 <p>1、无法拦截攻击；</p>
 <p>2、新增资源消耗：由于笔者还未测试，不知道hook后agent的rpc带来的带宽、CPU会不会很大，目前只是个疑问，另外设计上要考虑可能的dos情况；</p>
 <h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>这个项目应该是个有价值的项目，也是未来的趋势吧，笔者目前想法比较粗糙，希望在后续实践中完善认知。</p>
+<p>基于字节的elkeid框架进行实践</p>
+<p>——————————————————————</p>
+<h1 id="2021-11-5-update"><a href="#2021-11-5-update" class="headerlink" title="2021/11/5 update"></a>2021/11/5 update</h1><p>抽空看了看elkeid，有了一些大概的思路，但还需要在实践中完善</p>
+<h2 id="ELkeid目前已有功能"><a href="#ELkeid目前已有功能" class="headerlink" title="ELkeid目前已有功能"></a>ELkeid目前已有功能</h2><p>1、agent客户端</p>
+<p>rasp-prober：jvm等语言的探针，收集hook点的参数、线程堆栈信息</p>
+<p>agent : 以pulgin的形式获取各个插件获取到的数据（rasp的数据从架构上来看要传给agent），agent发送数据给agent-center</p>
+<p>2、server端，目前有</p>
+<p>agent-center：接收各个agent客户端发送的数据，并将其放入kafka中</p>
+<p>manager：后台管理、API接口</p>
+<p>service-discovery：注册服务</p>
+<h2 id="需要做的"><a href="#需要做的" class="headerlink" title="需要做的"></a>需要做的</h2><p>1、打通RASP数据链：elkeid没有打通rasp的数据上传通道，我们需要阅读elkeid代码后编写agent plugin打通数据通道（在飞书上和字节的人聊了一下，说是计划11月或12月开源这块代码）</p>
+<p>2、RASP检测引擎、检测规则：从kafka中获取rasp相关数据，通过检测引擎后，进行判黑旁白，并存储检测结果，这块是重点</p>
+<p>3、RASP数据搜索：通过elk方式检索已有的rasp数据</p>
+<p>4、hook点设计：需要保证hook点尽量不上传业务数据（影响带宽与CPU），且保障无bypass问题，这需要尽可能hook关键类方法（如应对jvmti写内存马、jni加载so）</p>
+<h2 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h2><p>1、低误报、强检测：我们希望通过hook关键类方法，将获取到的数据送到center进行检测，并通过center强大的检测能力发现相关入侵行为。这个过程中。open-rasp受限于自身情况，检测能力不足，rasp-elkeid能很好地弥补，由于不会改动agent代码，这样一来，安全人员能更好地与业务方愉快相处</p>
+<p>2、能检测数据：可收集三方依赖库的版本信息、线程堆栈信息、hook点参数</p>
+<p>3、拦截能力：elkeid给出的rasp探针从其代码功能来看，可以接收center下发的拦截规则并对指定hook点的参数进行对应的正则匹配来拦截。目前初步设想是，可以先指定一些通用规则进行拦截，事中通过center检测发现入侵攻击，可下发策略缓解(有点纠结这个点的价值)；另外就是可以考虑增加拦截维度，如怎加线程堆栈拦截维度）</p>
 
       
 
