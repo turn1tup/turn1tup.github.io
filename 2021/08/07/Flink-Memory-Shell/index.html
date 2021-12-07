@@ -6,13 +6,13 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
-  <title>Flink-Memory-Shell | turn1tup&#39;s bolg</title>
+  <title>Flink-Memory-Shell | turn1tup&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Flink-Memory-ShellApache Flink情况下如何写内存马，本文对这一有趣实践过程做了一个记录。 1. 思路首先目标机器Flink版本为1.3.2、1.9.0，Flink底层是使用的Netty作为多功能socket服务器，我们可以有两种解决思路：①注册控制器；②通过JVMTI ATTACH机制Hook关键方法来写内存马。 1.1 应用层第一个方案就是，类似Tomcat、Spri">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Flink-Memory-Shell">
 <meta property="og:url" content="https://turn1tup.github.io/2021/08/07/Flink-Memory-Shell/index.html">
-<meta property="og:site_name" content="turn1tup&#39;s bolg">
+<meta property="og:site_name" content="turn1tup&#39;s blog">
 <meta property="og:description" content="Flink-Memory-ShellApache Flink情况下如何写内存马，本文对这一有趣实践过程做了一个记录。 1. 思路首先目标机器Flink版本为1.3.2、1.9.0，Flink底层是使用的Netty作为多功能socket服务器，我们可以有两种解决思路：①注册控制器；②通过JVMTI ATTACH机制Hook关键方法来写内存马。 1.1 应用层第一个方案就是，类似Tomcat、Spri">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://turn1tup.github.io/2021/08/07/Flink-Memory-Shell/RestServerEndpoint_start.png">
@@ -25,7 +25,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2021/08/07/Flink-Memory-Shell/RestServerEndpoint_start.png">
   
-    <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s bolg" type="application/atom+xml">
+    <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s blog" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">

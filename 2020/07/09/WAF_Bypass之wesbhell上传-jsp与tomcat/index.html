@@ -6,13 +6,13 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
-  <title>WAF_Bypass之wesbhell上传-jsp与tomcat | turn1tup&#39;s bolg</title>
+  <title>WAF_Bypass之wesbhell上传-jsp与tomcat | turn1tup&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="1.开个头事情是这样的，某一天，笔者闲着无聊，对着Tomcat的示例文件到处点点，希望寻找出点什么，意外发现Tomcat的示例文件中一些有趣的示例：  随后笔者翻开Tomcat的解析代码，对其进行了一番静态代码审阅，果然有蹊跷，后面又调试看了看。 2 代码要点简析对于脚本jsp文件，会通过EncodingDetector进行字符集类型的探测，该处代码要点较多，也是主逻辑，所以整片代码放上来了。 a">
 <meta property="og:type" content="article">
 <meta property="og:title" content="WAF_Bypass之wesbhell上传-jsp与tomcat">
 <meta property="og:url" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/index.html">
-<meta property="og:site_name" content="turn1tup&#39;s bolg">
+<meta property="og:site_name" content="turn1tup&#39;s blog">
 <meta property="og:description" content="1.开个头事情是这样的，某一天，笔者闲着无聊，对着Tomcat的示例文件到处点点，希望寻找出点什么，意外发现Tomcat的示例文件中一些有趣的示例：  随后笔者翻开Tomcat的解析代码，对其进行了一番静态代码审阅，果然有蹊跷，后面又调试看了看。 2 代码要点简析对于脚本jsp文件，会通过EncodingDetector进行字符集类型的探测，该处代码要点较多，也是主逻辑，所以整片代码放上来了。 a">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/tomcat_jsp_xml_example.png">
@@ -30,7 +30,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/tomcat_jsp_xml_example.png">
   
-    <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s bolg" type="application/atom+xml">
+    <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s blog" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">

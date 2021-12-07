@@ -6,13 +6,13 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
-  <title>WAF_Bypass之XML解析-上 | turn1tup&#39;s bolg</title>
+  <title>WAF_Bypass之XML解析-上 | turn1tup&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="XML系列将分为上下篇，本篇为上篇，主要讲述目前的原理及手法，下篇将会给出实战的应用。 前段时间，笔者大致阅读了JAVA的XML解析库的底层解析代码xerces，实际上对于JAVA来说，所有XML解析框架、解析器，最底层用的都是它，所以绕过手法比较通用。 关于XML解析的研究也算是告一段落，本文也算是笔者的一篇笔记。 1. Charset1.1 Magic CharsetXML文档可以通过头部标签">
 <meta property="og:type" content="article">
 <meta property="og:title" content="WAF_Bypass之XML解析-上">
 <meta property="og:url" content="https://turn1tup.github.io/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/index.html">
-<meta property="og:site_name" content="turn1tup&#39;s bolg">
+<meta property="og:site_name" content="turn1tup&#39;s blog">
 <meta property="og:description" content="XML系列将分为上下篇，本篇为上篇，主要讲述目前的原理及手法，下篇将会给出实战的应用。 前段时间，笔者大致阅读了JAVA的XML解析库的底层解析代码xerces，实际上对于JAVA来说，所有XML解析框架、解析器，最底层用的都是它，所以绕过手法比较通用。 关于XML解析的研究也算是告一段落，本文也算是笔者的一篇笔记。 1. Charset1.1 Magic CharsetXML文档可以通过头部标签">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://turn1tup.github.io/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/magic_charset.png">
@@ -32,7 +32,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/magic_charset.png">
   
-    <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s bolg" type="application/atom+xml">
+    <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s blog" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">

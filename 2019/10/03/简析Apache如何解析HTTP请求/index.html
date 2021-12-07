@@ -6,13 +6,13 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
-  <title>简析Apache如何解析HTTP请求 | turn1tup&#39;s bolg</title>
+  <title>简析Apache如何解析HTTP请求 | turn1tup&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="引言之前看了看Apache是如何解析HTTP请求的，整理了一下笔记，说说其中的一些要点。 首先，在最新版本的Apache服务器http2.4.41中，似乎移除了对HTTP的许多“兼容特性”，这些特性是不符合RFC标准的，而笔者当时阅读的代码为2.4.3，本文记录了笔者在阅读代码时认为十分重要的一些解析细节。 read a lineApache读到LF字符时，就判断一行已经读完了。   before">
 <meta property="og:type" content="article">
 <meta property="og:title" content="简析Apache如何解析HTTP请求">
 <meta property="og:url" content="https://turn1tup.github.io/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/index.html">
-<meta property="og:site_name" content="turn1tup&#39;s bolg">
+<meta property="og:site_name" content="turn1tup&#39;s blog">
 <meta property="og:description" content="引言之前看了看Apache是如何解析HTTP请求的，整理了一下笔记，说说其中的一些要点。 首先，在最新版本的Apache服务器http2.4.41中，似乎移除了对HTTP的许多“兼容特性”，这些特性是不符合RFC标准的，而笔者当时阅读的代码为2.4.3，本文记录了笔者在阅读代码时认为十分重要的一些解析细节。 read a lineApache读到LF字符时，就判断一行已经读完了。   before">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://turn1tup.github.io/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575636988533.png">
@@ -47,7 +47,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575636988533.png">
   
-    <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s bolg" type="application/atom+xml">
+    <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s blog" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
