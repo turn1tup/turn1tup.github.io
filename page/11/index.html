@@ -152,81 +152,51 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-WAF-Bypass-内容编码" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-开源AST实践" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/">WAF-Bypass-内容编码</a>
+      <a class="article-title" href="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/">开源AST实践</a>
     </h1>
   
 
         
-        <a href="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/" class="archive-article-date">
-  	<time datetime="2021-05-31T15:01:19.804Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-05-31</time>
+        <a href="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/" class="archive-article-date">
+  	<time datetime="2021-06-16T02:31:10.872Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-06-15</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="WAF-Bypass-内容编码"><a href="#WAF-Bypass-内容编码" class="headerlink" title="WAF-Bypass-内容编码"></a>WAF-Bypass-内容编码</h3><p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/1.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/2.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/3.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/4.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/5.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/6.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/7.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/8.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/9.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/10.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/11.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/12.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/13.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/14.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/15.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/16.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/17.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/18.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/19.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/20.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/21.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/22.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/23.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/24.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/25.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/26.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/27.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/28.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/29.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/30.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/31.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/32.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/33.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/34.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/35.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/36.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/37.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/38.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/39.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/40.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/41.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/42.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/43.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/44.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/45.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/46.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/47.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/48.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/49.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/50.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/51.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/52.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/53.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/54.png" alt></p>
-<p><img src="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/55.png" alt></p>
+        <h3 id="开源AST实践-构建静态Java代码扫描器"><a href="#开源AST实践-构建静态Java代码扫描器" class="headerlink" title="开源AST实践-构建静态Java代码扫描器"></a>开源AST实践-构建静态Java代码扫描器</h3><p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/2.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/3.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/4.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/5.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/6.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/7.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/8.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/9.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/10.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/11.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/12.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/13.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/14.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/15.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/16.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/17.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/18.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/19.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/20.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/21.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/22.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/23.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/24.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/25.png" alt></p>
+<p><img src="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/26.png" alt></p>
 
       
 
@@ -239,7 +209,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2021/05/31/WAF-Bypass-%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81/">展开全文 >></a>
+          <a class="article-more-a" href="/2021/06/15/%E5%BC%80%E6%BA%90AST%E5%AE%9E%E8%B7%B5/">展开全文 >></a>
         </p>
       
 
@@ -271,7 +241,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/10/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/12/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/10/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/12/">Next &amp;raquo;</a>
     </nav>
   
 

