@@ -152,19 +152,19 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-Filter内存马的误解(shiro)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Filter中写内存马的误解(shiro)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2022/04/13/Filter%E5%86%85%E5%AD%98%E9%A9%AC%E7%9A%84%E8%AF%AF%E8%A7%A3(shiro)/">Filter内存马的误解(shiro)</a>
+      <a class="article-title" href="/2022/04/13/Filter%E4%B8%AD%E5%86%99%E5%86%85%E5%AD%98%E9%A9%AC%E7%9A%84%E8%AF%AF%E8%A7%A3(shiro)/">Filter中写内存马的误解(shiro)</a>
     </h1>
   
 
         
-        <a href="/2022/04/13/Filter%E5%86%85%E5%AD%98%E9%A9%AC%E7%9A%84%E8%AF%AF%E8%A7%A3(shiro)/" class="archive-article-date">
+        <a href="/2022/04/13/Filter%E4%B8%AD%E5%86%99%E5%86%85%E5%AD%98%E9%A9%AC%E7%9A%84%E8%AF%AF%E8%A7%A3(shiro)/" class="archive-article-date">
   	<time datetime="2022-04-14T04:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-13</time>
 </a>
         
@@ -172,9 +172,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="Filter内存马的误解"><a href="#Filter内存马的误解" class="headerlink" title="Filter内存马的误解"></a>Filter内存马的误解</h1><p>年初整理了一些内存马知识，存稿发一发。</p>
-<p>目前大家认为在shiro等Filter的漏洞利用中，无法从ApplicationFilterChain中获取request，本文纠正这一认知。</p>
-<p>Spring RequestContextHolder获取context、ApplicationFilterChain获取request ，前文所说的这二者，都为多线程ThreadLocal线程安全，Controller/Servlet访问结束后这些对象也被回收。</p>
+        <h1 id="Filter中写内存马的误解"><a href="#Filter中写内存马的误解" class="headerlink" title="Filter中写内存马的误解"></a>Filter中写内存马的误解</h1><p>目前大家认为在shiro等Filter的漏洞利用中，无法从ApplicationFilterChain中获取request，本文纠正这一认知。</p>
+<p>Spring RequestContextHolder获取context、ApplicationFilterChain获取request ，都为多线程ThreadLocal线程安全，Controller/Servlet访问结束后这些对象也被回收。</p>
 <p>但即便在不同线程或不在其生命周期内，我们还是能获取这些对象。</p>
 <p>该函数遍历所有线程的threadLocals字段，并查找其中的table，返回符合预期的实例对象</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Object&gt; <span class="title">getThreadLocalValue</span><span class="params">(Class targetClass,<span class="keyword">boolean</span> isBreak)</span></span>&#123;</span><br><span class="line">       List&lt;Object&gt; objects = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">       <span class="keyword">try</span>&#123;</span><br><span class="line">           Method getThreads = Thread.class.getDeclaredMethod("getThreads");</span><br><span class="line">           getThreads.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">           Thread[] threads = (Thread[]) getThreads.invoke(<span class="keyword">null</span>);</span><br><span class="line">           <span class="keyword">for</span> (Thread thread : threads) &#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   <span class="keyword">if</span> (thread!=<span class="keyword">null</span>) &#123;</span><br><span class="line">                       Field threadLocalsField = Thread.class.getDeclaredField("threadLocals");</span><br><span class="line">                       threadLocalsField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">                       <span class="comment">//ThreadLocalMap</span></span><br><span class="line">                       Object threadLocals = threadLocalsField.get(thread);</span><br><span class="line">                       Field tableField = Class.forName(<span class="string">"java.lang.ThreadLocal$ThreadLocalMap"</span>).getDeclaredField(<span class="string">"table"</span>);</span><br><span class="line">                       tableField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">                       <span class="comment">//hreadLocal.ThreadLocalMap.Entry[]</span></span><br><span class="line">                       Object[]  table = (Object[])tableField.get(threadLocals);</span><br><span class="line">                       <span class="keyword">for</span> (Object entry : table) &#123;</span><br><span class="line">                           <span class="keyword">if</span> (entry != <span class="keyword">null</span>) &#123;</span><br><span class="line">                              <span class="comment">// Field field = Class.forName("java.util.HashMap$Node").getDeclaredField("value");</span></span><br><span class="line">                               Field field =</span><br><span class="line">                                       Class.forName(<span class="string">"java.lang.ThreadLocal$ThreadLocalMap$Entry"</span>).getDeclaredField(</span><br><span class="line">                                               <span class="string">"value"</span>);</span><br><span class="line">                               field.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">                               Object value = field.get(entry);</span><br><span class="line">                               <span class="keyword">if</span> (targetClass.isInstance(value) ) &#123;</span><br><span class="line">                                   objects.add(value);</span><br><span class="line">                                   <span class="keyword">if</span> (isBreak) &#123;</span><br><span class="line">                                       <span class="keyword">return</span> objects;</span><br><span class="line">                                   &#125;</span><br><span class="line">                               &#125;</span><br><span class="line">                           &#125;</span><br><span class="line">                       &#125;</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;<span class="keyword">catch</span>(Exception e)&#123;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> objects;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
@@ -197,7 +196,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/04/13/Filter%E5%86%85%E5%AD%98%E9%A9%AC%E7%9A%84%E8%AF%AF%E8%A7%A3(shiro)/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/04/13/Filter%E4%B8%AD%E5%86%99%E5%86%85%E5%AD%98%E9%A9%AC%E7%9A%84%E8%AF%AF%E8%A7%A3(shiro)/">展开全文 >></a>
         </p>
       
 
