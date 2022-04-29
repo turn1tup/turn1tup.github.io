@@ -8,12 +8,12 @@
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
   <title>Java应用内存马 | turn1tup&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Java应用内存马年初1月份写下了这篇文章，今天在组内进行了分享，也顺便分享出来。 最初计划中还有不少东西要写，当后面想了想，整到这个地步也够了吧，后面搞其他更有意思的，就不再花费时间再这块了。 1. Tomcat架构在了解架构的基础上，我们才能做得更好，而非仅依葫芦画瓢。 1.1 整体架构Server 指整个Tomcat容器， Server 中可以存在多个Service， Service 中多个">
+  <meta name="description" content="Java应用内存马年初1月份写下了这篇文章，今天在组内进行了分享，也顺便分享出来。 最初计划中还有不少东西要写，但目前想了想，整到这个地步也够了吧，后面搞其他更有意思的，就不再花费时间再这块了。 1. Tomcat架构在了解架构的基础上，我们才能做得更好，而非仅依葫芦画瓢。 1.1 整体架构Server 指整个Tomcat容器， Server 中可以存在多个Service， Service 中多个">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java应用内存马">
 <meta property="og:url" content="https://turn1tup.github.io/2022/04/29/Java%E5%BA%94%E7%94%A8%E5%86%85%E5%AD%98%E9%A9%AC/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s blog">
-<meta property="og:description" content="Java应用内存马年初1月份写下了这篇文章，今天在组内进行了分享，也顺便分享出来。 最初计划中还有不少东西要写，当后面想了想，整到这个地步也够了吧，后面搞其他更有意思的，就不再花费时间再这块了。 1. Tomcat架构在了解架构的基础上，我们才能做得更好，而非仅依葫芦画瓢。 1.1 整体架构Server 指整个Tomcat容器， Server 中可以存在多个Service， Service 中多个">
+<meta property="og:description" content="Java应用内存马年初1月份写下了这篇文章，今天在组内进行了分享，也顺便分享出来。 最初计划中还有不少东西要写，但目前想了想，整到这个地步也够了吧，后面搞其他更有意思的，就不再花费时间再这块了。 1. Tomcat架构在了解架构的基础上，我们才能做得更好，而非仅依葫芦画瓢。 1.1 整体架构Server 指整个Tomcat容器， Server 中可以存在多个Service， Service 中多个">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://turn1tup.github.io/2022/04/29/Java%E5%BA%94%E7%94%A8%E5%86%85%E5%AD%98%E9%A9%AC/tomcat-architecture.png">
 <meta property="og:image" content="https://turn1tup.github.io/2022/04/29/Java%E5%BA%94%E7%94%A8%E5%86%85%E5%AD%98%E9%A9%AC/Lifecycle3.png">
@@ -51,7 +51,7 @@
 <meta property="og:image" content="https://turn1tup.github.io/2022/04/29/Java%E5%BA%94%E7%94%A8%E5%86%85%E5%AD%98%E9%A9%AC/SubClassClassVisitor.png">
 <meta property="og:image" content="https://turn1tup.github.io/2022/04/29/Java%E5%BA%94%E7%94%A8%E5%86%85%E5%AD%98%E9%A9%AC/StaticFieldClassVisitor.png">
 <meta property="article:published_time" content="2022-04-30T01:00:00.000Z">
-<meta property="article:modified_time" content="2022-04-29T10:56:37.796Z">
+<meta property="article:modified_time" content="2022-04-29T10:59:35.468Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2022/04/29/Java%E5%BA%94%E7%94%A8%E5%86%85%E5%AD%98%E9%A9%AC/tomcat-architecture.png">
@@ -211,7 +211,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="Java应用内存马"><a href="#Java应用内存马" class="headerlink" title="Java应用内存马"></a>Java应用内存马</h1><p>年初1月份写下了这篇文章，今天在组内进行了分享，也顺便分享出来。</p>
-<p>最初计划中还有不少东西要写，当后面想了想，整到这个地步也够了吧，后面搞其他更有意思的，就不再花费时间再这块了。</p>
+<p>最初计划中还有不少东西要写，但目前想了想，整到这个地步也够了吧，后面搞其他更有意思的，就不再花费时间再这块了。</p>
 <h2 id="1-Tomcat架构"><a href="#1-Tomcat架构" class="headerlink" title="1. Tomcat架构"></a>1. Tomcat架构</h2><p>在了解架构的基础上，我们才能做得更好，而非仅依葫芦画瓢。</p>
 <h3 id="1-1-整体架构"><a href="#1-1-整体架构" class="headerlink" title="1.1 整体架构"></a>1.1 整体架构</h3><p><code>Server</code> 指整个Tomcat容器， <code>Server</code> 中可以存在多个<code>Service</code>， <code>Service</code> 中多个<code>Connector</code>对应一个 <code>Engine</code>， <code>Engine</code> 中可存在多个<code>Host</code>，每个 <code>Host</code>中可以存在多个应用 <code>Context</code>，<code>Context</code>中可存在多个<code>Wrapper</code>，除了Connector和Engine是平行关系，其它的都是包含关系。同时，它们也都继承了 Lifecycle 接口，该接口提供的是生命周期的管理，里面包括：初始化（init），启动（start），停止(stop)，销毁(destroy)。当它的父容器启动时，会调用它子容器的启动。</p>
 <p>Enginer可简单看作请求处理的通道，它负责从多个Connector接收、处理请求，并将对应的结果返回给Connector。</p>

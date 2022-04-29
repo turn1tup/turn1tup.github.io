@@ -173,7 +173,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="Java应用内存马"><a href="#Java应用内存马" class="headerlink" title="Java应用内存马"></a>Java应用内存马</h1><p>年初1月份写下了这篇文章，今天在组内进行了分享，也顺便分享出来。</p>
-<p>最初计划中还有不少东西要写，当后面想了想，整到这个地步也够了吧，后面搞其他更有意思的，就不再花费时间再这块了。</p>
+<p>最初计划中还有不少东西要写，但目前想了想，整到这个地步也够了吧，后面搞其他更有意思的，就不再花费时间再这块了。</p>
 <h2 id="1-Tomcat架构"><a href="#1-Tomcat架构" class="headerlink" title="1. Tomcat架构"></a>1. Tomcat架构</h2><p>在了解架构的基础上，我们才能做得更好，而非仅依葫芦画瓢。</p>
 <h3 id="1-1-整体架构"><a href="#1-1-整体架构" class="headerlink" title="1.1 整体架构"></a>1.1 整体架构</h3><p><code>Server</code> 指整个Tomcat容器， <code>Server</code> 中可以存在多个<code>Service</code>， <code>Service</code> 中多个<code>Connector</code>对应一个 <code>Engine</code>， <code>Engine</code> 中可存在多个<code>Host</code>，每个 <code>Host</code>中可以存在多个应用 <code>Context</code>，<code>Context</code>中可存在多个<code>Wrapper</code>，除了Connector和Engine是平行关系，其它的都是包含关系。同时，它们也都继承了 Lifecycle 接口，该接口提供的是生命周期的管理，里面包括：初始化（init），启动（start），停止(stop)，销毁(destroy)。当它的父容器启动时，会调用它子容器的启动。</p>
 <p>Enginer可简单看作请求处理的通道，它负责从多个Connector接收、处理请求，并将对应的结果返回给Connector。</p>
