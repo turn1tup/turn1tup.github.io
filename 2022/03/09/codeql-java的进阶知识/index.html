@@ -34,7 +34,7 @@
 <meta property="og:image" content="https://turn1tup.github.io/2022/03/09/codeql-java%E7%9A%84%E8%BF%9B%E9%98%B6%E7%9F%A5%E8%AF%86/processMethodHierarchy.png">
 <meta property="og:image" content="https://turn1tup.github.io/2022/03/09/codeql-java%E7%9A%84%E8%BF%9B%E9%98%B6%E7%9F%A5%E8%AF%86/GroovyInjection.png">
 <meta property="article:published_time" content="2022-03-10T05:00:00.000Z">
-<meta property="article:modified_time" content="2022-04-25T11:09:52.246Z">
+<meta property="article:modified_time" content="2022-04-29T10:50:23.460Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2022/03/09/codeql-java%E7%9A%84%E8%BF%9B%E9%98%B6%E7%9F%A5%E8%AF%86/RemoteFlowSource.png">
@@ -250,7 +250,7 @@
 <p><img src="/2022/03/09/codeql-java%E7%9A%84%E8%BF%9B%E9%98%B6%E7%9F%A5%E8%AF%86/detectHandlerMethods.png" alt="detectHandlerMethods"></p>
 <p>如果方法使用了<code>ModelAttribute</code>、<code>InitBinder</code>、<code>RequestMapping</code>这类注解，或者该方法所在类的父类的对应方法使用了这类注解，则该方法都是有效的入口方法。</p>
 <p><img src="/2022/03/09/codeql-java%E7%9A%84%E8%BF%9B%E9%98%B6%E7%9F%A5%E8%AF%86/SpringControllerMethod.png" alt="SpringControllerMethod"></p>
-<p>这里的<code>BController</code>继承了<code>AController</code>，我们给出的路径<code>/B</code>与<code>/MethodB</code>会进行对应的覆盖，如果不写注解Mapping，则沿用AController的路径，但URI路径不能完全一致，不能出现/A/MethodA。Spring的这种机制是为了让用户方便管理自己的Controller。</p>
+<p>这里的<code>BController</code>继承了<code>AController</code>，我们给出的路径<code>/B</code>与<code>/MethodB</code>会进行对应的覆盖，如果不写注解Mapping，则沿用AController的路径，但URI路径不能完全一致，不能出现/A/MethodA。Spring的这种机制是为了让用户方便管理自己的Controller。（这里的BController去掉<code>@Controller</code>注解，图片代码给错了）</p>
 <p><img src="/2022/03/09/codeql-java%E7%9A%84%E8%BF%9B%E9%98%B6%E7%9F%A5%E8%AF%86/ABController.png" alt="ABController">代码逻辑关键点在<code>o.s.c.a.AnnotationsScanner#processMethodHierarchy</code>，确实是有这么一回事。</p>
 <p><img src="/2022/03/09/codeql-java%E7%9A%84%E8%BF%9B%E9%98%B6%E7%9F%A5%E8%AF%86/processMethodHierarchy.png" alt="processMethodHierarchy"></p>
 <p>像很多注入漏洞，我们平时也只关注其中触发漏洞的一两个方法，但看看codeql的规则：</p>
