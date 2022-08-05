@@ -16,7 +16,7 @@
 <meta property="og:description" content="MyBatis高效SQL注入检测(RASP)1. 前言最近在写RASP的Hook点，适逢想到一种针对MyBatis的高效sqli检测方法，这里分享一下相关的思路、分析及实现代码。 2. 思路由来目前Debug到的代码看来，使用了${}进行SQL拼接的情况，使用的SqlSource实现类必为org.apache.ibatis.scripting.xmltags.DynamicContext，保存SQ">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://turn1tup.github.io/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/UserMapper.png">
-<meta property="og:image" content="https://turn1tup.github.io/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/DynamicSqlSource#getBoundSql.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/DynamicSqlSource_getBoundSql.png">
 <meta property="og:image" content="https://turn1tup.github.io/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/flow.png">
 <meta property="og:image" content="https://turn1tup.github.io/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/classyaml.png">
 <meta property="og:image" content="https://turn1tup.github.io/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/MybatisDynamicSqlSource.png">
@@ -25,7 +25,7 @@
 <meta property="og:image" content="https://turn1tup.github.io/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/checkSql.png">
 <meta property="og:image" content="https://turn1tup.github.io/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/demo.png">
 <meta property="article:published_time" content="2022-08-06T04:00:00.000Z">
-<meta property="article:modified_time" content="2022-08-05T10:49:23.471Z">
+<meta property="article:modified_time" content="2022-08-05T10:54:39.423Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/UserMapper.png">
@@ -188,7 +188,7 @@
 <h2 id="2-思路由来"><a href="#2-思路由来" class="headerlink" title="2. 思路由来"></a>2. 思路由来</h2><p>目前Debug到的代码看来，使用了${}进行SQL拼接的情况，使用的SqlSource实现类必为<code>org.apache.ibatis.scripting.xmltags.DynamicContext</code>，保存SQL片段的SqlNode只有<code>org.apache.ibatis.scripting.xmltags.StaticTextSqlNode</code>、<code>org.apache.ibatis.scripting.xmltags.TextSqlNode</code></p>
 <p>这里粗略看看DynamicSqlSource的getBoundSql函数，即可对MyBatis字符串拼接过程有所了解：入参<code>parameterObject</code>为上下文变量，根据dollor token内的变量名称进行替换；而我们的sql语句是被封装在多个sqlNode对象中的，其中仅有<code>StaticTextSqlNode</code>、<code>TextSqlNode</code>包含sql文本。</p>
 <p><img src="/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/UserMapper.png" alt="UserMapper"></p>
-<p><img src="/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/DynamicSqlSource#getBoundSql.png" alt="DynamicSqlSource#getBoundSql"></p>
+<p><img src="/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/DynamicSqlSource_getBoundSql.png" alt="DynamicSqlSource#getBoundSql"></p>
 <p>初步拼接出的sql (未解析#{})，为：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select user,host from user where user&#x3D;#&#123;user&#125;   order by 1</span><br></pre></td></tr></table></figure>
 

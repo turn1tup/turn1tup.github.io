@@ -176,7 +176,7 @@
 <h2 id="2-思路由来"><a href="#2-思路由来" class="headerlink" title="2. 思路由来"></a>2. 思路由来</h2><p>目前Debug到的代码看来，使用了${}进行SQL拼接的情况，使用的SqlSource实现类必为<code>org.apache.ibatis.scripting.xmltags.DynamicContext</code>，保存SQL片段的SqlNode只有<code>org.apache.ibatis.scripting.xmltags.StaticTextSqlNode</code>、<code>org.apache.ibatis.scripting.xmltags.TextSqlNode</code></p>
 <p>这里粗略看看DynamicSqlSource的getBoundSql函数，即可对MyBatis字符串拼接过程有所了解：入参<code>parameterObject</code>为上下文变量，根据dollor token内的变量名称进行替换；而我们的sql语句是被封装在多个sqlNode对象中的，其中仅有<code>StaticTextSqlNode</code>、<code>TextSqlNode</code>包含sql文本。</p>
 <p><img src="/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/UserMapper.png" alt="UserMapper"></p>
-<p><img src="/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/DynamicSqlSource#getBoundSql.png" alt="DynamicSqlSource#getBoundSql"></p>
+<p><img src="/2022/08/05/RASP%E4%B8%8B%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BMyBatisSQL%E6%B3%A8%E5%85%A5/DynamicSqlSource_getBoundSql.png" alt="DynamicSqlSource#getBoundSql"></p>
 <p>初步拼接出的sql (未解析#{})，为：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select user,host from user where user&#x3D;#&#123;user&#125;   order by 1</span><br></pre></td></tr></table></figure>
 
