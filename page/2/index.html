@@ -178,7 +178,7 @@
 <h3 id="2-1-思路整理"><a href="#2-1-思路整理" class="headerlink" title="2.1 思路整理"></a>2.1 思路整理</h3><p>有如下UserMapper.xml</p>
 <p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/UserMapper.png" alt="UserMapper"></p>
 <p>在SQL执行过程中，其会被解析成一个树状的 rootSqlNode (图片最下面) , Mybatis会遍历rootSqlNode下的node节点，将其拼接成一个完整的sql语句，而这些node节点中只有StaticTextSqlNode、TextSqlNode保存SQL片段，StaticTextSqlNode单纯保存SQL片段，TextSqlNode会调用dollar token替换函数来处理SQL片段中的 ${…} 数据。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/DynamicSqlSource#getBoundSql.png" alt="DynamicSqlSource#getBoundSql"></p>
+<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/DynamicSqlSource_getBoundSql.png" alt="DynamicSqlSource#getBoundSql"></p>
 <p>我们通过插桩StaticTextSqlNode、TextSqlNode，拼接其中的原始SQL片段可以获得本次SQL执行的raw sql：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> username,<span class="keyword">password</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> username=<span class="comment">#&#123;username&#125; order by $&#123;order&#125;</span></span><br></pre></td></tr></table></figure>
 
