@@ -152,66 +152,74 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-DOM型XSS的三个接收器" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-简析Apache如何解析HTTP请求" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/">DOM型XSS的三个接收器</a>
+      <a class="article-title" href="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/">简析Apache如何解析HTTP请求</a>
     </h1>
   
 
         
-        <a href="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/" class="archive-article-date">
-  	<time datetime="2020-06-16T15:30:16.409Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-16</time>
+        <a href="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/" class="archive-article-date">
+  	<time datetime="2019-10-04T04:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-10-03</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="DOM型XSS的三个接收器"><a href="#DOM型XSS的三个接收器" class="headerlink" title="DOM型XSS的三个接收器"></a>DOM型XSS的三个接收器</h1><blockquote>
-<p>翻译</p>
-<p>原文链接 <a href="https://brutelogic.com.br/blog/dom-based-xss-the-3-sinks/" target="_blank" rel="noopener">https://brutelogic.com.br/blog/dom-based-xss-the-3-sinks/</a></p>
-</blockquote>
-<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最常见的XSS是基于源的（普通XSS），这意味着被注入的JavaScript代码被传输到服务器后又传输到客户端，并在客户端这里被执行。<br>但还有另外一种主要类型————DOM型XSS，被注入的恶意代码的输入来源，与服务器无关，DOM型XSS既不是反射也不是存储：该种XSS是由客户端的原生JavaScript代码产生的。<br>DOM型XSS与基于原码的XSS（普通XSS）十分相似，所以它也被归纳为反射型XSS和存储型XSS的子类。当浏览器通过JS引擎与本地端的存储，提供反射/存储机制时，DOOM型XSS与基于原码的XSS就基本没有什么区别了。<br>然而，不同于简单的请求/响应模型，想要发现DOM型XSS，可能需要对代码进行大量分析。而通过静态甚至是动态的分析工具，都难以发现DOM型XSS漏洞。</p>
-<h3 id="源与接收器（Sources-and-sinks）"><a href="#源与接收器（Sources-and-sinks）" class="headerlink" title="源与接收器（Sources and sinks）"></a>源与接收器（Sources and sinks）</h3><p>DOM（文档对象模型）是由服务器传输过来的HTML文档与JavaScript代码生成的。也许你知道，JavaScript代码以脚本块和/或导入库的方式嵌入到HTML文档中。通过将所有HTML元素转换为对象后，我们可以通过JavaScript对其进行操作，即便是在浏览器运行期间的也可对其进行更改。</p>
-<p>XSS的触发逻辑，在服务端与客户端下都是一样（普通与DOM型）：我们需要找到相应的输入点与输出点。例如，在PHP服务端中，我们通常认为<code>$_GET[&quot;var&quot;]</code>或<code>$_POST[&quot;var&quot;]</code>这些是输入点，而<code>echo</code>或<code>print</code>这些命令是输出点，这也构成了XSS触发的条件。</p>
-<p>在客户端源这边，我们有源与接收器（sources and sinks）。源指的是DOM对象的众多属性，比如document.location,document.referer,window.name 甚至还有url参数（在处理后）这好比服务端的XSS。该列表非常庞大，因为HTML所有的内容都能被JavaScript所操作，并成为潜在的接收源（source of sinks）。</p>
-<p>因此，为了让我们更容易研究基于DOM的XSS，我们先来看看接收器，因为只有3个主要情况。下面是一个演示它们的页面。如果你对XSS有足够的经验或者只想训练自己，请立即停止阅读，并按照<code>#hack2learn</code>原则对其进行XSS。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">演示界面：</span><br><span class="line">https:&#x2F;&#x2F;brutelogic.com.br&#x2F;tests&#x2F;sinks.html</span><br></pre></td></tr></table></figure>
-
-<h3 id="三个接收器"><a href="#三个接收器" class="headerlink" title="三个接收器"></a>三个接收器</h3><p>在我们的演示页面中，我们有如下的源码：</p>
-<p><img src="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/1.png" alt="img"></p>
-<p>body中只有一个p元素，这个元素被该页面下的JS代码动态更新，这里并没有导入，也没有使用库。源码中通过三行注释分别标记出了三个示例，分别标记每个案例的代码片段的起始位置。</p>
-<p>在第一个案例文档接收器（Document Sink）之前，该代码通过API来处理URL参数的值：在获取<code>document.location.search</code>属性之后，我们创建一个实现了<a href="https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams" target="_blank" rel="noopener">URLSearchParams</a>的对象。</p>
-<p><img src="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/2.png" alt="img"></p>
-<h4 id="文档接收器-（DOCUMENT-SINK）"><a href="#文档接收器-（DOCUMENT-SINK）" class="headerlink" title="文档接收器 （DOCUMENT SINK）"></a>文档接收器 （DOCUMENT SINK）</h4><p>在文档接收器中，本机JavaScript代码使用受攻击者控制或提供的数据来更新当前文档。它可以在DOM中插入带有JS代码的全新HTML标记或是一个新的带有JS代码事件的属性。</p>
-<p><img src="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/3.png" alt="img"></p>
-<p>URL参数<code>name</code>的值被存在<code>username</code>变量中，以便稍后用于更新文档。如果该变量不为null，则使用字符串<code>Hello</code>拼接URL中<code>name</code>参数的值来更新p元素。这使得攻击者可以插入HTML代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;brutelogic.com.br&#x2F;tests&#x2F;sinks.html?name&#x3D;&lt;img+src+onerror&#x3D;alert(1)&gt;</span><br></pre></td></tr></table></figure>
-
-<p>需要注意的是，经典的<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>不起作用。还有其他几个XSS向量也如此，因为它是一个DOM插入而不是简单的源反射。只有少数情况下，上面的payload才会有作用。</p>
-<p>文档接收器可以以多种方式出现：使用innerHTML和outerHTML元素属性，使用document.write()，document.writeln()函数以及JavaScript库提供的任何其他方式来更新元素或文档。</p>
-<h4 id="位置接收器（LOCATION-SINK）"><a href="#位置接收器（LOCATION-SINK）" class="headerlink" title="位置接收器（LOCATION SINK）"></a>位置接收器（LOCATION SINK）</h4><p>在位置接收器中，本机JavaScript代码使用受攻击者控制或提供的数据更新文档的位置。通过这种方式，可以使用现代浏览器的一个有趣功能：JavaScript伪协议。</p>
-<p><img src="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/4.png" alt="img"></p>
-<p>通过获取<code>redir</code>参数的值，上面的代码可以将浏览器重定向到另一个地址，加载另一个文档。在跳转后的地址站点中攻击目标应用程序是没有用的，因为我们脱离了上下文。</p>
-<p>但是通过使用JavaScript伪协议，这是一种将JavaScript代码直接运行到浏览器地址栏中的方法，可以在当前文档中运行JS代码。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;brutelogic.com.br&#x2F;tests&#x2F;sinks.html?redir&#x3D;javascript:alert(1）</span><br></pre></td></tr></table></figure>
-
-<p>过去，当应用程序过滤器和WAF（Web应用程序防火墙）过滤<code>javascript</code>关键字时，可使用data URI技巧来替换。但是现代浏览器做了一些安全措施，如为JS执行提供空白上下文（空白上下文应该是指没有数据），甚至不再允许跳转（应该指data URI情况下）。</p>
-<h4 id="执行接收器（EXECUTION-SINK）"><a href="#执行接收器（EXECUTION-SINK）" class="headerlink" title="执行接收器（EXECUTION SINK）"></a>执行接收器（EXECUTION SINK）</h4><p>在执行接收器（Execution Sink）中，本机JavaScript代码使用受攻击者控制或提供的数据来更新其自己的代码流。</p>
-<p><img src="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/5.png" alt="img"></p>
-<p>通常<code>eval</code>会是一个庞大复杂代码的一部分，在这里只使用一个非常简单的代码：仅有3个变量，变量名分别是三个股票的名称：Nasdaq, Dow Jones and S&amp;P 500 。它们的值并不来自于一个真实应用程序的数据库，因此它们不会变化。</p>
-<p>创建<code>market</code>对象，从URL获取<code>index</code>参数的值后，这里使用<code>toString()</code>尝试确保该值最终是字符串（只是一种愚蠢的方式）。该代码之后使用<code>eval</code>函数动态地为<code>market</code>对象创建<code>index</code>属性。最后，获取<code>market.index</code>的值显示在p标签中。</p>
-<p>攻击者可以通过以下代码来进行XSS：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;brutelogic.com.br&#x2F;tests&#x2F;sinks.html?index&#x3D;alert(1）</span><br></pre></td></tr></table></figure>
-
-<p>因为该代码将被执行，所以看起来很简单。在现实世界的应用程序中，很可能需要根据代码流程进行一些测试才能找到漏洞点。</p>
-<p>除<code>eval</code>之外的其他执行接收器(execution sinks)是<code>setInterval</code>和<code>setTimeout</code>函数和模板文字。</p>
-<p>以上所诉的就是我们在寻找DOM型的XSS时应该注意的3个接收器(sinks)。</p>
+        <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>之前看了看Apache是如何解析HTTP请求的，整理了一下笔记，说说其中的一些要点。</p>
+<p>首先，在最新版本的Apache服务器http2.4.41中，似乎移除了对HTTP的许多“兼容特性”，这些特性是不符合RFC标准的，而笔者当时阅读的代码为2.4.3，本文记录了笔者在阅读代码时认为十分重要的一些解析细节。</p>
+<h2 id="read-a-line"><a href="#read-a-line" class="headerlink" title="read a line"></a>read a line</h2><p>Apache读到LF字符时，就判断一行已经读完了。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575636988533.png" alt="1575636988533"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637029446.png" alt="1575637029446"></p>
+<h2 id="before-request-line"><a href="#before-request-line" class="headerlink" title="before request line"></a>before request line</h2><p>读取请求行时，会跳过blank line，默认为DEFAULT_LIMIT_BLANK_LINES 次 （limit_req_fields没有被初始化），奇怪的是在2.4.3源码中没有搜索到定义值，在2.4.41中倒是搜索到了。</p>
+<p>Apache之所以会这样做，代码中解释说，浏览器在发POST请求时，会在末尾添加CRLF，如果形成一个pileline请求，request line前面就会有空行。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637431252.png" alt="1575637431252"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637515203.png" alt="1575637515203"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637273820.png" alt="1575637273820"></p>
+<h2 id="request-line"><a href="#request-line" class="headerlink" title="request line"></a>request line</h2><p>请求行默认长度最大为8190字节，请求行由三部分组成 method、uri、version</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575636873879.png" alt="1575636873879"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575637842396.png" alt="1575637842396"></p>
+<p>在获取method 、uri的时候，需要判断是否空白字符，2.4.3使用isspace来判断是否空白字符。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575638543636.png" alt="1575638543636"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575638436652.png" alt="1575638436652"></p>
+<p>内置method有26个，未被识别时返回UNKNOWN_METHOD（为啥phpstudy搭建的2.4.23 瞎写method都可以…）</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575639434615.png" alt="1575639434615"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575639557902.png" alt="1575639557902"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575639039658.png" alt="1575639039658"></p>
+<p>version没被解析成功的情况下，被设置为HTTP1.0</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575638751179.png" alt="1575638751179"></p>
+<p>URI是如何解析的，没有看到具体代码，相应的函数是个钩子函数。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575641409296.png" alt="1575641409296"></p>
+<p>在URL路径中，即？前面的字符串中，如果存在畸形URL编码，如%fg，则直接返回400；如果存在0字符，则返回404</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575641491019.png" alt="1575641491019"></p>
+<h2 id="header-filed"><a href="#header-filed" class="headerlink" title="header filed"></a>header filed</h2><p>每个头部默认长度最大为8190字节，头部个数最大默认为100</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575642413511.png" alt="1575642413511"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575642630350.png" alt="1575642630350"></p>
+<p>如果一个头部以SP或HT字符开头，表示该头部是上一个头部的extended，或者说是一个continue header line，该行将被合并到上一行，符合RFC。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/0570bbebcd774693909db21e89a21da2.png" alt="img"></p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/d1733fc5e392425f9081dc7d3e1b31ff.png" alt="img"></p>
+<p>请求域行中必须要有冒号 :</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/5f8b0bd018e44015b9ca8e822a692680.png" alt="img"></p>
+<p>头部中的多个LWS字符会被跳过。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/264ae11b938641b1b83bb9402035693d.png" alt="img"></p>
+<p>相同头部字段名的头部行将被合并，缓冲区大小不变</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/ae2506ae48ab4c329bda241f1c261d88.png" alt="img"></p>
+<h2 id="TE"><a href="#TE" class="headerlink" title="TE"></a>TE</h2><p>Transfer-Encoding存在时忽略Content-Length</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575642736359.png" alt="1575642736359"></p>
+<p>TE头部的值必须为chunked</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575647450202.png" alt="1575647450202"></p>
+<h2 id="must-hostname"><a href="#must-hostname" class="headerlink" title="must hostname"></a>must hostname</h2><p>http 1.1必须要有host头部字段，否则返回400</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/908d16b3e233405abbdba1fc3360eeac.png" alt="img"></p>
+<p>当Content-Type不为空且前面33个字符值为application/x-www-form-urlencoded时，会将Body认为为表单，并以”&amp;”符号分割表单，“=”区分key value，并且会对二者都进行URL解码，详细代码冗长，就不贴出来了。</p>
+<p><img src="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/1575646708932.png" alt="1575646708932"></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>代码最后看下来，在HTTP解析这块，我们需要关注的要点不是很繁多，而C代码只以业务功能的视角来浏览的话，不难。</p>
+<p>不过没有看到Apache解析multipart/form-data的代码，说明这种内容格式是web语言处理的。</p>
 
       
 
@@ -224,7 +232,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/06/16/DOM%E5%9E%8BXSS%E7%9A%84%E4%B8%89%E4%B8%AA%E6%8E%A5%E6%94%B6%E5%99%A8/">展开全文 >></a>
+          <a class="article-more-a" href="/2019/10/03/%E7%AE%80%E6%9E%90Apache%E5%A6%82%E4%BD%95%E8%A7%A3%E6%9E%90HTTP%E8%AF%B7%E6%B1%82/">展开全文 >></a>
         </p>
       
 
@@ -256,7 +264,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/20/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><span class="page-number current">21</span><a class="page-number" href="/page/22/">22</a><a class="page-number" href="/page/23/">23</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/22/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/20/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><span class="page-number current">21</span><a class="page-number" href="/page/22/">22</a><a class="page-number" href="/page/23/">23</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/22/">Next &amp;raquo;</a>
     </nav>
   
 
