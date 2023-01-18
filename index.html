@@ -152,62 +152,103 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-Native-Method-Hook-Bypass" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-mybatis插件下的SQL注入" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2022/10/01/Native-Method-Hook-Bypass/">Native-Method-Hook-Bypass</a>
+      <a class="article-title" href="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/">mybatis插件下的SQL注入</a>
     </h1>
   
 
         
-        <a href="/2022/10/01/Native-Method-Hook-Bypass/" class="archive-article-date">
-  	<time datetime="2022-10-02T04:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-01</time>
+        <a href="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/" class="archive-article-date">
+  	<time datetime="2023-01-18T17:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-01-18</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="JRASP-Native-Method-Hook-Bypass"><a href="#JRASP-Native-Method-Hook-Bypass" class="headerlink" title="JRASP Native Method Hook Bypass"></a>JRASP Native Method Hook Bypass</h1><h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>事情的开头是这样的，在21年年末，笔者与另外一些人，几乎同一时间发表了 java rasp的一个hook点bypass手法：利用 unsafe 在不调用类实例化方法的情况下我们可以直接获得一个class的实例化对象，随后调用其底层的native方法，从而进行命令执行等操作，由于native方法没有方法体无法被hook，当时的RASP都没有处理这种问题。</p>
-<p>JRASP是某公司推出的RASP产品，使用了 “native method hook” 技术，可对抗这种 rasp bypass 手法，该技术方案在今年的KCON上也有提到。本文阐述绕过该产品的 native method hook。</p>
-<p><img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_1.png" alt="jrasp_1"></p>
-<h2 id="安装JRASP"><a href="#安装JRASP" class="headerlink" title="安装JRASP"></a>安装JRASP</h2><p>在linux下安装JRASP，且提前安装好maven zip</p>
-<p>JRASP安装过程可参考 <a href="https://github.com/jvm-rasp/jrasp-agent" target="_blank" rel="noopener">https://github.com/jvm-rasp/jrasp-agent</a></p>
-<p> <img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_install.png" alt="jrasp_install"></p>
-<p>由于插件项目依赖jrasp-agent项目，在编译插件前需要在jrasp-agent下执行mvn install，添加本地依赖。</p>
-<p>下载插件项目 <a href="https://github.com/jvm-rasp/jrasp-modules，编译完成后将" target="_blank" rel="noopener">https://github.com/jvm-rasp/jrasp-modules，编译完成后将</a> deploy/* 下的jar包拷贝到 jrasp-agent/required-module ，注意修改pom.xml中的jrasp-module为1.0.4 ：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.jrasp.module<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jrasp-module<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br></pre></td></tr></table></figure>
+        <h1 id="mybatis插件下的SQL注入"><a href="#mybatis插件下的SQL注入" class="headerlink" title="mybatis插件下的SQL注入"></a>mybatis插件下的SQL注入</h1><h2 id="1-引言"><a href="#1-引言" class="headerlink" title="1. 引言"></a>1. 引言</h2><p>&emsp;&emsp;首先我们具体聊聊mybatis相关插件的代码实现，当然在这个分析代码流的过程中我们也知晓插件漏洞成因，最后给出一些漏洞案例。</p>
+<h2 id="2-PageHelper插件"><a href="#2-PageHelper插件" class="headerlink" title="2. PageHelper插件"></a>2. PageHelper插件</h2><p>&emsp;&emsp;<a href="https://github.com/pagehelper/Mybatis-PageHelper" target="_blank" rel="noopener">https://github.com/pagehelper/Mybatis-PageHelper</a></p>
+<p>&emsp;&emsp;PageHelper是一款用于协助分页的mybatis插件，插件分页功能使用不当会造成SQL注入问题，下面我们在分析代码时将遵循程序流逻辑进行叙述，测试时的版本库信息如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">com.github.pagehelper:pagehelper:5.3.2</span><br><span class="line">com.github.pagehelper:pagehelper-spring-boot-autoconfigure:1.4.6</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="原理描述"><a href="#原理描述" class="headerlink" title="原理描述"></a>原理描述</h2><p>实现native method hook可参考jrasp中的文档 <a href="https://www.jrasp.com/guide/technology/native_method.html" target="_blank" rel="noopener">https://www.jrasp.com/guide/technology/native_method.html</a> 。</p>
-<p>JDK的Instrumentation源码中，该方法的英文注释阐述了这么一个机制：JDK&gt;=1.6情况下，JVM在查找一个native方法对应的C代码映射方法时，为 <code>native boolean foo(int x);</code> -&gt;<code>Java_somePackage_someClass_foo(JNIEnv* env, jint x)</code> ；而如果我们通过 setNativeMethodPrefix  对一个native 方法进行了重命名(设置了prefix) ，jvm后续在执行该 prefix native method时，即进行  <code>native boolean prefixfoo(int x);</code> -&gt;<code>Java_somePackage_someClass_prefixfoo(JNIEnv* env, jint x)</code> 映射解析 是会失败的，但其随后会去除本Instrumentation中的prefix，然后重新尝试 ，即  <code>native boolean prefixfoo(int x);</code> -&gt;<code>Java_somePackage_someClass_foo(JNIEnv* env, jint x)</code> 。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Instrumentation</span> </span>&#123;  </span><br><span class="line">    ... ...</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">setNativeMethodPrefix</span><span class="params">(ClassFileTransformer transformer, String prefix)</span></span>;</span><br><span class="line">    ... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-1-添加拦截器到mybatis中"><a href="#2-1-添加拦截器到mybatis中" class="headerlink" title="2.1 添加拦截器到mybatis中"></a>2.1 添加拦截器到mybatis中</h3><p>&emsp;&emsp;<code>spring-boot</code>中我们通过引入如下依赖即可在mybatis中自动添加pagehelper插件，本小节我们来看看其是如何在应用启动时完成这一动作。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.pagehelper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pagehelper-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>通过这种动态的native方法映射，JDK 解决了 native 方法无法被hook的问题，即有如下源码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">UNIXProcess</span> <span class="keyword">extends</span> <span class="title">Process</span> </span>&#123;</span><br><span class="line">    ... ...</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">int</span> <span class="title">forkAndExec</span><span class="params">(<span class="keyword">int</span> paramInt1, <span class="keyword">byte</span>[] paramArrayOfbyte1, <span class="keyword">byte</span>[] paramArrayOfbyte2, <span class="keyword">byte</span>[] paramArrayOfbyte3, <span class="keyword">int</span> paramInt2, <span class="keyword">byte</span>[] paramArrayOfbyte4, <span class="keyword">int</span> paramInt3, <span class="keyword">byte</span>[] paramArrayOfbyte5, <span class="keyword">int</span>[] paramArrayOfint, <span class="keyword">boolean</span> paramBoolean)</span></span>;</span><br><span class="line">    ... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;添加PageHelper插件到mybatis中的功能为<code>PageHelperAutoConfiguration</code>实现的。</p>
+<p>&emsp;&emsp;<code>c.g.p.a.PageHelperAutoConfiguration</code> ：通过<code>按类型自动注解</code>可获得 <code>sqlSessionFactory</code> <code>pagePelperProperties</code> ，前者来源mybatis的相关bean对象，后者则为PageHelper维护的Bean且Bean字段内容来源于用户的配置。Configuration相关注解对象会被作为Bean进行管理，这里在Bean实例化且完成相关属性注入之后触发添加mybatis拦截器的流程。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/PageHelperAutoConfiguration1.4.6.png" alt="PageHelperAutoConfiguration1.4.6"></p>
+<p>mybatis的sqlSessionFactory的Bean对象：</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/MybatisAutoConfiguration.png" alt="MybatisAutoConfiguration"></p>
+<p>&emsp;&emsp;</p>
+<h3 id="2-2-设置SQL执行器"><a href="#2-2-设置SQL执行器" class="headerlink" title="2.2 设置SQL执行器"></a>2.2 设置SQL执行器</h3><p>&emsp;&emsp;mybatis在最后执行sql语句的时候，由执行器负责，相关接口类为 <code>org.apache.ibatis.executor.Executor</code> ，在未添加插件前，我们的sql查询功能会由 <code>o.a.i.e.CachingExecutor</code> 直接负责。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/CachingExecutor.png" alt="CachingExecutor"></p>
+<p>&emsp;&emsp;下面我们来看看plugin下的拦截器有何变化。</p>
+<p>&emsp;&emsp;<code>DefaultSqlSessionFactory#openSessionFromDataSource</code>：sql session在启动时未初始化，当我们第一次触发sql执行时，会从该方法获取sql session进行初始化，在这里也对executor进行设置。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/DefaultSqlSessionFactory.png" alt="DefaultSqlSessionFactory"></p>
+<p><code>configuration.newExecutor</code> ：首先是实例化一个执行器<code>CachingExecutor</code>，如果未添加拦截器的情况下，mybatis将直接使用该执行器；如果添加了拦截器，则将调用拦截器的 <code>plugin</code>方法，对当前executor进行JDK动态代理。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/newExecutor.png" alt="newExecutor"></p>
+<p><code>o.a.i.p.Plugin</code>：JDK动态代理的目标方法为拦截器的<code>Inteceptors注解</code>中给出的方法签名，具体执行则通过我们前面添加的拦截器的intecept方法去处理被代理的方法。关于<code>Inteceptors注解</code>可在<code>2.4</code>小节的图片上方看到。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/plugin_wrap.png" alt="plugin_wrap"></p>
+<h3 id="2-3-设置线程变量"><a href="#2-3-设置线程变量" class="headerlink" title="2.3 设置线程变量"></a>2.3 设置线程变量</h3><p>&emsp;&emsp;如图左所示，在使用时我们先需要执行<code>PageHelper.startPage</code>方法设置本次SQL分页的具体参数，startPage的重载方法有多个，比较简便的是<code>startPage(Object params)</code>方法，原理就是通过反射获取感兴趣的字段数据。在实例化<code>Page</code>后，会将该对象保存到当前线程中 （threadlocal）。根据startPage各个重载方法的代码可以了解到，实际开发者只会控制这三个变量。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/setLocalPage.png" alt="setLocalPage"></p>
+<h3 id="2-4-拦截器的执行"><a href="#2-4-拦截器的执行" class="headerlink" title="2.4 拦截器的执行"></a>2.4 拦截器的执行</h3><p>&emsp;&emsp;<code>c.g.p.PageInterceptor</code>：注解中指明JDK动态代理中需要代理拦截的方法；intercept 方法中为具体的分页功能，关于本次查询count的检查等代码这里就不关注了，我们需要关注的具体分页功能在147行代码中，这里获取到了mybatis原本将执行的SQL语句，然后进行分页处理。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/PageInterceptor.png" alt="PageInterceptor"></p>
+<p>​    <img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/ExecutorUtil.png" alt="ExecutorUtil"></p>
+<p>&emsp;&emsp;从下图代码可以了解到，当orderBy不为空时会将该字段值拼接到需要查询的SQL后面，后续就是根据情况拼接limit；到这里，我们基本理清楚PageHelper的原理，也了解到该插件在使用不当时是会存在SQL注入漏洞的。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/sqlappend.png" alt="sqlappend"></p>
+<h3 id="2-5-注入问题已修复"><a href="#2-5-注入问题已修复" class="headerlink" title="2.5 注入问题已修复"></a>2.5 注入问题已修复</h3><p>&emsp;&emsp;这里测试的<code>pagehelper starter1.4.6</code> 版本对oderBy字符串进行了sql防护校验，关键点是左括号被过滤了，而且该SQL注入点还是order by后面，笔者未想到绕过方式，所以高版本下PageHelper注入点无法利用。低点的版本，如<code>pagehelper starter 1.4.0</code>，在用户使用不当的情况下可利用该SQL注入问题。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/SqlSafeUtil.png" alt="SqlSafeUtil"></p>
+<p>&emsp;&emsp;对应的线程堆栈数据为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">check:58, SqlSafeUtil (com.github.pagehelper.util)</span><br><span class="line">setOrderBy:279, Page (com.github.pagehelper)</span><br><span class="line">getPageFromObject:136, PageObjectUtil (com.github.pagehelper.util)</span><br><span class="line">startPage:85, PageMethod (com.github.pagehelper.page)</span><br></pre></td></tr></table></figure>
 
-<p>我们在ClassFileTransformer中调用setNativeMethodPrefix设置了prefix后，可将代码修改如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">UNIXProcess</span> <span class="keyword">extends</span> <span class="title">Process</span> </span>&#123;</span><br><span class="line">    ... ...</span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">forkAndExec</span><span class="params">(<span class="keyword">int</span> paramInt1, <span class="keyword">byte</span>[] paramArrayOfbyte1, <span class="keyword">byte</span>[] paramArrayOfbyte2, <span class="keyword">byte</span>[] paramArrayOfbyte3, <span class="keyword">int</span> paramInt2, <span class="keyword">byte</span>[] paramArrayOfbyte4, <span class="keyword">int</span> paramInt3, <span class="keyword">byte</span>[] paramArrayOfbyte5, <span class="keyword">int</span>[] paramArrayOfint, <span class="keyword">boolean</span> paramBoolean)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> RASPforkAndExec(paramInt1, paramArrayOfbyte1, paramArrayOfbyte2, paramArrayOfbyte3, paramInt2, paramArrayOfbyte4, paramInt3, paramArrayOfbyte5, paramArrayOfint, paramBoolean);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">int</span> <span class="title">RASPforkAndExec</span><span class="params">(<span class="keyword">int</span> paramInt1, <span class="keyword">byte</span>[] paramArrayOfbyte1, <span class="keyword">byte</span>[] paramArrayOfbyte2, <span class="keyword">byte</span>[] paramArrayOfbyte3, <span class="keyword">int</span> paramInt2, <span class="keyword">byte</span>[] paramArrayOfbyte4, <span class="keyword">int</span> paramInt3, <span class="keyword">byte</span>[] paramArrayOfbyte5, <span class="keyword">int</span>[] paramArrayOfint, <span class="keyword">boolean</span> paramBoolean)</span></span>;</span><br><span class="line">    ... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>如此一来 <code>forkAndExec</code> 已经不是 native 方法，我们可以hook它；但如果攻击者换成调用 <code>RASPforkAndExec</code> ，则依然可以绕过我们的 hook 检测。</p>
-<h2 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h2><p><a href="https://github.com/turn1tup/JvmRaspBypass" target="_blank" rel="noopener">https://github.com/turn1tup/JvmRaspBypass</a></p>
-<p>下载该maven项目并编译打包，之后在linux下运行（JDK8）：</p>
-<p>  <img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_2.png" alt="jrasp_2"></p>
-<p>bypass原理为找到修改后的native方法。这里的cmd1后面会被jrasp拦截，cmd2则不会被拦截。</p>
-<p><a href="https://github.com/turn1tup/JvmRaspBypass/blob/main/src/main/java/com/test/RaspExample.java" target="_blank" rel="noopener">https://github.com/turn1tup/JvmRaspBypass/blob/main/src/main/java/com/test/RaspExample.java</a></p>
-<p> <img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_3.png" alt="jrasp_3"></p>
-<p>attach注入jrasp：</p>
-<p> <img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_4.png" alt="jrasp_3"></p>
-<p>jrasp默认拦截cat /etc/shadow</p>
-<p><a href="https://github.com/jvm-rasp/jrasp-modules/blob/master/rce/rce-algorithm/src/main/java/com/jrasp/module/rcenative/algorithm/check/impl/RceCommonCheck.java" target="_blank" rel="noopener">https://github.com/jvm-rasp/jrasp-modules/blob/master/rce/rce-algorithm/src/main/java/com/jrasp/module/rcenative/algorithm/check/impl/RceCommonCheck.java</a></p>
-<p> <img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_5.png" alt="jrasp_5"></p>
-<p>我们在注入jrasp成功后 rm -rf /tmp/shadow*，随后等待一段时间，可以发现cmd2执行成功（创建了/tmp/shadow2），无拦截日志；cmd1被jrasp拦截，且有拦截日志。</p>
-<p><img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_6.png" alt="jrasp_6"></p>
+
+<h2 id="3-baomidou插件"><a href="#3-baomidou插件" class="headerlink" title="3. baomidou插件"></a>3. baomidou插件</h2><p>&emsp;&emsp;<a href="https://github.com/baomidou/mybatis-plus" target="_blank" rel="noopener">https://github.com/baomidou/mybatis-plus</a> </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.baomidou<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-plus-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.5.3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;baomidou也是一款mybatis的分页插件，而针对这个插件，我们也不过多分析了，有了前文PagerHelper的分析，mybatis插件原理我们大致也了解，所以我们直接查看我们关注的漏洞点。另外这个插件没有修复该SQL注入问题。(这个插件比较坑，source和class代码都对不上，可能是作者用了lombok？）</p>
+<p>&emsp;&emsp;该插件中，order字段在使用时如果不注意也会造成SQL注入问题。</p>
+<p>&emsp;&emsp;<code>c.baomidou.m.e.p.i.PaginationInnerInterceptor#beforeQuery</code>：通过工具类从<code>parameter</code>参数变量中获取IPage数据用于分页，针对orderBy的语句的添加，这里先使用jsqlparser工具对当前SQL进行参数化，并对参数化得到的<code>plainSelect</code>对象添加orderBy语句，即setOrderByElements。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/baomidou_beforeQuery.png" alt="baomidou_beforeQuery"></p>
+<p><code>c.baomidou.m.c.t.ParameterUtils#findPage</code> ：从代码中我们可以了解到，如用户传参为IPage实现类或Map字典中有IPage实现类，均可被该工具方法提取出IPage数据。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/baomidou_findPage.png" alt="baomidou_findPage"></p>
+<p><code>n.s.jsqlparser.s.s.PlainSelect#toString</code>：虽然代码通过jsqlparser对sql进行参数化，但最后的sql语句生成还是通过直接拼接进行实现，所以当用户对该插件使用不当时会有SQL注入问题。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/baomidou_PlainSelect.png" alt="baomidou_PlainSelect"></p>
+<h2 id="4-漏洞案例"><a href="#4-漏洞案例" class="headerlink" title="4. 漏洞案例"></a>4. 漏洞案例</h2><h3 id="4-1-PageHelper"><a href="#4-1-PageHelper" class="headerlink" title="4.1 PageHelper"></a>4.1 PageHelper</h3><p>&emsp;&emsp; 插件有漏洞的版本为 <code>pagehelper-spring-boot-starter</code>&lt;=1.4.2 ，对应的core <code>com.github.pagehelper:pagehelper</code>&lt;=5.3.0 。</p>
+<p>&emsp;&emsp;并关注PageHelper以下两个重载方法，在低版本下，如果对应的orderBy可控且用户未过滤、非枚举，则可能存在SQL注入漏洞。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">抽象类（父类）</span><br><span class="line">com.github.pagehelper.page.PageMethod#startPage(int, int, java.lang.String)</span><br><span class="line">com.github.pagehelper.page.PageMethod#startPage(java.lang.Object)</span><br><span class="line">子类：</span><br><span class="line">PageHelper#startPage(int, int, java.lang.String)</span><br><span class="line">PageHelper#startPage(java.lang.Object)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>&emsp;&emsp;如某应用早期版本，使用的PageHelper版本为1.2.5，其未对从用户获取的orderBy数据做过滤，所以可进行SQL注入利用：</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/ruoyi_demo1.png" alt="ruoyi_demo1"></p>
+<p>&emsp;&emsp;我们可构造如下POC进行漏洞利用：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/system/user/list</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: 127.0.0.1:8082</span><br><span class="line"><span class="attribute">Cookie</span>: ...</span><br><span class="line"></span><br><span class="line">pageSize=10&amp;pageNum=1&amp;orderByColumn=? ,(select sleep(1) )-- -&amp;isAsc=desc</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="4-2-baomidou"><a href="#4-2-baomidou" class="headerlink" title="4.2 baomidou"></a>4.2 baomidou</h3><p>&emsp;&emsp; 如果dao方法传参中含有IPage实现类，且对应的接口方法支持接收复杂对象数据，则可能存在SQL注入漏洞。</p>
+<p>&emsp;&emsp;下图代码：开发者编写了一个用于接收用户数据的<code>LoginLogQueryForm</code>，该类继承了PageParam属性，且通过<code>convert2PageQuery</code>方法将相关属性都传递到page对象中，并在dao查询中传入了该page对象。回顾我们前文说说，当用于查询时传入的参数中，含有IPage实现类时，baomidou会根据该类进行分页，包括orderBy字典也来源于此，所以该代码在queryForm可被用户控制的情况下则存在SQL注入。</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/demo_baomi.png" alt="demo_baomi"></p>
+<p>&emsp;&emsp;恰好对应的接口方法接受复杂对象传参，即JSON POST：</p>
+<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/demo_baomi2.png" alt="demo_baomi2"></p>
+<p>于是我们可构造如下POC，并通过 <code>sqlmap --level 5 --technique et</code>进行测试：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/xxxx/loginLog/page/query</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: 127.0.0.1:8088</span><br><span class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0</span><br><span class="line"><span class="attribute">Content-Type</span>: application/json</span><br><span class="line"></span><br><span class="line">&#123;"userName":"","ip":"","pageNum":1,"pageSize":1,"sortItemList":[&#123;"column":"? ,( * )-- -","isAsc":true&#125;]&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-结语"><a href="#5-结语" class="headerlink" title="5. 结语"></a>5. 结语</h2><p>&emsp;&emsp;在笔者知晓该SQL注入问题后，意识到自己在日渐累积的工作生涯中，日渐淡出了这种探究各“不清不楚”问题的热情。当然也有一些务实行事方法的影响——对待新问题，实际工作中遇到再探究即可，毕竟可学习的东西可多了。但这却也使得笔者在自己比较熟悉的一些方面，遇到某些“概念”时也不以为意，放任不管。</p>
+<p>&emsp;&emsp;感谢<code>2022-12 psrc-甲方视角下的代码审计</code>的分享，PPT中提到pagehelper插件问题，笔者遂对此进行了一番简单分析，并作此分享。</p>
 
       
 
@@ -220,7 +261,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/01/Native-Method-Hook-Bypass/">展开全文 >></a>
+          <a class="article-more-a" href="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/">展开全文 >></a>
         </p>
       
 
@@ -252,7 +293,7 @@
   
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
     </nav>
   
 
@@ -266,7 +307,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2022 turn1tup
+    		&copy; 2023 turn1tup
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
