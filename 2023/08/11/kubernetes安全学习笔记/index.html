@@ -28,7 +28,7 @@
 <meta property="og:image" content="https://turn1tup.github.io/2023/08/11/kubernetes%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/capsh.png">
 <meta property="og:image" content="https://turn1tup.github.io/2023/08/11/kubernetes%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/ls_proc.png">
 <meta property="article:published_time" content="2023-08-11T07:00:00.000Z">
-<meta property="article:modified_time" content="2023-08-11T16:28:06.370Z">
+<meta property="article:modified_time" content="2023-08-16T12:09:57.745Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://turn1tup.github.io/2023/08/11/kubernetes%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/class_power.png">
@@ -499,7 +499,8 @@
 <h3 id="5-2-pod-service-account"><a href="#5-2-pod-service-account" class="headerlink" title="5.2. pod service account"></a>5.2. pod service account</h3><p>见 “使用sa token”一节</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl --header &quot;Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IndWRWJ5UklGa0RNdEtBaEgzd3BEdHUzZlZVZEdFYkk1UzRhbW9laDdKcmsifQ.eyJhdWQOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzIxNDQyODM2LCJpYXQiOjE2ODk5MDY4MzYsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJkZWZhdWx0IiwicG9kIjp7Im5hbWUiOiJuZ2lueCIsInVpZCI6IjA0NDZjMWJjLTlkYzgtNDBmMi1iZjllLTlhZmY3NGRiODBkMCJ9LCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiZGVmYXVsdCIsInVpZCI6IjExM2Q4MGRhLTcwZTYtNGJlYS05MmU2LTgxZGE2NDc3ODBhZSJ9LCJ3YXJuYWZ0ZXIiOjE2ODk5MTA0NDN9LCJuYmYiOjE2ODk5MDY4MzYsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmRlZmF1bHQifQ.YYqWGNJokhbODI6iGYNt9FVInQmwb-2ujYn94Z6e-wOScbs90Q7x3HaJ_2NhXVIl6TrlVtOI76ApenncMu-d5ieeqO8t3rwKiWrp3xwkbaLy7-4UawPZxtnO40V7S_s75E0AD74o9PkLMAD_Dr9NZy5yuKqhWIlnfGf8bdsyGrGk_-9sdpQVt3VGtNoXtJ__vgoizcWVen6C8N74LPuh1B84lvGjZFB02mRrBQr88aLU7FCSox7404Q74lTM_tSjhhqop9SgIdNx-E7nX9sz_nMxoMiNuJTYX80S2GA-O9FpqqT0DLO2TVwG4LfHvZI2oQX52OqRxtZwOYHPIewAqQ&quot; -X GET https:&#x2F;&#x2F;192.168.128.129:6443&#x2F;api&#x2F; --insecure</span><br></pre></td></tr></table></figure>
 
-<h3 id="5-3-容器内的网络"><a href="#5-3-容器内的网络" class="headerlink" title="5.3. 容器内的网络"></a>5.3. 容器内的网络</h3><p><a href="https://github.com/neargle/my-re0-k8s-security#4-%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C" target="_blank" rel="noopener">https://github.com/neargle/my-re0-k8s-security#4-%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C</a></p>
+<h3 id="5-3-容器内的网络"><a href="#5-3-容器内的网络" class="headerlink" title="5.3. 容器内的网络"></a>5.3. 容器内的网络</h3><p>目前云原生下，主流的网络架构还是传统的 <code>主机网络</code>。我们自己搭建的k8s集群默认是看不到其他pod、k8s apiserver的，但实际生产环境，为了方便 及 保障服务可靠，运维&amp;开发 部署的k8s为 主机网络 这种开放式的网络，但这种未隔离的网络是不成熟的做法。简单来说，底层架构从传统的物理主机/虚拟主机 转到 了云原生架构，但在网络策略这块还停留在传统主机网络做法，让一个k8s集群内的网络互相透明。而目前超乎想象火爆的项目 cilium 似乎就是为了解决这个问题。</p>
+<p>容器的主机网络 ：<a href="https://github.com/neargle/my-re0-k8s-security#4-%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C" target="_blank" rel="noopener">https://github.com/neargle/my-re0-k8s-security#4-%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C</a></p>
 <p>以 Kubernetes 为例，容器与容器之间的网络是极为特殊的。虽然大部分经典 IDC 内网的手法和技巧依然可以使用，但是容器技术所构建起来的是全新的内网环境，特别是当企业引入服务网格等云原生技术做服务治理时，整个内网和 IDC 内网的差别就非常大了；因此了解一下 Kubernetes 网络的默认设计是非常重要的，为了避免引入复杂的 Kubernetes 网络知识，我们以攻击者的视角来简述放在蓝军面前的 Kubernetes 网络。</p>
 <p><img src="/2023/08/11/kubernetes%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/network.png" alt="network"></p>
 <p>从上图可以很直观的看出，当我们获取 Kubernetes 集群内某个容器的 shell，默认情况下我们可以访问以下几个内网里的目标：</p>
@@ -785,6 +786,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2023/08/16/cilium%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC%E4%B9%8B%E6%97%85(%E8%AF%91)/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          cilium服务网格之旅(译)
+        
+      </div>
+    </a>
   
   
     <a href="/2023/06/01/XXE%E6%A6%82%E8%A6%81/" id="article-nav-older" class="article-nav-link-wrap">

