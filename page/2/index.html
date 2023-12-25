@@ -152,19 +152,19 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-CVE-2022-21701 Istio 提权漏洞复现与分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-CVE-2022-21701-Istio-提权漏洞复现与分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2023/09/03/CVE-2022-21701%20Istio%20%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/">CVE-2022-21701 Istio 提权漏洞复现与分析</a>
+      <a class="article-title" href="/2023/09/03/CVE-2022-21701-Istio-%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/">CVE-2022-21701-Istio-提权漏洞复现与分析</a>
     </h1>
   
 
         
-        <a href="/2023/09/03/CVE-2022-21701%20Istio%20%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/" class="archive-article-date">
+        <a href="/2023/09/03/CVE-2022-21701-Istio-%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/" class="archive-article-date">
   	<time datetime="2023-09-03T07:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-09-03</time>
 </a>
         
@@ -247,19 +247,19 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The Gateway &quot;gatewaytest\\n123&quot; is invalid: metadata.name: Invalid value: &quot;gatewaytest\\n123&quot;: a lowercase RFC 1123 subdomain must consist of lower case alphanumeric characters, &#39;-&#39; or &#39;.&#39;, and must start and end with an alphanumeric character (e.g. &#39;example.com&#39;, regex used for validation is &#39;[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*&#39;)</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;我们可以通过源码文件中的单元测试代码来debug从而理解该关键流程：</p>
-<p>![image-20230830164247421](CVE-2022-21701 Istio 提权漏洞复现与分析/1.png)</p>
+<p><img src="/2023/09/03/CVE-2022-21701-Istio-%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/1.png" alt="image-20230830164247421"></p>
 <p>&emsp;&emsp;用于生成service资源配置的 <code>service.yaml</code> 模板文件内容如下，其中的 <code>type</code> 字段通过 index 语法从上下文中获取名称<code>Annotations</code>的map，并取 key 值为  <code>networking.istio.io/service-type</code> 的 value值，另外其他字段也来源于Gateway且没有经过过滤验证，但由于不在末尾，构建POC比较麻烦：</p>
-<p>![image-20230830162831046](CVE-2022-21701 Istio 提权漏洞复现与分析/2.png)</p>
+<p><img src="/2023/09/03/CVE-2022-21701-Istio-%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/2.png" alt="image-20230830162831046"></p>
 <p>&emsp;&emsp;我们的数据封装为 <code>serviceInput</code> 类型的对象，并应用于service.yaml 模板文件</p>
-<p>![image-20230830162302132](CVE-2022-21701 Istio 提权漏洞复现与分析/3.png)</p>
+<p><img src="/2023/09/03/CVE-2022-21701-Istio-%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/3.png" alt="image-20230830162302132"></p>
 <p>&emsp;&emsp;可以看到，应用模板文件后输出的文本中，我们的换行符改变了yaml文件格式，我们可以尝试定义其他类型的资源，如pod</p>
-<p>![image-20230830164148836](CVE-2022-21701 Istio 提权漏洞复现与分析/4.png)</p>
+<p><img src="/2023/09/03/CVE-2022-21701-Istio-%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/4.png" alt="image-20230830164148836"></p>
 <p>&emsp;&emsp;模板转换成功后通过patcher方法请求apiserver部署资源</p>
-<p>![image-20230831145533755](CVE-2022-21701 Istio 提权漏洞复现与分析/5.png)</p>
+<p><img src="/2023/09/03/CVE-2022-21701-Istio-%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/5.png" alt="image-20230831145533755"></p>
 <p>&emsp;&emsp;patcher方法为抽象方法，对应的实现在<code>NewDeploymentController</code>初始化代码中，可以看到，其最终调用client，而client为istio启动时的初始化对象，相关参数来源启动参数：</p>
-<p>![image-20230831150128170](CVE-2022-21701 Istio 提权漏洞复现与分析/6.png)</p>
+<p><img src="/2023/09/03/CVE-2022-21701-Istio-%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/6.png" alt="image-20230831150128170"></p>
 <h2 id="4-补丁"><a href="#4-补丁" class="headerlink" title="4. 补丁"></a>4. 补丁</h2><p>&emsp;&emsp;通过text/template 的 quote 语法让输出的文本自动使用引号包裹，解决换行等字符导致的注入新的YAML结构的问题，除了 <code>type</code> 字段外的多个字段也统一修复：</p>
-<p>![image-20230831103444070](CVE-2022-21701 Istio 提权漏洞复现与分析/7.png)</p>
+<p><img src="/2023/09/03/CVE-2022-21701-Istio-%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/7.png" alt="image-20230831103444070"></p>
 <h2 id="5-结语"><a href="#5-结语" class="headerlink" title="5. 结语"></a>5. 结语</h2><p>&emsp;&emsp;关于istio是否添加Validation约束Gateway等资源，或添加的内容具体是什么，笔者还不是很清晰，其中通过 <code>k get validatingwebhookconfigurations -o yaml</code>命令看到的内容可能展示了部分，还待了解整个代码机制。官方也给出了Istio 远程GO DEBUG的参考配置，后续可考虑在此DEBUG环境下做更多了解。总之，由于对完整机制、代码 还未透彻，其中一些漏洞细节分析还是比较粗略。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.anquanke.com/post/id/272528" target="_blank" rel="noopener">https://www.anquanke.com/post/id/272528</a> Go template 遇上 yaml 反序列化 CVE-2022-21701 分析</p>
 
@@ -274,7 +274,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2023/09/03/CVE-2022-21701%20Istio%20%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/">展开全文 >></a>
+          <a class="article-more-a" href="/2023/09/03/CVE-2022-21701-Istio-%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E4%B8%8E%E5%88%86%E6%9E%90/">展开全文 >></a>
         </p>
       
 
