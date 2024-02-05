@@ -152,290 +152,194 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-剖析Dongtai-IAST的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-SpringWeb下的路径鉴权问题" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/">剖析Dongtai-IAST的实现</a>
+      <a class="article-title" href="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/">SpringWeb下的路径鉴权问题</a>
     </h1>
   
 
         
-        <a href="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/" class="archive-article-date">
-  	<time datetime="2023-12-24T08:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-12-24</time>
+        <a href="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/" class="archive-article-date">
+  	<time datetime="2024-01-25T05:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-01-24</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="剖析Dongtai-IAST的实现"><a href="#剖析Dongtai-IAST的实现" class="headerlink" title="剖析Dongtai-IAST的实现"></a>剖析Dongtai-IAST的实现</h1><p>galaxylab @turn1tup </p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/dir.png" alt="dir"></p>
-<h2 id="1-开言"><a href="#1-开言" class="headerlink" title="1. 开言"></a>1. 开言</h2><p>&emsp;&emsp;IAST有主动式的与被动式的，典型的开源代码分别有OpenRASP与Dongtai IAST，通常认为被动式的优势在于不产生脏数据，不干扰业务方的工作，可部署于测试环境。笔者最近一周弄清楚了dongtai iast的实现，虽然代码没有注释且有点乱，但渐入佳境后就感觉还好，以此文作为对此的学习记录。</p>
-<p>&emsp;&emsp;本文主要关注其中的“链路式”功能，对于其他的SCA、硬编码检测等则不进行介绍。本文首先尝试阐述DongTai IAST启动后的前期工作，包括 插桩的策略及相关字段业务目标、插桩、桩，其后便是具体IAST的功能实现。测试时所用版本为 agent-1.14.1、server-1.16.0。</p>
-<h2 id="2-IAST前期工作"><a href="#2-IAST前期工作" class="headerlink" title="2. IAST前期工作"></a>2. IAST前期工作</h2><p>RASP/IAST 这类都会有两个重要的东西，插桩 与 桩，前者为agent如何选择性地钩挂类方法，后者的话就是具体的业务功能实现。</p>
+        <h1 id="SpringWeb下的路径鉴权问题"><a href="#SpringWeb下的路径鉴权问题" class="headerlink" title="SpringWeb下的路径鉴权问题"></a>SpringWeb下的路径鉴权问题</h1><p>@turn1tup</p>
+<h2 id="1-问题的模型"><a href="#1-问题的模型" class="headerlink" title="1.问题的模型"></a>1.问题的模型</h2><p>&emsp;&emsp;应用的业务功能中，鉴权与授权 Authentication/Authorization是一项重要的功能。通常，不同URL路径对应着web应用的不同的业务功能，开发者编写的web应用中会将鉴权逻辑独立出来，并通过filter/interceptor这些前置的拦截器对用户的请求统一地进行鉴权判断。</p>
+<p>&emsp;&emsp;本文给出了不同解析方式下的差异问题表，并对这些解析模式进行了相应的代码分析，最后根据前文的问题模型对漏洞模式进行了分析。</p>
+<p>&emsp;&emsp;首先，对于鉴权这块的逻辑缺陷导致的接口未授权访问，实际存在如下实体，并可据此进行系统性地分析，本文实际也围绕如下对象进行叙述：</p>
 <ul>
-<li>插桩<ul>
-<li>查找定位：找到目标插桩点的过程通常为，找到目标类，项目代码中体现在<code>DispatchPlugin#dispatch</code>；随后时找到目标方法，项目使用的ASM框架体现在<code>ClassVisitor#visitMethod</code>中，因为这里可以拿到方法名与方法描述符，</li>
-<li>执行修改：通过asm的 MethodVisitor或AdviceAdapter 来修改方法字节码、进行钩挂操作，如通过onMethodEnter、onMethodExit可在进入方法时与退出方式时执行我们自定义的代码 。</li>
+<li>URL资源路径：路径的格式，资源路径的解析差异</li>
+<li>控制层与业务层：分层容易带来“解析不一致”问题<ul>
+<li>控制层：过滤拦截，鉴权判断<ul>
+<li>资源路径的解析</li>
+<li>鉴权路由的匹配</li>
 </ul>
 </li>
-<li>桩：桩可以在运行时获取目标方法的上下文，也是我们具体业务功能实现的承载者。</li>
-<li>插桩策略：插桩过程还依赖一个“数据集”，该数据集保存我们希望钩挂的相关类方法，所以我们下面先从这点说起。</li>
-</ul>
-<h3 id="2-1-插桩策略"><a href="#2-1-插桩策略" class="headerlink" title="2.1. 插桩策略"></a>2.1. 插桩策略</h3><h4 id="2-1-1-钩挂策略数据格式"><a href="#2-1-1-钩挂策略数据格式" class="headerlink" title="2.1.1. 钩挂策略数据格式"></a>2.1.1. 钩挂策略数据格式</h4><p>首先这里展示其中2个JSON格式的配置，本节内容阅读过程中 可以回顾看看：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"stack_blacklist"</span>: [],</span><br><span class="line">    <span class="attr">"ignore_blacklist"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"signature"</span>: <span class="string">"java.net.URL.&lt;init&gt;(java.net.URL,java.lang.String,java.net.URLStreamHandler)"</span>,</span><br><span class="line">    <span class="attr">"inherit"</span>: <span class="string">"false"</span>,</span><br><span class="line">    <span class="attr">"untags"</span>: [],</span><br><span class="line">    <span class="attr">"source"</span>: <span class="string">"P1,2"</span>,</span><br><span class="line">    <span class="attr">"type"</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">"vul_type"</span>: <span class="string">"URL"</span>,</span><br><span class="line">    <span class="attr">"ignore_internal"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"command"</span>: <span class="string">""</span>,</span><br><span class="line">    <span class="attr">"target"</span>: <span class="string">"O"</span>,</span><br><span class="line">    <span class="attr">"tags"</span>: []</span><br><span class="line">  &#125;</span><br><span class="line">,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">"stack_blacklist"</span>: [],</span><br><span class="line">    <span class="attr">"ignore_blacklist"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"signature"</span>: <span class="string">"javax.servlet.http.HttpServletRequest.getHeader(java.lang.String)"</span>,</span><br><span class="line">    <span class="attr">"inherit"</span>: <span class="string">"true"</span>,</span><br><span class="line">    <span class="attr">"untags"</span>: [],</span><br><span class="line">    <span class="attr">"source"</span>: <span class="string">"P1"</span>,</span><br><span class="line">    <span class="attr">"type"</span>: <span class="number">2</span>,</span><br><span class="line">    <span class="attr">"vul_type"</span>: <span class="string">"javax.servlet.http.HttpServletRequest"</span>,</span><br><span class="line">    <span class="attr">"ignore_internal"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"command"</span>: <span class="string">""</span>,</span><br><span class="line">    <span class="attr">"target"</span>: <span class="string">"R"</span>,</span><br><span class="line">    <span class="attr">"tags"</span>: [</span><br><span class="line">      <span class="string">"cross-site"</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>type 字段含义如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> PolicyNodeType &#123;</span><br><span class="line">    SOURCE(<span class="number">2</span>, <span class="string">"source"</span>),</span><br><span class="line">    PROPAGATOR(<span class="number">1</span>, <span class="string">"propagator"</span>),<span class="comment">//传播者</span></span><br><span class="line">    VALIDATOR(<span class="number">3</span>, <span class="string">"validator"</span>),</span><br><span class="line">    SINK(<span class="number">4</span>, <span class="string">"sink"</span>),</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="2-1-2-Policy与PolicyNode"><a href="#2-1-2-Policy与PolicyNode" class="headerlink" title="2.1.2. Policy与PolicyNode"></a>2.1.2. Policy与PolicyNode</h4><p>AgentEngine保存着一个单例对象PolicyManager</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AgentEngine</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> AgentEngine instance;</span><br><span class="line">    <span class="keyword">private</span> PolicyManager policyManager;</span><br></pre></td></tr></table></figure>
-
-<p>PolicyManager通过loadPolicy从 本地或远程服务器 的配置实例化一个Policy对象。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PolicyManager</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Policy policy;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadPolicy</span><span class="params">(String policyPath)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JSONArray policyConfig;</span><br><span class="line">            <span class="keyword">if</span> (StringUtils.isEmpty(policyPath)) &#123;</span><br><span class="line">                policyConfig = PolicyBuilder.fetchFromServer();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                policyConfig = PolicyBuilder.fetchFromFile(policyPath);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">this</span>.policy = PolicyBuilder.build(policyConfig);</span><br></pre></td></tr></table></figure>
-
-<p>Policy对象保存一系列数据，包括与 源、污点、验证、传播 有关的策略，JSON格式的配置可看作其中的PolicyNode，在遍历多个JSON对象的过程中，将它们封装在Policy的sources/sinks/propagators字段中：</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/Policy.png" alt="Policy"></p>
-<p>到了我们最关键的部分 <code>PolicyNode</code>，其子类包括SourceNode、PropagaorNode、SinkNode、ValidatorNode，该类的子类决定了具体的插桩策略，策略选项包括 以下内容，这些先简述，后面后面会有进一步的描述：</p>
-<ul>
-<li>Inheritable：类的继承策略，包括 ALL、SUBCLASS、SELF 三种</li>
-<li>MethodMatcher：匹配具体的方法，实际通过子类 SignatureMethodMatcher 实现</li>
-<li>TaintPosition：标记钩挂点方法中需要关注的入参或返回，分为 sources 、targets两种<ul>
-<li><code>sources</code>：数据类型为<code>Set&lt;TaintPosition&gt;</code>，表示数据流中的上游节点、入口节点</li>
-<li><code>targets</code>：数据类型为<code>Set&lt;TaintPosition&gt;</code>，表示数据流中的下游节点、出口节点，只被 传播者TaintFlowNode 持有，因为其处于 流中继 中。</li>
-</ul>
-</li>
-<li>String[] tags：</li>
-<li>ignoreBlacklist：是否忽略黑名单，在插桩时，会先进行一系列的黑名单过滤再走到我们配置的插桩策略（没有任何一个插桩策略说开启该选项的）</li>
-<li>ignoreInternal：不知道是干什么用的，当这个为 false 时，ignoreBlacklist 的 false 值才生效，因为其和 ignoreBlacklist  一同出现在条件判断中；另外 插入的 字节码代码中，该值为 true则会调用 enterIgnoreInternal。</li>
-<li>TaintCommandRunner：</li>
-</ul>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/PolicyNode.png" alt="PolicyNode"></p>
-<h4 id="2-1-3-继承策略类型-Inheritable"><a href="#2-1-3-继承策略类型-Inheritable" class="headerlink" title="2.1.3.继承策略类型 Inheritable"></a>2.1.3.继承策略类型 Inheritable</h4><p>继承策略类型，包括 </p>
-<ul>
-<li>SUBCLASS ：只关注该类的子类</li>
-<li>SELF ：只关注该类本身</li>
-<li>ALL：关注 SUBCLASS 、SELF 两种情况</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Inheritable &#123;</span><br><span class="line">    ALL(<span class="string">"all"</span>),</span><br><span class="line">    SUBCLASS(<span class="string">"true"</span>),</span><br><span class="line">    SELF(<span class="string">"false"</span>),</span><br></pre></td></tr></table></figure>
-
-<p>在读取插桩策略配置后，根据其Inheritable类型选择性地将类名放到 classHooks、ancestorClassHooks 中：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Policy</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Set&lt;String&gt; classHooks = <span class="keyword">new</span> HashSet&lt;String&gt;();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Set&lt;String&gt; ancestorClassHooks = <span class="keyword">new</span> HashSet&lt;String&gt;();</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="2-1-4-类方法匹配模型-SignatureMethodMatcher"><a href="#2-1-4-类方法匹配模型-SignatureMethodMatcher" class="headerlink" title="2.1.4.类方法匹配模型 SignatureMethodMatcher"></a>2.1.4.类方法匹配模型 SignatureMethodMatcher</h4><p>类方法匹配的数据模型，存储的类名 、方法名、方法参数类型：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SignatureMethodMatcher</span> <span class="keyword">implements</span> <span class="title">MethodMatcher</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Signature signature;</span><br><span class="line">... ...    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Signature</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String signature; <span class="comment">// className+methodName+parameters</span></span><br><span class="line">    <span class="keyword">private</span> String className;</span><br><span class="line">    <span class="keyword">private</span> String methodName;</span><br><span class="line">    <span class="keyword">private</span> String[] parameters;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Signature</span><span class="params">(String className, String methodName, String[] parameters)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.className = className;</span><br><span class="line">        <span class="keyword">this</span>.methodName = methodName;</span><br><span class="line">        <span class="keyword">this</span>.parameters = parameters;</span><br><span class="line">    &#125;</span><br><span class="line">... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-1-5-跟踪点类型-TaintPosition"><a href="#2-1-5-跟踪点类型-TaintPosition" class="headerlink" title="2.1.5.跟踪点类型 TaintPosition"></a>2.1.5.跟踪点类型 TaintPosition</h4><p>跟踪点，即我们钩挂的方法 sink/source/propagator 中“危险”的数据源，可能是对象字段、方法参数等。</p>
-<p>跟踪点TaintPosition，这里的代码写的让人摸不着头脑，但是细细阅读理解后可以总结下来：</p>
-<ul>
-<li>方法的跟踪点关注的类型分为3种，分别为 this对象、方法入参、方法的返回，分别用 OBJECT、RETURN、PARAM_PREFIX来标记</li>
-<li>跟踪点的配置内容可以写作如下形式  <strong><code>O | R | P1,2,3</code></strong> ，通过相关方法解析后，该形式可得到5个TaintPosition</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TaintPosition</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String OBJECT = <span class="string">"O"</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String RETURN = <span class="string">"R"</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String PARAM_PREFIX = <span class="string">"P"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String OR = <span class="string">"\\|"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> TaintPosition POS_OBJECT = <span class="keyword">new</span> TaintPosition(OBJECT);</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> TaintPosition POS_RETURN = <span class="keyword">new</span> TaintPosition(RETURN);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String ERR_POSITION_EMPTY = <span class="string">"taint position can not empty"</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String ERR_POSITION_INVALID = <span class="string">"taint position invalid"</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String ERR_POSITION_PARAMETER_INDEX_INVALID = <span class="string">"taint position parameter index invalid"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String value;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> parameterIndex;</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="2-1-6-字符串跟踪操作-TaintCommand"><a href="#2-1-6-字符串跟踪操作-TaintCommand" class="headerlink" title="2.1.6.字符串跟踪操作 TaintCommand"></a>2.1.6.字符串跟踪操作 TaintCommand</h4><p>但我们关注的 数据对象  发生字符串操作，如 拼接、插入 时，dongtai iast会标记其在新字符串内容中的相应位置，该功能通过 ThreadLocal、TaintRanges 及这里的 TaintCommand协作进行完成。</p>
-<p>TaintCommand ，标记该钩挂点触发时，需要进行何种操作来 进行 标记操作，以保持对字符串位置的准确跟踪。这个跟踪功能的意义，目前看来只是用于最后输出告警时给用户展示。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> TaintCommand &#123;</span><br><span class="line">    KEEP,</span><br><span class="line">    APPEND,</span><br><span class="line">    SUBSET,</span><br><span class="line">    INSERT,</span><br><span class="line">    REMOVE,</span><br><span class="line">    REPLACE,</span><br><span class="line">    CONCAT,</span><br><span class="line">    OVERWRITE,</span><br><span class="line">    TRIM,</span><br><span class="line">    TRIM_RIGHT,</span><br><span class="line">    TRIM_LEFT,</span><br></pre></td></tr></table></figure>
-
-<p>通过switch case语句找到对应的算法，通过对应的算法来完成该跟踪操作，这一系列的算法应该是项目最复杂的地方：</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/TaintCommandRunner.run.png" alt="TaintCommandRunner.run"></p>
-<h3 id="2-2-插桩（查找定位）"><a href="#2-2-插桩（查找定位）" class="headerlink" title="2.2. 插桩（查找定位）"></a>2.2. 插桩（查找定位）</h3><h4 id="2-2-1-ASM基础知识"><a href="#2-2-1-ASM基础知识" class="headerlink" title="2.2.1.ASM基础知识"></a>2.2.1.ASM基础知识</h4><p>&emsp;&emsp;说一下ASM的基本使用，方便理解本节内容。</p>
-<p>&emsp;&emsp;如何通过ASM框架修改字节码，直接体现在前10行代码中，我们通过自定义的 ClassVisitor 来处理该类，后续在ClassVisitor中可以获取到该类的各个方法，所以通常修改字节码的逻辑是：获取到一个类的字节码、类名后，判断该类是否是我们感兴趣，如果是则创建ClassReader并传入该类的字节码，后续通过 ClassVisitor.visitMethod 来判断各个方法中哪个是我们感兴趣的，如果是则返回我们自定义的 MethodVisitor/AdviceAdapter，而最终通过MethodVisitor/AdviceAdapter来描述如何修改方法的字节码。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] transform(<span class="keyword">byte</span>[] classBytes) &#123;</span><br><span class="line">        ClassReader classReader = <span class="keyword">new</span> ClassReader(classBytes);</span><br><span class="line">        ClassWriter classWriter = <span class="keyword">new</span> ClassWriter(classReader, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);</span><br><span class="line">        ClassVisitor classVisitor = <span class="keyword">new</span> MyClassVisitor(classWriter);</span><br><span class="line"></span><br><span class="line">        classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);</span><br><span class="line">        <span class="keyword">return</span> classWriter.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClassLoader</span> <span class="keyword">extends</span> <span class="title">ClassLoader</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> Class&lt;?&gt; defineClass(String name, <span class="keyword">byte</span>[] b) &#123;</span><br><span class="line">            <span class="keyword">return</span> defineClass(name, b, <span class="number">0</span>, b.length);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClassVisitor</span> <span class="keyword">extends</span> <span class="title">ClassVisitor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyClassVisitor</span><span class="params">(ClassVisitor cv)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">super</span>(Opcodes.ASM5, cv);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> MethodVisitor <span class="title">visitMethod</span><span class="params">(<span class="keyword">int</span> access, String name, String desc, String signature, String[] exceptions)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 在访问方法时，创建一个新的MethodVisitor</span></span><br><span class="line">            MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);</span><br><span class="line">            <span class="comment">// 在方法体前插入一段代码</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> MyMethodVisitor(mv);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyMethodVisitor</span> <span class="keyword">extends</span> <span class="title">MethodVisitor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyMethodVisitor</span><span class="params">(MethodVisitor mv)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">super</span>(Opcodes.ASM5, mv);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">visitCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 在方法体前插入一段代码</span></span><br><span class="line">            mv.visitFieldInsn(Opcodes.GETSTATIC, <span class="string">"java/lang/System"</span>, <span class="string">"out"</span>, <span class="string">"Ljava/io/PrintStream;"</span>);</span><br><span class="line">            mv.visitLdcInsn(<span class="string">"Hello, ASM!"</span>);</span><br><span class="line">            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, <span class="string">"java/io/PrintStream"</span>, <span class="string">"println"</span>, <span class="string">"(Ljava/lang/String;)V"</span>, <span class="keyword">false</span>);</span><br><span class="line">            <span class="keyword">super</span>.visitCode();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="2-2-2-DispatchPlugin接口类"><a href="#2-2-2-DispatchPlugin接口类" class="headerlink" title="2.2.2.DispatchPlugin接口类"></a>2.2.2.DispatchPlugin接口类</h4><p>从<code>IastClassFileTransformer#transform</code>方法走到本方法前还有一系列逻辑，包括一系列的黑名单过滤（项目相关包名前缀）、忽略项目agent线程触发的类加载、canHook中忽略动态代理类 lambda类等，这里就不详细说明。</p>
-<p>代码中针对不同类别的类会专门使用相应的ClassVisitor来修改其代码，DispatchPlugin.dipatch()接口方法负责获取该类名的ClassVisitor，DsipatchPlugin有多个实现类：</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/DispatchPlugin.png" alt="DispatchPlugin"></p>
-<p>多个不同的DispatchPlugin会被封装在 List类型的plugins对象中，这里需要注意，由于是数组，放入的顺序十分重要，因为某个DispatchPlugin先返回了新的ClassVisitor则 initial 中的 for循环 会被 break，最后 return 该值。我们关注这里的 DispatchJ2ee、DispatchClassPlugin</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/PluginRegister.png" alt="PluginRegister"></p>
-<h4 id="2-2-3-DispatchJ2ee"><a href="#2-2-3-DispatchJ2ee" class="headerlink" title="2.2.3.DispatchJ2ee"></a>2.2.3.DispatchJ2ee</h4><p>&emsp;&emsp;部分web中间件的钩挂策略并未显示地展示出来，而是以代码形式混合在 DispatchJ2ee 等代码中，相关代码看着让人头疼，所以这里也不过多说明，抽离其中关键要素展示给大家看看即可。</p>
-<p>&emsp;&emsp;依赖关系图：DispatchJ2ee在找到HTTP流量入口或输出方法后，返回相应的 AdviceAdapter 进行插桩，通过<code>ServletDispatcherAdviceAdapter</code>埋入的桩还起到标记“起始点”的功能，如果未有起始点标记则当前线程不启动IAST策略。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/DispatchJ2ee2.png" alt="DispatchJ2ee2"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;init&gt;:24, ServletDispatcherAdapter (io.dongtai.iast.core.bytecode.enhance.plugin.framework.j2ee.dispatch)</span><br><span class="line">dispatch:34, DispatchJ2ee (io.dongtai.iast.core.bytecode.enhance.plugin.framework.j2ee.dispatch)</span><br><span class="line">initial:57, PluginRegister (io.dongtai.iast.core.bytecode.enhance.plugin)</span><br><span class="line">transform:190, IastClassFileTransformer (io.dongtai.iast.core.bytecode)</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="2-2-4-DispatchClassPlugin"><a href="#2-2-4-DispatchClassPlugin" class="headerlink" title="2.2.4.DispatchClassPlugin"></a>2.2.4.DispatchClassPlugin</h4><p>DispatchClassPlugin负责实现上文所说的<strong>插桩策略</strong> ：</p>
-<ul>
-<li>下图代码值得注意的是，这里根据 className、ancestors获取到了集合 matchedClassNameSet，这是由于一个类可能同时命中多个插桩策略（子类、多接口实现、或是插桩策略的类就是父子关系）</li>
-<li>最后构造一个 ClassVisit 对象并返回，在ASM后续解析该Class的字节码过程中，会调用 ClassVisit#visitMethod 来处理遇到的类方法事件。 </li>
-</ul>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/DispatchClassPlugin.dispatch.png" alt="DispatchClassPlugin.dispatch"></p>
-<p>visitMethod：忽略JDK&lt;=6的字节码方法，对于已经被本agent修改过的方法也忽略掉，这里也做了一些过滤（blacklist/ignoreBlacklist/ignoreInternal），这个过滤实际上没有什么作用，至少笔者看到的是这样的。可以 看到，最后通过 lazyAop() 来获取实际的 MethodVisitor 对象。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/ClassVisitor.visitMethod.png" alt="ClassVisitor.visitMethod"></p>
-<p>lazyAop：获取命中的 PolicyNode 集合后，返回 MethodAdviceAdpter实例，构造函数的参数包括该集合对象</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/lazyAop.png" alt="lazyAop"></p>
-<h3 id="2-3-插桩（执行修改）"><a href="#2-3-插桩（执行修改）" class="headerlink" title="2.3.插桩（执行修改）"></a>2.3.插桩（执行修改）</h3><p><code>ClassVisitor#visitMethod</code>返回的<code>MethodVisitor</code>负责执行修改方法字节码。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/AbstractAdviceAdapter.png" alt="AbstractAdviceAdapter"></p>
-<h4 id="2-3-1-起始点与终点"><a href="#2-3-1-起始点与终点" class="headerlink" title="2.3.1.起始点与终点"></a>2.3.1.起始点与终点</h4><p>&emsp;&emsp;<code>ServletDispatcherAdviceAdapter</code>在Web中间件流量入口方法前后进行埋点，修改字节码插入Spy实例对象的 <code>collectHttpRequest</code>、<code>leaveHttp</code>，collectHttpRequest方法的关键功能之一就是标记IAST流程的开始，leaveHttp方法种则会负责上报本次流程生成的告警。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/ServletDispatcherAdviceAdapter.png" alt="ServletDispatcherAdviceAdapter"></p>
-<h4 id="2-3-2-流程跟踪"><a href="#2-3-2-流程跟踪" class="headerlink" title="2.3.2.流程跟踪"></a>2.3.2.流程跟踪</h4><p>我们在后面的“IAST功能实现”再讲述流程跟踪中的source/progator/sink，这里对与此有关的插桩代码进行分析。</p>
-<p>下面看一张接口关系图，有如下说明：</p>
-<ul>
-<li>根据前面所说，MethodAdviceAdapter负责修改方法的字节码</li>
-<li><code>MethodAdviceAdapter</code> 中 通过不同的 MethodAdapter 对 不同的钩挂点 执行字节码的修改</li>
-<li><code>MethodAdviceAdapter</code>遍历这四种MethodAdapter来执行插桩操作，就是说一个 钩挂点 的可能存在 4次的“桩”调用</li>
-</ul>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/MethodAdpter.png" alt="MethodAdpter"></p>
-<p>MethodAdviceAdapter遍历4种MethodAdapter来执行插桩操作：</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/MethodAdviceAdapter.png" alt="MethodAdviceAdapter"></p>
-<p>实际上，这4个MethodAdaptor最终都会通过 <code>AbstractAdviceAdapter#trackMethod</code> 在字节码插入 collectMethod 方法 </p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/AbstractAdviceAdapter.trackMethod.png" alt="AbstractAdviceAdapter.trackMethod"></p>
-<h2 id="3-IAST功能实现"><a href="#3-IAST功能实现" class="headerlink" title="3. IAST功能实现"></a>3. IAST功能实现</h2><h3 id="3-1-梳理数据类型"><a href="#3-1-梳理数据类型" class="headerlink" title="3.1. 梳理数据类型"></a>3.1. 梳理数据类型</h3><p>&emsp;&emsp;这里先梳理实现IAST功能中重要的数据类型，理解它们的业务目标，有此基础下理解代码流程就轻而易举了。</p>
-<h4 id="3-1-1-ThreadLocaal"><a href="#3-1-1-ThreadLocaal" class="headerlink" title="3.1.1. ThreadLocaal"></a>3.1.1. ThreadLocaal</h4><p>&emsp;&emsp;IAST功能的实现过程中，会依赖一系列的ThreadLocal数据类型对象来保存数据流程中需要关注的对象、数据，这里先介绍以下者几个ThreadLocal类型。</p>
-<ul>
-<li>TaintRangesPool 对应字段为 EngineManager.TAINT_RANGES_POOL：存放Map，钩挂点（source/propagator）下游出口对象的哈希映射到 TaintRanges</li>
-<li>IastTaintHashCodes 对应字段为 EngineManager.TAINT_HASH_CODES：存放Set，钩挂点（source/progator）下游出口对象的哈希 的集合</li>
-<li>IastTrackMap 对应字段为 EngineManager.TRACK_MAP：两个作用<ul>
-<li>限制线程的IAST功能，当跟踪点数量达到为5000则污点跟踪功能不启用，数量值对应为 REPORT_MAX_METHOD_POOL_SIZE  </li>
-<li>convertToReport中使用，上报跟踪流程中的 source/propagator/sink 事件，python后台据此生成告警</li>
-</ul>
-</li>
-<li>SCOPE_TRACKER 功能之一就是当 TRACK_MAP 超额时，记录 overCapacity 布尔值为true，后续可以直接从这里判断</li>
-</ul>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/ThreadLocal.png" alt="ThreadLocal"></p>
-<h4 id="3-1-2-TaintRanges"><a href="#3-1-2-TaintRanges" class="headerlink" title="3.1.2. TaintRanges"></a>3.1.2. TaintRanges</h4><p>TaintRanges：</p>
-<ul>
-<li>该对象会与出口点数据对象绑定，即为出口点对象打上一系列TaintRange；而这个绑定操作实际是通过 TAINT_RANGES_POOL 映射对象哈希到TaintRanges来实现的。</li>
-</ul>
-<p>TaintRange：</p>
-<ul>
-<li>name表示tag，tag的相关作用见“标签tags”</li>
-<li>字符串range，即通过start、stop表示当前对象数据实际来自上一个输入（source/propagator）的部分，方便后面生成告警时，标记实际来源用户的数据</li>
-</ul>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/TasintRanges.png" alt="TasintRanges"></p>
-<h4 id="3-1-3-标签tags"><a href="#3-1-3-标签tags" class="headerlink" title="3.1.3. 标签tags"></a>3.1.3. 标签tags</h4><p>&emsp;&emsp;当本文说到“返回的数据对象”指钩挂点方法针对 入口数据 进行修改，方法调用者在执行该方法后使用该方法返回值进行后续操作，当然，实际有的情况可能是 方法为void，后续通过引用类型来获取修改后的值，本文这里为了方便描述，统一使用“返回的数据对象”来进行描述。</p>
-<p>tag的作用</p>
-<ul>
-<li><p>source/propagator 钩挂点触发时，会进行会根据情况创建 TaintRanges 对象并封装着TaintRange，TaintRange的name字段就是 tag 值</p>
-</li>
-<li><p>source钩挂点自身配置种包含tags字段（参考 插桩策略 一节），为出口数据打上相关标签，部分漏洞类型依赖此项，如XSS漏洞要求相关对象带有 XSS标签，即source点需带有 XSS标签</p>
-</li>
-<li><p>编码类型的tag（propagator ）：相关编码类型的钩挂点触发时（base64/HTML Entity/…），钩挂点返回的数据对象绑定的 TaintRanges 添加该tag记录</p>
-</li>
-<li><p>解码（propagator ）：相关解码钩挂点触发时，进行untag操作，即去除1次该tag</p>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// VulnType =&gt; List&lt;TAGS, UNTAGS&gt;</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Map&lt;String, List&lt;TaintTag[]&gt;&gt; TAINT_TAG_CHECKS = <span class="keyword">new</span> HashMap&lt;String, List&lt;TaintTag[]&gt;&gt;() &#123;&#123;</span><br><span class="line">       put(VulnType.REFLECTED_XSS.getName(), Arrays.asList(</span><br><span class="line">               <span class="keyword">new</span> TaintTag[]&#123;TaintTag.UNTRUSTED, TaintTag.CROSS_SITE&#125;,</span><br><span class="line">               <span class="keyword">new</span> TaintTag[]&#123;TaintTag.BASE64_ENCODED, TaintTag.HTML_ENCODED, TaintTag.LDAP_ENCODED,</span><br><span class="line">                       TaintTag.SQL_ENCODED, TaintTag.URL_ENCODED, TaintTag.XML_ENCODED, TaintTag.XPATH_ENCODED,</span><br><span class="line">                       TaintTag.XSS_ENCODED, TaintTag.HTTP_TOKEN_LIMITED_CHARS, TaintTag.NUMERIC_LIMITED_CHARS&#125;</span><br><span class="line">       ))</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-1-4-污点类型"><a href="#3-1-4-污点类型" class="headerlink" title="3.1.4. 污点类型"></a>3.1.4. 污点类型</h4><p>功能实现上，污点类型有3种</p>
-<ul>
-<li>SAFE_CHECKERS：<ul>
-<li>数据来源于source后，检查该点对象的相关选项开启情况、版本情况</li>
-</ul>
-</li>
-<li>TAINT_TAG_CHECKS：<ul>
-<li>该字段的数据类型为HaspMap&lt;String,List&lt;TaintTag[]&gt; ，key值为漏洞类型，value值的 value[0] 表示 污点对象 需要带有的标签， value[1] 则表示 污点对象不能携带的标签</li>
-<li>数据来源于source后，如XSS漏洞的判断，需要污点数据带有 untrusted、xss标签，且不带有一系列的编码标签（不能经过编码）</li>
-</ul>
-</li>
-<li>SOURCE_CHECKERS：<ul>
-<li>不检查tag，对污点对象的相关敏感字段数据进行一一排查，查看它们是否来自source（是否命中TAINT_HASH_CODES）</li>
-<li>这个的意义应该是，有的污点的数据来源的解析过程十分复杂，不好理清楚其解析过程，所以需要在最后的污点处（结果处）详细地排查</li>
+<li>业务层：资源定位，获取到URL资源路径后，根据路径映射表选择业务类来处理<ul>
+<li>资源路径的解析</li>
+<li>路由匹配模式</li>
 </ul>
 </li>
 </ul>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/%E6%B1%A1%E7%82%B9%E7%B1%BB%E5%9E%8B.png" alt="污点类型"></p>
-<h4 id="3-1-5-MethodEvent"><a href="#3-1-5-MethodEvent" class="headerlink" title="3.1.5. MethodEvent"></a>3.1.5. MethodEvent</h4><p>&emsp;&emsp;被钩挂的方法触发的触发SpyDispatcherImpl.collectXXXX方法，collect方法开头会封装一个MethodEvent，相关有用字段含义如下：</p>
-<ul>
-<li>policyType，钩挂点类型 source 、sink ..</li>
-<li>originClassName，当前方法所在类的类名</li>
-<li>matchedClassName，匹配到的插桩策略的类名</li>
-<li>parameterInstances 钩挂点的入参对象</li>
-<li>objectInstance，当前this对象</li>
-<li>objectValue，当前this对象的字符串值，可忽略</li>
+</li>
+<li>手动鉴权下可能的逻辑缺陷<ul>
+<li>黑白鉴权逻辑问题</li>
 </ul>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/MethodEvent.png" alt="MethodEvent"></p>
-<h3 id="3-2-事件分发"><a href="#3-2-事件分发" class="headerlink" title="3.2.事件分发"></a>3.2.事件分发</h3><p>&emsp;&emsp;根据前文所说，被钩挂的方法执行完成并在退出时会调用 collectMethod 方法，这里会针对不同钩挂点封装MethodEvent事件，并调用对应的 Impl 来处理，各类型事件的处理者如下代码所见，分别有SourceImpl、PropatatorImpl、SinkImpl，由于Validator类型实际没有看到使用，所以后续不作介绍。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/SpyDispatcherImpl.collectMethod.png" alt="SpyDispatcherImpl.collectMethod"></p>
-<h3 id="3-3-聚合说明功能机制"><a href="#3-3-聚合说明功能机制" class="headerlink" title="3.3.聚合说明功能机制"></a>3.3.聚合说明功能机制</h3><p>&emsp;&emsp;这里对一些功能函数或机制进行“聚合式”地说明，在后续单独的sink/source中就不必费事说明这些东西了。</p>
-<h4 id="3-3-1-哈希"><a href="#3-3-1-哈希" class="headerlink" title="3.3.1.哈希"></a>3.3.1.哈希</h4><p>&emsp;&emsp;哈希，是项目功能实现中一个简单但贯穿始终而十分重要的功能函数，这里有必要进行一番说明。</p>
-<p>&emsp;&emsp;<code>java.langObject#hashCode</code> 没有重写的情况下，获取的值和 <code>System#identityHashCode</code> 一样，该值为内存地址转换为int值所获得的，即该值与对象内存地址有关。而<code>String</code>重写了<code>hashCode</code>方法，该方法获得的值只与字符串内容，而字符串类型十分重要，所以下面的代码中针<code>String</code>类型的哈希获取做了调整，其为 内存地址与字符串值 关联的值。与String情况类似的可能还有Map等，所以项目代码几处都有此类哈希逻辑。</p>
-<p>&emsp;&emsp;简而言之，项目对于数据流的传播跟踪思想为尽量关注 引用。 </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Long <span class="title">getStringHash</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> hash;</span><br><span class="line">    <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> String) &#123;</span><br><span class="line">        hash = TaintPoolUtils.toStringHash(obj.hashCode(), System.identityHashCode(obj));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        hash = System.identityHashCode(obj);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Long <span class="title">toStringHash</span><span class="params">(<span class="keyword">long</span> objectHashCode, <span class="keyword">long</span> identityHashCode)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (objectHashCode &lt;&lt; <span class="number">32</span>) | (identityHashCode &amp; <span class="number">0xFFFFFFFFL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-2-2-拆分对象"><a href="#3-2-2-拆分对象" class="headerlink" title="3.2.2.拆分对象"></a>3.2.2.拆分对象</h4><p>&emsp;&emsp;本小节的“拆分对象”指，对于数据流跟踪的上下游对象，其可能不是一个简单的数据类型，为了更加准确地跟踪其内部更有价值的数据对象，所以需要获取其内部有价值的对象来进行数据跟踪。拆分对象后得到的“颗粒度对象”被哈希后的值 放入<code>TAINT_RANGES_POOL</code> 中，用于后续事件触发时判断 上游数据是否在该 TAINT_RANGES_POOL 中，如在则说明上游数据是 untrusted ，即有用的。 </p>
-<p>&emsp;&emsp;实现 拆分对象 功能的方法有 <code>TaintPoolUtils#trackObject</code> 与 <code>IastTaintHashCodes#addObject</code>，前者被source类型事件所使用，后者被 propagator事件 所使用。开发者使用两个拆分方式可能是认为 source 的拆分需要细致点，propagator则通常不需要那么复杂。但逻辑上业务功能相似的代码，开发者却让他们乱糟糟放在不同地方，也是让人头疼。</p>
-<p>&emsp;&emsp; <code>TaintPoolUtils#trackObject</code> 的实现有递归调用算法，代码中为此设置了最大深度 10。代码中为数组、迭代、字典、集合等数据类型都一一做了判断并进行处理，当处理到不在系列数据类型中时(else)，将其添加到 TAINT_RANGES_POOL 中。trackObject 方法中还有创建系列标签的功能（179-195），这点在后面的 source章节 中讲述</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/traceObject.png" alt="traceObject"></p>
-<p>&emsp;&emsp;前文的数据类型有提到 TAINT_RANGES_POOL 为 IastTaintHashCodes 的实例化对象，所以下面的 this.add(..) 也是向 TAINT_RANGES_POOL 添加数据，而代码中存在递归操作 this.addObject(…) 。从代码逻辑上来看，也是尽量希望获取与对象引用有关系的哈希值来放入数据集合中。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/IastTaintHashCodes.addObject.png" alt="IastTaintHashCodes.addObject"></p>
-<h4 id="3-3-3-起始点"><a href="#3-3-3-起始点" class="headerlink" title="3.3.3.起始点"></a>3.3.3.起始点</h4><p>&emsp;&emsp;前面有讲到“起始点”，实际实现为，如果前面没有进入HTTP入口，当前线程中的数据对象就没有初始化，sink/progator触发时则不会继续后续流程。</p>
-<p>起始点的初始化：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// io.dongtai.iast.core.EngineManager#enterHttpEntry</span></span><br><span class="line">		REQUEST_CONTEXT.set(requestMeta);</span><br><span class="line">       TRACK_MAP.set(<span class="keyword">new</span> HashMap&lt;Integer, MethodEvent&gt;(<span class="number">1024</span>));</span><br><span class="line">       TAINT_HASH_CODES.set(<span class="keyword">new</span> HashSet&lt;Long&gt;());</span><br><span class="line">       TAINT_RANGES_POOL.set(<span class="keyword">new</span> HashMap&lt;Long, TaintRanges&gt;());</span><br></pre></td></tr></table></figure>
-
-<p>在事件分发前，如果相关数据没有初始化则退出</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/isCollectAllowed.png" alt="isCollectAllowed"></p>
-<h4 id="3-3-4-跟踪点数量限制"><a href="#3-3-4-跟踪点数量限制" class="headerlink" title="3.3.4.跟踪点数量限制"></a>3.3.4.跟踪点数量限制</h4><p>&emsp;&emsp;在“梳理数据类型”中我们有讲解到TRACK_MAP的跟踪点限制，可以看到，在数据分发前会检查是否超额：</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/isCollectAllowed2.png" alt="isCollectAllowed2"></p>
-<p>source/propagator 的跟踪点会增加 TRACK_MAP 的数量：</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/TRACK_MAP_add.png" alt="TRACK_MAP_add"></p>
-<h3 id="3-4-source"><a href="#3-4-source" class="headerlink" title="3.4.source"></a>3.4.source</h3><p>&emsp;&emsp;source类型的处理关键点就是将该钩挂点的方法的返回值传入前文所说的 trackObject，进行对象拆分，最后将数据添加到  TAINT_RANGES_POOL  中进行跟踪。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/SourceImpl.png" alt="SourceImpl"></p>
-<p>&emsp;&emsp;在拆分对象记录哈希的同时，还会保持哈希到TaintRanges 的映射关系，插桩策略配置中带有 tags 字段，这里同时保存该 tags ，并记录字符串偏移。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/traceObject2.png" alt="traceObject2"></p>
-<h3 id="3-5-propagator"><a href="#3-5-propagator" class="headerlink" title="3.5.propagator"></a>3.5.propagator</h3><p>&emsp;&emsp;对于传播者，或是说流中继，其存在上游与下游，因此对于上游，我们需要确认其数据来源是否为 不可信的；对于下游，我们则使用类似source的处理，将下游数据放入 TAINT_RANGES_POOL  即可。</p>
-<h4 id="3-6-上游"><a href="#3-6-上游" class="headerlink" title="3.6.上游"></a>3.6.上游</h4><p>&emsp;&emsp;下图代码可以清晰了解上游数据的处理逻辑：这里的 <code>isObject()</code> 表示 this 、<code>isParameter()</code>表示方法入参，通过 poolContains 判断上游数据来源于不可信后，hasTaint则置为fasle，接着就到我们的下游数据处理，即 setTarget(….)  方法。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/PropagatorImpl.auxiliaryPropagator.png" alt="PropagatorImpl.auxiliaryPropagator"></p>
-<h4 id="3-7-下游"><a href="#3-7-下游" class="headerlink" title="3.7.下游"></a>3.7.下游</h4><p>&emsp;&emsp;下游数据的处理主要多了根据钩挂策略来判断下游数据出口从而获得出口数据对象（但这里的代码比较冗余..），关键点还是添加数据集的操作 addObject ，前面的“拆分对象”对此已有提及，这里就不再叙述。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/PropagatorImpl.setTarget.png" alt="PropagatorImpl.setTarget"></p>
-<p>&emsp;&emsp;整个项目最复杂的函数就是trackTaintRange，该方法的功能与source末尾的的功能一致，都是记录哈希到TaintRanges的映射关系。</p>
-<p>&emsp;&emsp;下图代码collaspe冗长的逻辑分支，这样情况下代码逻辑较为清晰了： srcTaintRanges 为入口流量生成的，oldTaintRanges为出口流量生成的。开头还有一个 TaintCommandRunner，从插桩策略配置的 command 生成的，前文也有讲到TaintCommand，用于追踪记录字符串偏移情况，这里就不赘述。而通过 run(..) 方法得到的新 TaintRanges 即 tr变量 为进行了字符串偏移记录的，其后将所有标签都进行记录（addAll），最后也是保持映射关系到 TAINT_RANGES_POOL  。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/trackTaintRange.png" alt="trackTaintRange"></p>
-<h3 id="3-8-sink"><a href="#3-8-sink" class="headerlink" title="3.8.sink"></a>3.8.sink</h3><h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><p>&emsp;&emsp;前面流程分支中，对其中的弱随机数、弱哈希等情况进行处理，我们主要关注这里的 动态数据传播。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/SinkImpl.solveSink.png" alt="SinkImpl.solveSink"></p>
-<p>&emsp;&emsp;动态数据的传播中，处理了我们前面所说的三种污点类型，包括  SAFE_CHECKERS 、SOURCE_CHECKERS 、TAINT_TAG_CHECKS，我们说说TAINT_TAG_CHECKS。</p>
-<p>&emsp;&emsp;下面代码中的TAINT_TAG_CHECKS 是map类型， 在前面的 3.1.3 中我们对其进行了详细说明，这里不赘述。</p>
-<p>两个红框概况了tag类型污点检查的整体关键逻辑</p>
-<ul>
-<li>确保上游数据来源有记录，并且获取对应的 TaintRanges，即该数据的标签情况</li>
-<li>检查标签是否符合该漏洞类型预定义的情况，即required的标签须有，disallowed的标签不能有</li>
+</li>
 </ul>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/DynamicPropagatorScanner.sinkSourceHitTaintPool.png" alt="DynamicPropagatorScanner.sinkSourceHitTaintPool"></p>
-<h4 id="上报与图分析"><a href="#上报与图分析" class="headerlink" title="上报与图分析"></a>上报与图分析</h4><p>&emsp;&emsp;在流程“终点”，会通过 <code>GraphBuilder#buildAndReport</code> 方法通过线程池启动新线程来向后台服务上报数据，数据内容包括本次线程的 TRACK_MAP 中记录的数据，涵盖 source/propagator/sink 。</p>
-<p>&emsp;&emsp;从分析来看， 由于部分sink没有检查 上游数据来源情况，如 SAFE_CHECKERS 中的 xxe 等，所以从这点上来看，后台服务器的图分析是有用的，但是对于 TAINT_TAG_CHECKS 的污点类型则看起来是没有意义的。当然，图分析可能还有前端展示的价值，但前端展示链条似乎也不必图分析。另外笔者对SAFE_CHECKERS 不检查上游数据感到奇怪。</p>
-<p>&emsp;&emsp;笔者也没继续了解后台python代码中的图分析，我粗略认为为找一条source到sink的通路即可，潜意识认为价值不大，暂未深入理解。</p>
-<p><img src="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/graph.png" alt="graph"></p>
-<h2 id="4-补充"><a href="#4-补充" class="headerlink" title="4.补充"></a>4.补充</h2><h4 id="shadow"><a href="#shadow" class="headerlink" title="shadow"></a>shadow</h4><p>&emsp;&emsp;对于lib包可能引起的冲突问题，通常有两种做法，本项目则通过shade插件来重命名三方库。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">shade-prefix</span>&gt;</span>io.dongtai.iast.thirdparty<span class="tag">&lt;/<span class="name">shade-prefix</span>&gt;</span></span><br><span class="line"></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-shade-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">phase</span>&gt;</span>package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="name">goal</span>&gt;</span>shade<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                          ... ...</span><br><span class="line">                            <span class="tag">&lt;<span class="name">relocations</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;<span class="name">relocation</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>org.apache<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">                                    <span class="tag">&lt;<span class="name">shadedPattern</span>&gt;</span>$&#123;shade-prefix&#125;.org.apache<span class="tag">&lt;/<span class="name">shadedPattern</span>&gt;</span></span><br><span class="line">                                <span class="tag">&lt;/<span class="name">relocation</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5.总结"></a>5.总结</h2><p>&emsp;&emsp;有人认为项目的sink规则设置不合理，不够底层，但理解了项目逻辑后发现这么做是有其道理的：项目希望确保sink点的数据源为来自source的，而如果sink点过于底层，这也意味着中间经过更多的复杂处理，这样就无法跟踪数据对象，如果底层sink点的数据源为中间过程生成的新对象数据，则不符合项目 TAINT_TAG_CHECKS 污点类型的思想 。</p>
-<p>项目代码本身的一些问题：</p>
+<h2 id="2-解析差异总览"><a href="#2-解析差异总览" class="headerlink" title="2.解析差异总览"></a>2.解析差异总览</h2><p>&emsp;&emsp;这里先放两张表格，分别概括了spring 资源路径解析、路由匹配方式 两块不同版本的功能情况，也是对后文分析的直接总结，在浏览后文内容时可以将这里作为“地图”进行阅读。</p>
+<p>相关选项的解读以及备注（在后文中也有逐步的说明）：</p>
 <ul>
-<li>策略混合，没有做到统一分离：一方面有插桩策略，DispatchPlugin等等又设置了复杂的需要钩挂的目标类策略，且又没有显示地体现出来，一团乱，需要理解整个代码才能发现，另外这种做法也在项目持续维护中容易出错、增加极大维护成本</li>
-<li>基本没有注解，需要读者猜测相关业务逻辑才能理解相关代码</li>
-<li>项目很多似乎是没有用的代码，一方面难读，增加理解成本，另外一方面让人十分困惑</li>
-<li>可能是笔者经验不足，不太理解，真的需要编写这么复杂的逻辑来实现这些功能，比如众多的DispatchPlugin与Adapter，看得头疼</li>
-<li>某些地方存在隐藏BUG，如 SSRF漏洞中检测中的<code>addSourceType</code>中的<code>hit</code>没有赋值 …</li>
+<li>解析路径参数：如“/path;name=value;name2=value2/”，格式化为“/path/”，“/path;”也会格式化为“/path”</li>
+<li>移除分号内容：即定位到分号“;”，将其和后面的字符都移除，“/path;JESSIONID=123”-&gt;“/path”</li>
+<li>URL解码：由于<a href="https://github.com/apache/tomcat/blob/7.0.0/java/org/apache/tomcat/util/buf/UDecoder.java#L34" target="_blank" rel="noopener">tomcat7就开始</a>禁止路径带有编码的路径分割符“%2f”，协议层面就400，tomcat下其实就不必关注%2f这块，所以这里指路径content部分；至少springmvc pathContainer本身也不支持将%2f看作路径分割的。</li>
+<li>归化多斜线：递归将“//”替换为“/”</li>
+<li>解析目录跳转</li>
+<li>后缀匹配：后缀名匹配，当前路由可以命中带某些后缀的路径，如/hello路由可命中 /hello 与 /hello.do 的请求路径</li>
+<li>尾部匹配：当前路由可以命中尾部带目录分隔符的路径，如/hello和/hello</li>
+<li>trimTokens：用于消除路径中各个content的空格，如 “/test1%20/test2%20” 消除后变为”/test1/test2”</li>
 </ul>
-<p>该IAST缺点（当然，没有产品做到完美）：</p>
+<p>通过下面的表我们可以找到某个版本其支持的选项且其他版本不支持，随后进行测试，就可以得到当前 spring应用的解析模式与版本情况</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/1.png" alt="image-20240126154738731"></p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/2.png" alt="image-20240126154720043"></p>
+<p>&emsp;&emsp;如针对 spring-boot 2.3.0，我们通过 “/foo/..//path”可以访问到 “/path”，但是其他版本的路径解析有的不支持 目录跳转、有的不支持归化斜线，这样就可以识别目标应用路径解析模式。</p>
+<p>&emsp;&emsp;用户、框架、spring自身通常也会频繁用到 getServletPath、getRequestURI 方法，他们有如下的情形：</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/3.png" alt="image-20240126154701897"></p>
+<h2 id="3-alwaysUseFullPath变化下的资源路径解析"><a href="#3-alwaysUseFullPath变化下的资源路径解析" class="headerlink" title="3.alwaysUseFullPath变化下的资源路径解析"></a>3.alwaysUseFullPath变化下的资源路径解析</h2><h3 id="3-1-alwaysUseFullPath的变化"><a href="#3-1-alwaysUseFullPath的变化" class="headerlink" title="3.1.alwaysUseFullPath的变化"></a>3.1.alwaysUseFullPath的变化</h3><p>&emsp;&emsp;分层架构下的各方使用不同的解析器来进行同一种事务的处理，这导致了解析不一致的问题。</p>
+<p>&emsp;&emsp;springmvc会在DispatcherServlet中获取当前请求的处理器handler，随后调用该handler来处理当前请求，也就走到我们的业务类Controller。而DispatcherServlet会通过调用<code>UrlPathHelper#getLookupPathForRequest</code>方法解析并获得当前路径。</p>
+<p>spring-boot-2.5.15下对资源路径的解析有如下流程：</p>
+<p>DispatcherServlet#getHandler</p>
+<p>-&gt;AbstractHandlerMapping#initLookupPath() : spring5中在这里增加了一个 usesPathPatterns 判断，后文将进一步说明</p>
+<p>​    usesPathPatterns==false</p>
+<p>​    -&gt;UrlPathHelper#resolveAndCacheLookupPath()</p>
+<p>​        -&gt;UrlPathHelper#getLookupPathForRequest()</p>
+<p>​            -&gt;<code>alwaysUseFullPath == true</code> ? <code>getPathWithinApplication()</code> : <code>getPathWithinServletMapping()</code></p>
+<p>&emsp;&emsp;UrlPathHelper#getLookupPathForRequest()：从下图代码可以了解到，在本方法中alwaysUseFullPath决定了使用哪个get path方法来进行具体的解析，这里的两种解析方式将在后文进一步说明。</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/4.png" alt="image-20240124204639528"></p>
+<p>&emsp;&emsp; alwaysUseFullPath 值在 <code>spring-boot &lt;=2.3.0-release</code> 下默认被赋值为 false ，即getPathWithinServletMapping；在 <code>spring-boot&gt;=2.3.1-release</code> 中被配置为true，getPathWithinApplication。</p>
+<p>&emsp;&emsp;下图代码中可以看到，在 spring-boot-autoconfigure-2.3.1.RELEASE 中通过 WebMvcAutoConfigurationAdapter 进行自动装配，将alwaysUseFullPath设置为 true。</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/5.png" alt="image-20240124220239219"></p>
+<h3 id="3-2-getPathWithinServletMapping解析方式"><a href="#3-2-getPathWithinServletMapping解析方式" class="headerlink" title="3.2.getPathWithinServletMapping解析方式"></a>3.2.getPathWithinServletMapping解析方式</h3><p>&emsp;&emsp;alwaysUseFullPath为false时，spring通过getPathWithinServletMapping方法解析并获取路径，之后用于路由匹配中。</p>
+<p>&emsp;&emsp;getPathWithinServletMapping 方法可以简单看作getServletPath方法所获得的值（笔者对这里的方法的业务逻辑与目标没看得很懂，但这样理解是没问题的）：</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/6.png" alt="image-20240126135520866"></p>
+<p>&emsp;&emsp;UrlPathHelper#getServletPath方法最终获取的tomcat容器提供的servlet path，调用流程如下，实际与与</p>
+<p>&emsp;&emsp; org.apache.catalina.connector.Request#getServletPath() 值一样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">UrlPathHelper#getPathWithinServletMapping</span><br><span class="line"></span><br><span class="line">	-&gt; UrlPathHelper#getServletPath</span><br><span class="line"></span><br><span class="line">		-&gt; javax.servlet.http.HttpServletRequestWrapper#getServletPath()</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;getServletPath方法值来源于web容器tomcat，tomcat在协议层连接器connector就对器进行了初始化。</p>
+<p>&emsp;&emsp;通过debug我们可以发现getServletPath()的值来源于decodedURI变量，有如下反向数据流说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HttpServletRequestWrapper#getServletPath()</span><br><span class="line"></span><br><span class="line">		&lt;- org.apache.catalina.mapper.MappingData#wrapperPath</span><br><span class="line"></span><br><span class="line">			&lt;- org.apache.catalina.connector.CoyoteAdapter#postParseReques()：decodedURI变量</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;进一步阅读代码可知，tomcat使用 normalize方法 对uri进行格式化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CoyoteAdapter#postParseRequest()中的decodedURI变量</span><br><span class="line"></span><br><span class="line">	-&gt; parsePathParameters()：解析路径参数，如“&#x2F;path;name&#x3D;value;name2&#x3D;value2&#x2F;”，格式化为“&#x2F;path&#x2F;”</span><br><span class="line">	</span><br><span class="line">	-&gt; normalize() ：对uri进行格式化，包括 反斜线替换为斜线、多斜线归化、目录跳转递归还原，未处理分号</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-3-getPathWithinApplication解析方式"><a href="#3-3-getPathWithinApplication解析方式" class="headerlink" title="3.3.getPathWithinApplication解析方式"></a>3.3.getPathWithinApplication解析方式</h3><p>&emsp;&emsp;alwaysUseFullPath为true时，spring通过getPathWithinApplication方法解析并获取路径，之后用于路由匹配中。</p>
+<p>重点解析逻辑在decodeAndCleanUriString中，其做了 移除分号内容、URL解码、归化等操作，调用流程可参考下面：</p>
+<p>UrlPathHelper#getPathWithinApplication</p>
+<p>​    -&gt;getRequestUri</p>
+<p>​            -&gt;decodeAndCleanUriString</p>
+<p>​                    -&gt;removeSemicolonContent  ：移除分号及分号后面的内容</p>
+<p>​                    -&gt;decodeRequestString ：URL解码</p>
+<p>​                    -&gt;getSanitizedPath：归化“//”为“/”</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/7.png" alt="image-20240126133953847"></p>
+<h2 id="4-路由匹配模式下变化"><a href="#4-路由匹配模式下变化" class="headerlink" title="4.路由匹配模式下变化"></a>4.路由匹配模式下变化</h2><h3 id="4-1-路由匹配"><a href="#4-1-路由匹配" class="headerlink" title="4.1.路由匹配"></a>4.1.路由匹配</h3><p>&emsp;&emsp;springmvc目前有PathMatcher、AntPathMatcher 两个内置的路由匹配模式，前者为spring5.0新增的，在 spring-boot&gt;=2.6.0 的情况下，由于PathMatcher默认非空 且 AntPathMatcher为空，导致默认启用PathMatcher匹配模式，关于这点的逻辑我们可以在 RequestMappingInfo#getMatchingCondition 方法中了解到。</p>
+<p>&emsp;&emsp;如下图代码所示，RequestMappingInfo#getMatchingCondition 中会获取用于路由匹配的Condition，spring5新增的PathMatcher模式对应着下图第一个红框的代码 pathPatternsCondition。通过阅读代码可以了解到，spring5有PathMatcher、AntPathMatcher、custom 三个选项的路由匹配方式。另外在代码开头可以看到，这里也针对 方法、参数、头部等 获取了相应的匹配Condition，如果我们设置的Mapping为GetMapping，这里的 methods 则会过滤 GET 外的其他请求。 </p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/8.png" alt="image-20240125102627951"></p>
+<p>&emsp;&emsp;下图为类继承关系：匹配模式的业务类需要继承AbstractRequestCondition，图片下面的二者分别承载了PathPattern、AntPathMatcher的配置、逻辑。</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/9.png" alt="image-20240124231206626"></p>
+<p>&emsp;&emsp;下图为关系依赖图：我们关注红圈的关系线即可，实际上，RequestMappingInfo执行路由匹配时用到的Condition(PathPatternsRequestCondition、PatternsRequestCondition)最终依赖PathPattern、AntPathMatcher</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/10.png" alt="image-20240125160555657"></p>
+<h3 id="4-2-AntPathMatcher路由解析"><a href="#4-2-AntPathMatcher路由解析" class="headerlink" title="4.2.AntPathMatcher路由解析"></a>4.2.AntPathMatcher路由解析</h3><p>&emsp;&emsp;我们先了解一下AntPathMatcher路由匹配模式下的关键选项：</p>
 <ul>
-<li>source类型单一，对于二阶类型的输入的未处理（也很麻烦）</li>
-<li>source验证能力不够强</li>
-<li>灰盒遗漏，好比一颗多叉树，业务方的正常业务请求就只走其中的部分分叉逻辑</li>
-<li>误报问题与业务代码有耦合关系，消耗人力专门解决</li>
-<li>无法直接覆盖逻辑漏洞（这类问题还是需要主动发包）</li>
-<li>感知不到隐藏的后台接口（或是未主动识别）</li>
-<li>json等内容格式未处理</li>
+<li>useSuffixPatternMatch：<ul>
+<li>后缀名匹配，置为ture后，当前路由可以命中带某些后缀的路径，如/hello路由可命中 /hello 与 /hello.do 的请求路径</li>
+<li><code>&gt;=spring-webmvc 5.3.x</code> 情况下默认为false；spring-boot 2中皆为false，这是由于</li>
 </ul>
-<p>&emsp;&emsp;该开源项目也为我们提供了“全链路跟踪式IAST”的实践思路，后续合理地实践验证方式应该是对各项漏洞进行详细测试，继续深入了解此框架下的漏洞发现能力与误报情况。而从这种逻辑框架看来，IAST与业务有一定耦合，即是说，如果希望降低误报，需要针对业务中的过滤方法、自定义编码方式新增规则。在逻辑漏洞检测这块，被动方式目前看来是没有能力去实践地，即便最简单的未授权类漏洞的检测也还需要依赖构建相应的请求案例来进行检测。完成本项目的学习后，笔者对实践IAST这块也有了自己的一番思考，后续有价值实现还是以逻辑漏洞检测为切入点，而由于产品运营方的角色定位，我们也会以不产生脏数据为基础。</p>
-<h2 id="6-参考"><a href="#6-参考" class="headerlink" title="6. 参考"></a>6. 参考</h2><p>后台代码 <a href="https://github.com/HXSecurity/DongTai" target="_blank" rel="noopener">https://github.com/HXSecurity/DongTai</a></p>
-<p>docker-compose部署 <a href="https://github.com/HXSecurity/DongTai/blob/develop/deploy/docker-compose/README-zh.md" target="_blank" rel="noopener">https://github.com/HXSecurity/DongTai/blob/develop/deploy/docker-compose/README-zh.md</a></p>
-<p>java agent <a href="https://github.com/HXSecurity/DongTai-agent-java" target="_blank" rel="noopener">https://github.com/HXSecurity/DongTai-agent-java</a></p>
+</li>
+<li>useTrailingSlashMatch：<ul>
+<li>尾部匹配，置为true后，当前路由可以命中尾部带目录分隔符的路径，如/hello和/hello</li>
+<li>全版本都为true</li>
+</ul>
+</li>
+<li>trimTokens：<ul>
+<li>用于消除路径中各个content的空格，如 “/test1%20/test2%20” 消除后变为”/test1/test2”</li>
+<li><code>&gt;=spring 4.3.0 /spring-boot&gt;=1.4.0.RELEASE</code> 情况下，AntPathMatcher模式默认为 false</li>
+</ul>
+</li>
+</ul>
+<p>&emsp;&emsp;useSuffixPatternMatch在spring-boot中收到spring-boot-autoconfigure的PathMatch影响，由于其默认为false，所以用户未配置的情况下，spring-boot2皆为false</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/11.png" alt="image-20240126101421376"></p>
+<p>&emsp;&emsp;我们前面有说到，AntPathMatcher是由PatternsRequestCondition来引导实现的。</p>
+<p>&emsp;&emsp;具体来看下图的PatternsRequestCondition.getMatchingPattern方法，入参分别为路由、被匹配的路径，这里可以看到 useSuffixPatternMatch、useTrailingSlashMatch选项的实现，另外trimTokens选项则在 pathMatcher.match 中通过调用tokenizePattern来实现。</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/12.png" alt="image-20240126013924527"></p>
+<p>&emsp;&emsp;而pathMatcher.match也就是AntPathMatcher.match，AntPathMatcher实现了 ant风格的匹配，可以让路由拥有 “？”、“<em>”、“*</em>”等灵活的匹配方式：</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/13.png" alt="image-20240126015741715"></p>
+<h3 id="4-3-PathPattern"><a href="#4-3-PathPattern" class="headerlink" title="4.3.PathPattern"></a>4.3.PathPattern</h3><p>&emsp;&emsp;PathPattern路由匹配方式在spring-boot&gt;=2.6.0下默认开启</p>
+<h4 id="4-3-1-PathPattern下的资源路径解析"><a href="#4-3-1-PathPattern下的资源路径解析" class="headerlink" title="4.3.1.PathPattern下的资源路径解析"></a>4.3.1.PathPattern下的资源路径解析</h4><p>&emsp;&emsp;是这样的，该模式下有个 usePathPatterns  被置为 true，如下图所见，这样一来就不会走到我们前文所说的 getPathWhithin 一类的资源解析流程（图片中的else），而是走到 if 中，但是，需要注意的是，这里返回的对象实际没被使用，也就是说我们不需要关注这里的代码（好吧~）。</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/14.png" alt="image-20240125173513477"></p>
+<p>&emsp;&emsp;HTTP请求的资源路径实际上会被解析为Element数组对象，斜线即目录分隔符“/”使用Separator封装，目录内容则使用PathSegment来封装，且这个Element数组对象保存在 MatchingContext中，以供 PathPattern对象使用。</p>
+<p>&emsp;&emsp;下图展现了Element的子类，且 MatchingContext 依赖了 Element （保持数组对象）。</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/15.png" alt="image-20240125224130158"></p>
+<p>&emsp;&emsp;PathPattern$MatchingContext：</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/C:%5CUsers%5Cwork%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20240125220427699.png" alt="image-20240125220427699"></p>
+<p>&emsp;&emsp;elements数组对象实际为PathContainer对象中的一个字段，PathContainer对象即下面方法中的 this.pathWithinApplication/this.fullPath 对象（区别不大）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//DefaultRequestPath#DefaultRequestPath(java.lang.String, java.lang.String)</span></span><br><span class="line">	DefaultRequestPath(String rawPath, <span class="meta">@Nullable</span> String contextPath) &#123;</span><br><span class="line">		<span class="keyword">this</span>.fullPath = PathContainer.parsePath(rawPath);</span><br><span class="line">		<span class="keyword">this</span>.contextPath = initContextPath(<span class="keyword">this</span>.fullPath, contextPath);</span><br><span class="line">		<span class="keyword">this</span>.pathWithinApplication = extractPathWithinApplication(<span class="keyword">this</span>.fullPath, <span class="keyword">this</span>.contextPath);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;断点下到DefaultRequestPath构造方法，查看前面的代码流程可以发现这里的 rawPath 值实际来源于 o.a.c.c.Request#getRequestURI，也就是说 elements分割的请求的路径的值和我们编写程序时候 拿到的req.getRequestURI()值是一样的，该值为 MessageBytes.uriMB，未经过处理。</p>
+<p>&emsp;&emsp;createFromUrlPath方法将 rawPath  转换为我们需要的 PathContainer对象，通过“/”分割路径的过程中，对遇到的content会进行URL解码，因此，路由匹配时被匹配的路径实际是经过URL解码的； 但pathContainter路径解析过程中，只通过“/”来分割路径，所以在此情况下会将“%2f”看作目录contont而非slash。</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/16.png" alt="image-20240126000922217"></p>
+<h4 id="4-3-2-PathPattern下的路由匹配"><a href="#4-3-2-PathPattern下的路由匹配" class="headerlink" title="4.3.2.PathPattern下的路由匹配"></a>4.3.2.PathPattern下的路由匹配</h4><p>&emsp;&emsp;路由匹配中，会将Mapping注解路径解析为一个双向链表数据结构的对象，对应的类为 PathElement，并将这个路由匹配对象保存在PathPatterns的heads。</p>
+<p>&emsp;&emsp;从 PathElement的相关字段 next、prev 可以看出其为链表数据结构：</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/17.png" alt="image-20240125222720546"></p>
+<p>&emsp;&emsp;资源路径解析中的PathContainer将路径分为两种类型，PathPatterns除了通过下图左边的 SeparatorPathElement、LiteralPathElement来覆盖与之类似的两种类型外，为了提供丰富的路由匹配模式，如通配符匹配，则会通过使用各类型PathElement来实现这些功能。</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/18.png" alt="image-20240126104640627"></p>
+<p>&emsp;&emsp;前文我们有说到，PathPattern的路由匹配是由PathPatternsRequestCondition来引导实现的。</p>
+<p>&emsp;&emsp;下图代码中可以了解到，路由匹配的匹配者为PathPattern，被匹配者为 PathContainer，由于二者都是 “节点”类型的数据结构，所以其匹配逻辑也就可以理解了。</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/19.png" alt="image-20240126103715717"></p>
+<p>&emsp;&emsp;PathPattern的matchOptionalTrailingSeparator字段的值默认为true，即该模式下允许尾部匹配，当然，实际处理逻辑则是在 LiteralPathElement 中实现的，下图为PathPattern的相关字段：</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/20.png" alt="image-20240125220417300"></p>
+<h2 id="5-漏洞模式与案例"><a href="#5-漏洞模式与案例" class="headerlink" title="5.漏洞模式与案例"></a>5.漏洞模式与案例</h2><h3 id="5-1-鉴权框架下的解析不一致"><a href="#5-1-鉴权框架下的解析不一致" class="headerlink" title="5.1.鉴权框架下的解析不一致"></a>5.1.鉴权框架下的解析不一致</h3><p>&emsp;&emsp;在过滤器层面对用户的请求路径做鉴权处理，和应用类似，这里有两个解析处理点：</p>
+<ul>
+<li>资源路径的解析处理，结果也是作为被匹配的对象</li>
+<li>鉴权路由的匹配或排除：使用用户配置的匿名接口、鉴权接口 去匹配 当前解析到的资源路径</li>
+</ul>
+<h4 id="shiro"><a href="#shiro" class="headerlink" title="shiro"></a>shiro</h4><p>&emsp;&emsp;下面以shiro 1.5.1权限绕过作为案例。</p>
+<p>&emsp;&emsp;通过debug shiro的认证处理流程PathMatchingFilter，我们可以发现 shiro 针对 资源路径的解析方式是模仿的spring getPathWithinApplication的，而其 鉴权路由的匹配 则也是类似 spring <strong>AntPathMatcher</strong>的。</p>
+<p>&emsp;&emsp;在spring-boot 2.3.0 集成 shiro 1.5.1 情况下，针对资源路径的解析有如下差异问题：</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/21.png" alt="image-20240126151007518"></p>
+<p>&emsp;&emsp;于是，在这种分层的情况中，对于资源路径“/image/..;/test”的资源路径解析有：</p>
+<ul>
+<li>shiro ，“/image/..”</li>
+<li>spring mvc，“/test”</li>
+</ul>
+<h4 id="spring-security"><a href="#spring-security" class="headerlink" title="spring security"></a>spring security</h4><h3 id="5-2-黑白鉴权逻辑问题"><a href="#5-2-黑白鉴权逻辑问题" class="headerlink" title="5.2.黑白鉴权逻辑问题"></a>5.2.黑白鉴权逻辑问题</h3><p>&emsp;&emsp;这里做一个简单的定义，如果一个逻辑单元为需要鉴权，对应的配置数据可以看作黑名单，该方式我们简称黑名单鉴权；如果一个逻辑单元为不进行鉴权，对应的配置数据可以看作白名单，该方式我们简称白名单免鉴权。</p>
+<p>如下面的代码为黑名单鉴权：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span></span>&#123;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">if</span>(request.getRequestURI().startswith(<span class="string">"/admin"</span>))&#123;</span><br><span class="line">        <span class="comment">// 鉴权操作 </span></span><br><span class="line">        <span class="comment">// TODO</span></span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">// 免鉴权接口  </span></span><br><span class="line">        <span class="comment">// TODO </span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;假设一个攻击目标，攻击者需要绕过该逻辑判断，访问 /admin 路径</p>
+<p>&emsp;&emsp;我们打开前文的“解析差异总览”，找到“资源路径处理表”与“接口方法处理表”，对比可知，在不同版本下我们都可以针对该判断条件进行绕过，全版本通杀的方式是对请求的路径进行 URL编码，即可绕过 。</p>
+<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/22.png" alt="image-20240126155306284"></p>
+<p>如下面的代码为白名单免鉴权：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span></span>&#123;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">if</span>(request.getRequestURI().startswith(<span class="string">"/static"</span>))&#123;</span><br><span class="line">        <span class="comment">// 免鉴权接口  </span></span><br><span class="line">        <span class="comment">// TODO</span></span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">// 鉴权操作 </span></span><br><span class="line">        <span class="comment">// TODO</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;假设一个攻击目标，攻击者需要利用该逻辑判断，从而能访问其他需要鉴权的接口。</p>
+<p>&emsp;&emsp;继续查看 “资源路径处理表”与“接口方法处理表” 两种表格，我们需要让过滤层认为当前路径为 /static，那么我们可以利用目录跳转符号，但是，根据表格，该手法只在 spring-boot&lt;=2.3.0 或 springmvc&lt;5.3.0 下生效，对应的poc为 “/static/../admin”</p>
+<h2 id="6-总结"><a href="#6-总结" class="headerlink" title="6.总结"></a>6.总结</h2><p>&emsp;&emsp;匆忙之下编写的此文，对spring下路由匹配前面还有一些逻辑本文未尽善说明，另外这块细节较多，本文难免错漏，欢迎大家补充或修正。此外，本文所总结的问题模型却也不仅仅局限于spring web，以此为思路模板也能让我们分析不同鉴权框架与web容器/mvc框架的情况。</p>
+<p>&emsp;&emsp;本文算是对这块的总结与笔记，仔细分析下来，这块比想象中的多了一些门道。</p>
+<h2 id="7-参考"><a href="#7-参考" class="headerlink" title="7.参考"></a>7.参考</h2><p>浅谈springweb路由解析与权限绕过 <a href="https://bytedance.larkoffice.com/file/QMAWb533wo7eHExGRMGcZFM7nkh" target="_blank" rel="noopener">https://bytedance.larkoffice.com/file/QMAWb533wo7eHExGRMGcZFM7nkh</a></p>
+<p>这个鉴权到底能不能绕 <a href="https://forum.butian.net/share/829" target="_blank" rel="noopener">https://forum.butian.net/share/829</a></p>
+<p>Shiro 历史漏洞分析 <a href="https://xz.aliyun.com/t/11633" target="_blank" rel="noopener">https://xz.aliyun.com/t/11633</a></p>
 
       
 
@@ -448,7 +352,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2023/12/24/%E5%89%96%E6%9E%90Dongtai-IAST%E7%9A%84%E5%AE%9E%E7%8E%B0/">展开全文 >></a>
+          <a class="article-more-a" href="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/">展开全文 >></a>
         </p>
       
 
@@ -480,7 +384,7 @@
   
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/35/">35</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/36/">36</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
     </nav>
   
 
@@ -494,7 +398,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2023 turn1tup
+    		&copy; 2024 turn1tup
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
