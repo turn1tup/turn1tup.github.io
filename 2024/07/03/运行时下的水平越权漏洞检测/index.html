@@ -6,15 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://turn1tup.github.io">
-  <title>turn1tup&#39;s blog</title>
+  <title>运行时下的水平越权漏洞检测 | turn1tup&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="turn1tup&#39;s blog">
-<meta property="og:url" content="https://turn1tup.github.io/page/11/index.html">
+  <meta name="description" content="运行时下的水平越权漏洞检测@turn1tup 1.前言&amp;emsp;&amp;emsp;今年上半年笔者在着手于尝试检测Java应用的逻辑漏洞，整个项目在逐步完善并趋于成熟了之中。方案的水平越权检测逻辑其实是比较复杂的，里程上分为单机版与微服务版，微服务版需要解决跨进程数据跟踪问题，而本文对单机版稍作分享，欢迎大家进行探讨。 &amp;emsp;&amp;emsp;这里也提一嘴，目前项目是基于蚂蚁安全的切面底座，这减少了笔者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="运行时下的水平越权漏洞检测">
+<meta property="og:url" content="https://turn1tup.github.io/2024/07/03/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8B%E7%9A%84%E6%B0%B4%E5%B9%B3%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B/index.html">
 <meta property="og:site_name" content="turn1tup&#39;s blog">
+<meta property="og:description" content="运行时下的水平越权漏洞检测@turn1tup 1.前言&amp;emsp;&amp;emsp;今年上半年笔者在着手于尝试检测Java应用的逻辑漏洞，整个项目在逐步完善并趋于成熟了之中。方案的水平越权检测逻辑其实是比较复杂的，里程上分为单机版与微服务版，微服务版需要解决跨进程数据跟踪问题，而本文对单机版稍作分享，欢迎大家进行探讨。 &amp;emsp;&amp;emsp;这里也提一嘴，目前项目是基于蚂蚁安全的切面底座，这减少了笔者">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://turn1tup.github.io/2024/07/03/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8B%E7%9A%84%E6%B0%B4%E5%B9%B3%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B/image-20240702114745791.png">
+<meta property="article:published_time" content="2024-07-03T07:00:00.000Z">
+<meta property="article:modified_time" content="2024-07-02T17:00:28.623Z">
 <meta property="article:author" content="turn1tup">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://turn1tup.github.io/2024/07/03/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8B%E7%9A%84%E6%B0%B4%E5%B9%B3%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B/image-20240702114745791.png">
   
     <link rel="alternative" href="/atom.xml" title="turn1tup&#39;s blog" type="application/atom+xml">
   
@@ -150,108 +156,125 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-mybatis插件下的SQL注入" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-运行时下的水平越权漏洞检测" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/">mybatis插件下的SQL注入</a>
+    <h1 class="article-title" itemprop="name">
+      运行时下的水平越权漏洞检测
     </h1>
   
 
         
-        <a href="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/" class="archive-article-date">
-  	<time datetime="2023-01-18T17:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-01-18</time>
+        <a href="/2024/07/03/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8B%E7%9A%84%E6%B0%B4%E5%B9%B3%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B/" class="archive-article-date">
+  	<time datetime="2024-07-03T07:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-07-03</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="mybatis插件下的SQL注入"><a href="#mybatis插件下的SQL注入" class="headerlink" title="mybatis插件下的SQL注入"></a>mybatis插件下的SQL注入</h1><h2 id="1-引言"><a href="#1-引言" class="headerlink" title="1. 引言"></a>1. 引言</h2><p>&emsp;&emsp;首先我们具体聊聊mybatis相关插件的代码实现，当然在这个分析代码流的过程中我们也知晓插件漏洞成因，最后给出一些漏洞案例。</p>
-<h2 id="2-PageHelper插件"><a href="#2-PageHelper插件" class="headerlink" title="2. PageHelper插件"></a>2. PageHelper插件</h2><p>&emsp;&emsp;<a href="https://github.com/pagehelper/Mybatis-PageHelper" target="_blank" rel="noopener">https://github.com/pagehelper/Mybatis-PageHelper</a></p>
-<p>&emsp;&emsp;PageHelper是一款用于协助分页的mybatis插件，插件分页功能使用不当会造成SQL注入问题，下面我们在分析代码时将遵循程序流逻辑进行叙述，测试时的版本库信息如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">com.github.pagehelper:pagehelper:5.3.2</span><br><span class="line">com.github.pagehelper:pagehelper-spring-boot-autoconfigure:1.4.6</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="2-1-添加拦截器到mybatis中"><a href="#2-1-添加拦截器到mybatis中" class="headerlink" title="2.1 添加拦截器到mybatis中"></a>2.1 添加拦截器到mybatis中</h3><p>&emsp;&emsp;<code>spring-boot</code>中我们通过引入如下依赖即可在mybatis中自动添加pagehelper插件，本小节我们来看看其是如何在应用启动时完成这一动作。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.pagehelper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>pagehelper-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;添加PageHelper插件到mybatis中的功能为<code>PageHelperAutoConfiguration</code>实现的。</p>
-<p>&emsp;&emsp;<code>c.g.p.a.PageHelperAutoConfiguration</code> ：通过<code>按类型自动注解</code>可获得 <code>sqlSessionFactory</code> <code>pagePelperProperties</code> ，前者来源mybatis的相关bean对象，后者则为PageHelper维护的Bean且Bean字段内容来源于用户的配置。Configuration相关注解对象会被作为Bean进行管理，这里在Bean实例化且完成相关属性注入之后触发添加mybatis拦截器的流程。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/PageHelperAutoConfiguration1.4.6.png" alt="PageHelperAutoConfiguration1.4.6"></p>
-<p>mybatis的sqlSessionFactory的Bean对象：</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/MybatisAutoConfiguration.png" alt="MybatisAutoConfiguration"></p>
-<p>&emsp;&emsp;</p>
-<h3 id="2-2-设置SQL执行器"><a href="#2-2-设置SQL执行器" class="headerlink" title="2.2 设置SQL执行器"></a>2.2 设置SQL执行器</h3><p>&emsp;&emsp;mybatis在最后执行sql语句的时候，由执行器负责，相关接口类为 <code>org.apache.ibatis.executor.Executor</code> ，在未添加插件前，我们的sql查询功能会由 <code>o.a.i.e.CachingExecutor</code> 直接负责。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/CachingExecutor.png" alt="CachingExecutor"></p>
-<p>&emsp;&emsp;下面我们来看看plugin下的拦截器有何变化。</p>
-<p>&emsp;&emsp;<code>DefaultSqlSessionFactory#openSessionFromDataSource</code>：sql session在启动时未初始化，当我们第一次触发sql执行时，会从该方法获取sql session进行初始化，在这里也对executor进行设置。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/DefaultSqlSessionFactory.png" alt="DefaultSqlSessionFactory"></p>
-<p><code>configuration.newExecutor</code> ：首先是实例化一个执行器<code>CachingExecutor</code>，如果未添加拦截器的情况下，mybatis将直接使用该执行器；如果添加了拦截器，则将调用拦截器的 <code>plugin</code>方法，对当前executor进行JDK动态代理。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/newExecutor.png" alt="newExecutor"></p>
-<p><code>o.a.i.p.Plugin</code>：JDK动态代理的目标方法为拦截器的<code>Inteceptors注解</code>中给出的方法签名，具体执行则通过我们前面添加的拦截器的intecept方法去处理被代理的方法。关于<code>Inteceptors注解</code>可在<code>2.4</code>小节的图片上方看到。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/plugin_wrap.png" alt="plugin_wrap"></p>
-<h3 id="2-3-设置线程变量"><a href="#2-3-设置线程变量" class="headerlink" title="2.3 设置线程变量"></a>2.3 设置线程变量</h3><p>&emsp;&emsp;如图左所示，在使用时我们先需要执行<code>PageHelper.startPage</code>方法设置本次SQL分页的具体参数，startPage的重载方法有多个，比较简便的是<code>startPage(Object params)</code>方法，原理就是通过反射获取感兴趣的字段数据。在实例化<code>Page</code>后，会将该对象保存到当前线程中 （threadlocal）。根据startPage各个重载方法的代码可以了解到，实际开发者只会控制这三个变量。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/setLocalPage.png" alt="setLocalPage"></p>
-<h3 id="2-4-拦截器的执行"><a href="#2-4-拦截器的执行" class="headerlink" title="2.4 拦截器的执行"></a>2.4 拦截器的执行</h3><p>&emsp;&emsp;<code>c.g.p.PageInterceptor</code>：注解中指明JDK动态代理中需要代理拦截的方法；intercept 方法中为具体的分页功能，关于本次查询count的检查等代码这里就不关注了，我们需要关注的具体分页功能在147行代码中，这里获取到了mybatis原本将执行的SQL语句，然后进行分页处理。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/PageInterceptor.png" alt="PageInterceptor"></p>
-<p>​    <img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/ExecutorUtil.png" alt="ExecutorUtil"></p>
-<p>&emsp;&emsp;从下图代码可以了解到，当orderBy不为空时会将该字段值拼接到需要查询的SQL后面，后续就是根据情况拼接limit；到这里，我们基本理清楚PageHelper的原理，也了解到该插件在使用不当时是会存在SQL注入漏洞的。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/sqlappend.png" alt="sqlappend"></p>
-<h3 id="2-5-注入问题已修复"><a href="#2-5-注入问题已修复" class="headerlink" title="2.5 注入问题已修复"></a>2.5 注入问题已修复</h3><p>&emsp;&emsp;这里测试的<code>pagehelper starter1.4.6</code> 版本对oderBy字符串进行了sql防护校验，关键点是左括号被过滤了，而且该SQL注入点还是order by后面，笔者未想到绕过方式，所以高版本下PageHelper注入点无法利用。低点的版本，如<code>pagehelper starter 1.4.0</code>，在用户使用不当的情况下可利用该SQL注入问题。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/SqlSafeUtil.png" alt="SqlSafeUtil"></p>
-<p>&emsp;&emsp;对应的线程堆栈数据为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">check:58, SqlSafeUtil (com.github.pagehelper.util)</span><br><span class="line">setOrderBy:279, Page (com.github.pagehelper)</span><br><span class="line">getPageFromObject:136, PageObjectUtil (com.github.pagehelper.util)</span><br><span class="line">startPage:85, PageMethod (com.github.pagehelper.page)</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="3-baomidou插件"><a href="#3-baomidou插件" class="headerlink" title="3. baomidou插件"></a>3. baomidou插件</h2><p>&emsp;&emsp;<a href="https://github.com/baomidou/mybatis-plus" target="_blank" rel="noopener">https://github.com/baomidou/mybatis-plus</a> </p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.baomidou<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-plus-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.5.3.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;baomidou也是一款mybatis的分页插件，而针对这个插件，我们也不过多分析了，有了前文PagerHelper的分析，mybatis插件原理我们大致也了解，所以我们直接查看我们关注的漏洞点。另外这个插件没有修复该SQL注入问题。(这个插件比较坑，source和class代码都对不上，可能是作者用了lombok？）</p>
-<p>&emsp;&emsp;该插件中，order字段在使用时如果不注意也会造成SQL注入问题。</p>
-<p>&emsp;&emsp;<code>c.baomidou.m.e.p.i.PaginationInnerInterceptor#beforeQuery</code>：通过工具类从<code>parameter</code>参数变量中获取IPage数据用于分页，针对orderBy的语句的添加，这里先使用jsqlparser工具对当前SQL进行参数化，并对参数化得到的<code>plainSelect</code>对象添加orderBy语句，即setOrderByElements。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/baomidou_beforeQuery.png" alt="baomidou_beforeQuery"></p>
-<p><code>c.baomidou.m.c.t.ParameterUtils#findPage</code> ：从代码中我们可以了解到，如用户传参为IPage实现类或Map字典中有IPage实现类，均可被该工具方法提取出IPage数据。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/baomidou_findPage.png" alt="baomidou_findPage"></p>
-<p><code>n.s.jsqlparser.s.s.PlainSelect#toString</code>：虽然代码通过jsqlparser对sql进行参数化，但最后的sql语句生成还是通过直接拼接进行实现，所以当用户对该插件使用不当时会有SQL注入问题。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/baomidou_PlainSelect.png" alt="baomidou_PlainSelect"></p>
-<h2 id="4-漏洞案例"><a href="#4-漏洞案例" class="headerlink" title="4. 漏洞案例"></a>4. 漏洞案例</h2><h3 id="4-1-PageHelper"><a href="#4-1-PageHelper" class="headerlink" title="4.1 PageHelper"></a>4.1 PageHelper</h3><p>&emsp;&emsp; 插件有漏洞的版本为 <code>pagehelper-spring-boot-starter</code>&lt;=1.4.2 ，对应的core <code>com.github.pagehelper:pagehelper</code>&lt;=5.3.0 。</p>
-<p>&emsp;&emsp;并关注PageHelper以下两个重载方法，在低版本下，如果对应的orderBy可控且用户未过滤、非枚举，则可能存在SQL注入漏洞。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">抽象类（父类）</span><br><span class="line">com.github.pagehelper.page.PageMethod#startPage(int, int, java.lang.String)</span><br><span class="line">com.github.pagehelper.page.PageMethod#startPage(java.lang.Object)</span><br><span class="line">子类：</span><br><span class="line">PageHelper#startPage(int, int, java.lang.String)</span><br><span class="line">PageHelper#startPage(java.lang.Object)</span><br></pre></td></tr></table></figure>
-
-
-
-<p>&emsp;&emsp;如某应用早期版本，使用的PageHelper版本为1.2.5，其未对从用户获取的orderBy数据做过滤，所以可进行SQL注入利用：</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/ruoyi_demo1.png" alt="ruoyi_demo1"></p>
-<p>&emsp;&emsp;我们可构造如下POC进行漏洞利用：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/system/user/list</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: 127.0.0.1:8082</span><br><span class="line"><span class="attribute">Cookie</span>: ...</span><br><span class="line"></span><br><span class="line">pageSize=10&amp;pageNum=1&amp;orderByColumn=? ,(select sleep(1) )-- -&amp;isAsc=desc</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h3 id="4-2-baomidou"><a href="#4-2-baomidou" class="headerlink" title="4.2 baomidou"></a>4.2 baomidou</h3><p>&emsp;&emsp; 如果dao方法传参中含有IPage实现类，且对应的接口方法支持接收复杂对象数据，则可能存在SQL注入漏洞。</p>
-<p>&emsp;&emsp;下图代码：开发者编写了一个用于接收用户数据的<code>LoginLogQueryForm</code>，该类继承了PageParam属性，且通过<code>convert2PageQuery</code>方法将相关属性都传递到page对象中，并在dao查询中传入了该page对象。回顾我们前文说说，当用于查询时传入的参数中，含有IPage实现类时，baomidou会根据该类进行分页，包括orderBy字典也来源于此，所以该代码在queryForm可被用户控制的情况下则存在SQL注入。</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/demo_baomi.png" alt="demo_baomi"></p>
-<p>&emsp;&emsp;恰好对应的接口方法接受复杂对象传参，即JSON POST：</p>
-<p><img src="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/demo_baomi2.png" alt="demo_baomi2"></p>
-<p>于是我们可构造如下POC，并通过 <code>sqlmap --level 5 --technique et</code>进行测试：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/xxxx/loginLog/page/query</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: 127.0.0.1:8088</span><br><span class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0</span><br><span class="line"><span class="attribute">Content-Type</span>: application/json</span><br><span class="line"></span><br><span class="line">&#123;"userName":"","ip":"","pageNum":1,"pageSize":1,"sortItemList":[&#123;"column":"? ,( * )-- -","isAsc":true&#125;]&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="5-结语"><a href="#5-结语" class="headerlink" title="5. 结语"></a>5. 结语</h2><p>&emsp;&emsp;在笔者知晓该SQL注入问题后，意识到自己在日渐累积的工作生涯中，日渐淡出了这种探究各“不清不楚”问题的热情。当然也有一些务实行事方法的影响——对待新问题，实际工作中遇到再探究即可，毕竟可学习的东西可多了。但这却也使得笔者在自己比较熟悉的一些方面，遇到某些“概念”时也不以为意，放任不管。</p>
-<p>&emsp;&emsp;感谢<code>2022-12 psrc-甲方视角下的代码审计</code>的分享，PPT中提到pagehelper插件问题，笔者遂对此进行了一番简单分析，并作此分享。</p>
+        <h1 id="运行时下的水平越权漏洞检测"><a href="#运行时下的水平越权漏洞检测" class="headerlink" title="运行时下的水平越权漏洞检测"></a>运行时下的水平越权漏洞检测</h1><p>@turn1tup</p>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1.前言"></a>1.前言</h2><p>&emsp;&emsp;今年上半年笔者在着手于尝试检测Java应用的逻辑漏洞，整个项目在逐步完善并趋于成熟了之中。方案的水平越权检测逻辑其实是比较复杂的，里程上分为单机版与微服务版，微服务版需要解决跨进程数据跟踪问题，而本文对单机版稍作分享，欢迎大家进行探讨。</p>
+<p>&emsp;&emsp;这里也提一嘴，目前项目是基于蚂蚁安全的切面底座，这减少了笔者在字节码、底层处理方面的工作，至少减少了前期三成以上的工作量，此外由于切面框架成熟丰富，也带来了不少开发便利；笔者得以有更多精力承载此项目，通常只需要关注自己的应用层如何实现的。</p>
+<h2 id="2-定义问题"><a href="#2-定义问题" class="headerlink" title="2.定义问题"></a>2.定义问题</h2><p>&emsp;&emsp;在具体讲解水平越权漏洞检测之前，我们来大致聊聊整个逻辑漏洞问题，对逻辑漏洞进行相关的定义。</p>
+<p>&emsp;&emsp;未明确问题之前，我们无法知晓自己能做什么（能检测什么逻辑漏洞）以及要怎么做。在具备相关的知识技能前提下，笔者在此梳理过程中发现，“水平越权漏洞”可能可以通过运行时（被动IAST）进行检测，且这种检测方案具备相当的“诱惑力”。</p>
+<p>&emsp;&emsp;逻辑漏洞的分类在大的方向上有 未鉴权、垂直越权、水平越权：</p>
+<ul>
+<li>未鉴权：某个接口无需用户登陆凭证即可访问、允许匿名访问，因此解决未鉴权问题一方面需要识别接口是否为未鉴权接口，另外一方面要识出接口是否为“敏感接口”。前者在统一网关管控路径权限的应用中倒不是问题，拿到配置就可以了解接口的鉴权情况，麻烦点还是在后者上；对于后者我们可以检测HTTP响应报文中的敏感数据来做这个事情，但这需要主动发包/流量重放/或是处理流量响应报文。</li>
+<li>垂直越权：当用户拥有“管理”类的职权时，这些管理类的后台接口影响的数据的查询与更新非围户来发生，而是通过组、部门、公司 等单一、多个或组合的形式来鉴别用户职权并产生 查询、更新的行为。垂直越权漏洞通过主动扫描（扫描器维护不同职权用户凭证）来进行挖掘更好，这个问题在笔者看来是最难解决的。此外，由于业务复杂情况，需要主动发包的方案都让人担忧，笔者也就暂时不纳入考虑。</li>
+<li>·水平越权：在普通用户接口下，绝大部分数据围绕用户产生，数据的查询、更新行为通常伴随某用户，相关接口在查询（并返回给前端）或更新前需要检查当前操作者是否数据所属用户，开发者在获取/更新数据时，没有对数据所属用户进行检查，则会存在“水平越权”问题。水平越权问题下的逻辑关系似乎较为简单，其中有条“线”，笔者 也是后知后觉，即一切最后都会落到表的结构关系中。</li>
+</ul>
+<p>&emsp;&emsp;通过运行时来检测水平越权漏洞，可以做到不主动发包，正常业务行为即可触发漏洞检测过程，因此这个方案十分具有诱惑力，另外，在完善过后，还会有更多利用场景，此外这似乎是一个有趣有挑战有创新的东西。</p>
+<h2 id="3-问题模型"><a href="#3-问题模型" class="headerlink" title="3.问题模型"></a>3.问题模型</h2><p>&emsp;&emsp;本节讲述以下笔者认为的问题模型，而这个模型中会存在各个实体，在讲述中也在绘画处我们的方案思路轮廓。</p>
+<p>&emsp;&emsp;首先，得益于开发语言成熟的开发框架，使得运行时的数据跟踪更为简单、可适配，而检测水平越权漏洞的重点之一就是需要和DAO层打交道。对于一个SQL查询来说，封装到DAO层，我们通过适配DAO框架（mybatis）可以跟踪每个对象、参数到sql执行的入参与执行结果。</p>
+<p><img src="/2024/07/03/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8B%E7%9A%84%E6%B0%B4%E5%B9%B3%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B/image-20240702114745791.png" alt="image-20240702114745791"></p>
+<p><strong>水平越权下的实体：</strong></p>
+<ul>
+<li>数据库表：表在设计时已经含有了“用户”与“用户数据”关系的这一逻辑，而这个逻辑是通过关联user_id一类的表字段来进行的。<ul>
+<li>用户表：unique key一类的表字段都进行关注，都具有和user_id具备“标记同一个用户的功能”，本文记为 owner column</li>
+<li>用户数据表：包含owner column的表，而某些表需要人工手动排除，如商品评论表，包含user_id这一owner column，但商品评论信息的查询不需要鉴别用户权限。</li>
+<li>被忽略的表：不包含owner column的表默认被忽略，或人工手动将其他表添加到忽略中，被忽略的表表示不需要进行水平越权检测。</li>
+</ul>
+</li>
+<li>SQL语句：SQL执行在 JDBC层，而通过DAO我们得以将其与业务层的对象进行关联<ul>
+<li>SQL类型：存在update、query两种SQL执行，针对query，当且其结果输出给到前端时，我们才能判断其是否存在越权，为了简化表述，本文后续只讨论query。</li>
+</ul>
+</li>
+<li>分层：<ul>
+<li>控制层：应用在fliter/interceptor控制层对用户进行了鉴权，走到业务层的都是有效凭证的用户（在水平越权视角下）</li>
+<li>业务层：业务层可获取缓存的凭证/对象，操作DAO层时需要利用缓存的凭证与DAO交互，避免单纯采信用户的输入导致越权（用户访问的数据与所属用户不符）</li>
+<li>DAO层：封装SQL执行，且DAO层的输入与输出对于运行时的RASP/IAST都是易得的</li>
+</ul>
+</li>
+<li>数据类型：与 白盒/被动IAST 一样，大的框架上是需要跟踪数据的传播，而说到数据的传播，经典的概念也随之而来（source/sink）<ul>
+<li>source：来自用户的输入，默认是不可信任的</li>
+<li>pure：来自缓存的凭证/对象，或是被pure影响的数据也可能会标记未pure，表示这是一个可信任的数据</li>
+<li>sink：query情况下的漏洞检测点最终在controller mapping方法的返回结果出，检查该结果对象是否存在字段内容值来源于越权查询出的数据。</li>
+<li>DAO层与业务操作者之间进行数据流转，DAO层的数据来源可能是HTTP输入、其他DAO Query的结果、缓存的凭证等等，在数据流转的过程中，我们进行数据跟踪，根据算法逻辑对其进行标记</li>
+</ul>
+</li>
+</ul>
+<p><strong>SQL语句中的taint</strong>：普通用户接口下的业务层代码和“用户数据表”打交道时就会产生是否存在水平越权的问题，而这个代码最终体现在sql执行上的约束上，我们需要跟踪约束项的数据来源（静态代码或运行时中，针对数据流，从用户输入source到污点sink过程中可能会存在流中继，流中继的上游入口数据可以简称taint）。</p>
+<ul>
+<li>约束项taint：这里有两个要点需要理解，其一，SQL语句中的约束项视为taint，因此其对应着具体的表列；其二，不是所有的taint都需要关注，通常unique column/owner column外的其他列不需要关注。</li>
+<li>SQL约束：SQL约束有三个场景<ul>
+<li>场景1，开发者需要通过SQL执行的约束where指定owner column值来避免数据被非属用户访问（因此，SQL约束也应该是我们运行时跟踪的关键点，当然，具体实现上不会了解约束的语义，只解析出约束项）。demo sql语句为，select * from order where user_id = ? </li>
+<li>场景2，通过非onwer column而是unique column来约束SQL执行，那么，unqiue column指定的数据值的来源必然是场景1</li>
+<li>场景3，此外，也可能存在SQL执行语句未作约束的情况，普通用户接口下直接查询所有用户数据，此情况下可对未做unique column/owner column约束的SQL执行进行告警</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-数据跟踪"><a href="#4-数据跟踪" class="headerlink" title="4.数据跟踪"></a>4.数据跟踪</h2><p>数据跟踪包括几个关键要点：对象拆分、对象标记、DAO流中继</p>
+<ul>
+<li>对象拆分：除了被动IAST中关注的情况List/Set/…，对于POJO/Bean对象，我们也需要进行拆分，获取到其各个字段值的对象；通常POJO的拆分只需要在source、DAO 这两个地方进行即可。</li>
+<li>对象标记：维护 SourceMap、PureMap、TaintMap分别记录对象是否为soure、是否为pure、是否为query的结果数据，被动IAST的数据跟踪这一抽象话术，落到实际来看，其中一点就是对象标记。v</li>
+<li>DAO流中继：DAO是一个上层封装，底下会涉及到许多关键逻辑<ul>
+<li>分析DAO执行的SQL语句：对于入参，如果其是SQL约束项，解析出其表列，并从后台获取该表列的“标记”（owner/unique /是否ignore）；对于查询结果，解析出查询结果数据对应的表列（这么做的具体原因稍后说明）</li>
+<li>依赖关系map：DAO结果对象通常是POJO，由于其是从数据库查询出来的，是“一体”的，因此保存它们的一体关系，当其一者的标记发生变化时，则应都进行同样的标记变化。。</li>
+</ul>
+</li>
+</ul>
+<p>当pure数据与其他类型数据发生关系（数据传播、流程控制）时我们需要关注的，因为这意味着可能有新的pure数据产生，项目中的核心逻辑之一也是在这一点的处理上：</p>
+<ul>
+<li>DAO的数据传播：如果SQL执行中的约束项（unique/owner）是pure，则SQL执行结果也为pure；此外，如果SQL执行的其他入参的表列与执行结果的表列一直，则该入参对象也标记为pure</li>
+<li>流程控制：当一个数据对象与pure进行equals对比且return为true，则该数据对象也被标记为pure。这个判断逻辑的依据是，我们假设这里发生会流程控制（与pure对比，false就中断流程/抛异常）。如查询订单，订单号来自HTTP输入，开发者应先查询这个订单的所属用户，之后有 “订单用户ID”.equals(“凭证用户ID”) 的判断，当结果为true时  “订单用户ID” 才能被使用，否则应抛出异常。</li>
+</ul>
+<h2 id="5-结语"><a href="#5-结语" class="headerlink" title="5.结语"></a>5.结语</h2><p>&emsp;&emsp;运行时检测下，具备被动IAST一样的优势，无需构建扫描器进行发包，部署在测试环境随业务测试进行即可，也具有被动IAST一样的缺点，不适合部署在生产环境（消耗性能）。此外，项目方案技术难度较高，需要适配的框架较多，在技术上，通常只跟踪引用类型数据（因此建议POJO Class的字段不要使用非boxed的基本数据类型，如int修改为Integer），否则误报率会提升。</p>
+<p>&emsp;&emsp;本文想着把这块思路稍作分享，但似乎有些复杂，导致写下来可能难以做到易懂，其中的逻辑一环套一环，写起来也是麻烦。但根本上来说，项目方案就是利用了数据库中用户表与其他数据表的关系，这是最底层的基石。</p>
+<p>&emsp;&emsp;此前的单机版本通过高starts开源项目mall4j测试，测试中对该商场系统的各个普通用户接口进行了全量测试（接口无越权、接口修改为有越权 两面测试），阶段性来看方案是可行的。</p>
+<p>&emsp;&emsp;而目前笔者在改造为微服务版本，为了应对微服务问题 ，IAST各处逻辑需要重构到云端进行处理；此外，需要适配HTTP Client/Server、内容解析等等从而实现跨进程数据跟踪问题。当然，这些问题也基本一一解决了，后面完成云端后台的算法处理后，可以开始在业务方进行部署测试了，也期待后续在业务方的测试情况吧~不过，相信会存在很多问题…</p>
 
       
 
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/wechat_pay.jpg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
       
     </div>
     <div class="article-info article-info-index">
@@ -260,16 +283,75 @@
       
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2023/01/18/mybatis%E6%8F%92%E4%BB%B6%E4%B8%8B%E7%9A%84SQL%E6%B3%A8%E5%85%A5/">展开全文 >></a>
-        </p>
-      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=https://turn1tup.github.io/2024/07/03/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8B%E7%9A%84%E6%B0%B4%E5%B9%B3%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">SpringWeb下的路径鉴权问题</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -289,12 +371,14 @@
 
 
 
+  
+  
+  
 
   
+
   
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/10/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/37/">37</a><a class="extend next" rel="next" href="/page/12/">Next &amp;raquo;</a>
-    </nav>
+
   
 
 
@@ -323,8 +407,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,

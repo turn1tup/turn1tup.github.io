@@ -152,194 +152,96 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-SpringWeb下的路径鉴权问题" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-运行时下的水平越权漏洞检测" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/">SpringWeb下的路径鉴权问题</a>
+      <a class="article-title" href="/2024/07/03/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8B%E7%9A%84%E6%B0%B4%E5%B9%B3%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B/">运行时下的水平越权漏洞检测</a>
     </h1>
   
 
         
-        <a href="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/" class="archive-article-date">
-  	<time datetime="2024-01-25T05:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-01-24</time>
+        <a href="/2024/07/03/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8B%E7%9A%84%E6%B0%B4%E5%B9%B3%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B/" class="archive-article-date">
+  	<time datetime="2024-07-03T07:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-07-03</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="SpringWeb下的路径鉴权问题"><a href="#SpringWeb下的路径鉴权问题" class="headerlink" title="SpringWeb下的路径鉴权问题"></a>SpringWeb下的路径鉴权问题</h1><p>@turn1tup</p>
-<h2 id="1-问题的模型"><a href="#1-问题的模型" class="headerlink" title="1.问题的模型"></a>1.问题的模型</h2><p>&emsp;&emsp;应用的业务功能中，鉴权与授权 Authentication/Authorization是一项重要的功能。通常，不同URL路径对应着web应用的不同的业务功能，开发者编写的web应用中会将鉴权逻辑独立出来，并通过filter/interceptor这些前置的拦截器对用户的请求统一地进行鉴权判断。</p>
-<p>&emsp;&emsp;本文给出了不同解析方式下的差异问题表，并对这些解析模式进行了相应的代码分析，最后根据前文的问题模型对漏洞模式进行了分析。</p>
-<p>&emsp;&emsp;首先，对于鉴权这块的逻辑缺陷导致的接口未授权访问，实际存在如下实体，并可据此进行系统性地分析，本文实际也围绕如下对象进行叙述：</p>
+        <h1 id="运行时下的水平越权漏洞检测"><a href="#运行时下的水平越权漏洞检测" class="headerlink" title="运行时下的水平越权漏洞检测"></a>运行时下的水平越权漏洞检测</h1><p>@turn1tup</p>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1.前言"></a>1.前言</h2><p>&emsp;&emsp;今年上半年笔者在着手于尝试检测Java应用的逻辑漏洞，整个项目在逐步完善并趋于成熟了之中。方案的水平越权检测逻辑其实是比较复杂的，里程上分为单机版与微服务版，微服务版需要解决跨进程数据跟踪问题，而本文对单机版稍作分享，欢迎大家进行探讨。</p>
+<p>&emsp;&emsp;这里也提一嘴，目前项目是基于蚂蚁安全的切面底座，这减少了笔者在字节码、底层处理方面的工作，至少减少了前期三成以上的工作量，此外由于切面框架成熟丰富，也带来了不少开发便利；笔者得以有更多精力承载此项目，通常只需要关注自己的应用层如何实现的。</p>
+<h2 id="2-定义问题"><a href="#2-定义问题" class="headerlink" title="2.定义问题"></a>2.定义问题</h2><p>&emsp;&emsp;在具体讲解水平越权漏洞检测之前，我们来大致聊聊整个逻辑漏洞问题，对逻辑漏洞进行相关的定义。</p>
+<p>&emsp;&emsp;未明确问题之前，我们无法知晓自己能做什么（能检测什么逻辑漏洞）以及要怎么做。在具备相关的知识技能前提下，笔者在此梳理过程中发现，“水平越权漏洞”可能可以通过运行时（被动IAST）进行检测，且这种检测方案具备相当的“诱惑力”。</p>
+<p>&emsp;&emsp;逻辑漏洞的分类在大的方向上有 未鉴权、垂直越权、水平越权：</p>
 <ul>
-<li>URL资源路径：路径的格式，资源路径的解析差异</li>
-<li>控制层与业务层：分层容易带来“解析不一致”问题<ul>
-<li>控制层：过滤拦截，鉴权判断<ul>
-<li>资源路径的解析</li>
-<li>鉴权路由的匹配</li>
+<li>未鉴权：某个接口无需用户登陆凭证即可访问、允许匿名访问，因此解决未鉴权问题一方面需要识别接口是否为未鉴权接口，另外一方面要识出接口是否为“敏感接口”。前者在统一网关管控路径权限的应用中倒不是问题，拿到配置就可以了解接口的鉴权情况，麻烦点还是在后者上；对于后者我们可以检测HTTP响应报文中的敏感数据来做这个事情，但这需要主动发包/流量重放/或是处理流量响应报文。</li>
+<li>垂直越权：当用户拥有“管理”类的职权时，这些管理类的后台接口影响的数据的查询与更新非围户来发生，而是通过组、部门、公司 等单一、多个或组合的形式来鉴别用户职权并产生 查询、更新的行为。垂直越权漏洞通过主动扫描（扫描器维护不同职权用户凭证）来进行挖掘更好，这个问题在笔者看来是最难解决的。此外，由于业务复杂情况，需要主动发包的方案都让人担忧，笔者也就暂时不纳入考虑。</li>
+<li>·水平越权：在普通用户接口下，绝大部分数据围绕用户产生，数据的查询、更新行为通常伴随某用户，相关接口在查询（并返回给前端）或更新前需要检查当前操作者是否数据所属用户，开发者在获取/更新数据时，没有对数据所属用户进行检查，则会存在“水平越权”问题。水平越权问题下的逻辑关系似乎较为简单，其中有条“线”，笔者 也是后知后觉，即一切最后都会落到表的结构关系中。</li>
 </ul>
-</li>
-<li>业务层：资源定位，获取到URL资源路径后，根据路径映射表选择业务类来处理<ul>
-<li>资源路径的解析</li>
-<li>路由匹配模式</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>手动鉴权下可能的逻辑缺陷<ul>
-<li>黑白鉴权逻辑问题</li>
-</ul>
-</li>
-</ul>
-<h2 id="2-解析差异总览"><a href="#2-解析差异总览" class="headerlink" title="2.解析差异总览"></a>2.解析差异总览</h2><p>&emsp;&emsp;这里先放两张表格，分别概括了spring 资源路径解析、路由匹配方式 两块不同版本的功能情况，也是对后文分析的直接总结，在浏览后文内容时可以将这里作为“地图”进行阅读。</p>
-<p>相关选项的解读以及备注（在后文中也有逐步的说明）：</p>
+<p>&emsp;&emsp;通过运行时来检测水平越权漏洞，可以做到不主动发包，正常业务行为即可触发漏洞检测过程，因此这个方案十分具有诱惑力，另外，在完善过后，还会有更多利用场景，此外这似乎是一个有趣有挑战有创新的东西。</p>
+<h2 id="3-问题模型"><a href="#3-问题模型" class="headerlink" title="3.问题模型"></a>3.问题模型</h2><p>&emsp;&emsp;本节讲述以下笔者认为的问题模型，而这个模型中会存在各个实体，在讲述中也在绘画处我们的方案思路轮廓。</p>
+<p>&emsp;&emsp;首先，得益于开发语言成熟的开发框架，使得运行时的数据跟踪更为简单、可适配，而检测水平越权漏洞的重点之一就是需要和DAO层打交道。对于一个SQL查询来说，封装到DAO层，我们通过适配DAO框架（mybatis）可以跟踪每个对象、参数到sql执行的入参与执行结果。</p>
+<p><img src="/2024/07/03/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8B%E7%9A%84%E6%B0%B4%E5%B9%B3%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B/image-20240702114745791.png" alt="image-20240702114745791"></p>
+<p><strong>水平越权下的实体：</strong></p>
 <ul>
-<li>解析路径参数：如“/path;name=value;name2=value2/”，格式化为“/path/”，“/path;”也会格式化为“/path”</li>
-<li>移除分号内容：即定位到分号“;”，将其和后面的字符都移除，“/path;JESSIONID=123”-&gt;“/path”</li>
-<li>URL解码：由于<a href="https://github.com/apache/tomcat/blob/7.0.0/java/org/apache/tomcat/util/buf/UDecoder.java#L34" target="_blank" rel="noopener">tomcat7就开始</a>禁止路径带有编码的路径分割符“%2f”，协议层面就400，tomcat下其实就不必关注%2f这块，所以这里指路径content部分；至少springmvc pathContainer本身也不支持将%2f看作路径分割的。</li>
-<li>归化多斜线：递归将“//”替换为“/”</li>
-<li>解析目录跳转</li>
-<li>后缀匹配：后缀名匹配，当前路由可以命中带某些后缀的路径，如/hello路由可命中 /hello 与 /hello.do 的请求路径</li>
-<li>尾部匹配：当前路由可以命中尾部带目录分隔符的路径，如/hello和/hello</li>
-<li>trimTokens：用于消除路径中各个content的空格，如 “/test1%20/test2%20” 消除后变为”/test1/test2”</li>
-</ul>
-<p>通过下面的表我们可以找到某个版本其支持的选项且其他版本不支持，随后进行测试，就可以得到当前 spring应用的解析模式与版本情况</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/1.png" alt="image-20240126154738731"></p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/2.png" alt="image-20240126154720043"></p>
-<p>&emsp;&emsp;如针对 spring-boot 2.3.0，我们通过 “/foo/..//path”可以访问到 “/path”，但是其他版本的路径解析有的不支持 目录跳转、有的不支持归化斜线，这样就可以识别目标应用路径解析模式。</p>
-<p>&emsp;&emsp;用户、框架、spring自身通常也会频繁用到 getServletPath、getRequestURI 方法，他们有如下的情形：</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/3.png" alt="image-20240126154701897"></p>
-<h2 id="3-alwaysUseFullPath变化下的资源路径解析"><a href="#3-alwaysUseFullPath变化下的资源路径解析" class="headerlink" title="3.alwaysUseFullPath变化下的资源路径解析"></a>3.alwaysUseFullPath变化下的资源路径解析</h2><h3 id="3-1-alwaysUseFullPath的变化"><a href="#3-1-alwaysUseFullPath的变化" class="headerlink" title="3.1.alwaysUseFullPath的变化"></a>3.1.alwaysUseFullPath的变化</h3><p>&emsp;&emsp;分层架构下的各方使用不同的解析器来进行同一种事务的处理，这导致了解析不一致的问题。</p>
-<p>&emsp;&emsp;springmvc会在DispatcherServlet中获取当前请求的处理器handler，随后调用该handler来处理当前请求，也就走到我们的业务类Controller。而DispatcherServlet会通过调用<code>UrlPathHelper#getLookupPathForRequest</code>方法解析并获得当前路径。</p>
-<p>spring-boot-2.5.15下对资源路径的解析有如下流程：</p>
-<p>DispatcherServlet#getHandler</p>
-<p>-&gt;AbstractHandlerMapping#initLookupPath() : spring5中在这里增加了一个 usesPathPatterns 判断，后文将进一步说明</p>
-<p>​    usesPathPatterns==false</p>
-<p>​    -&gt;UrlPathHelper#resolveAndCacheLookupPath()</p>
-<p>​        -&gt;UrlPathHelper#getLookupPathForRequest()</p>
-<p>​            -&gt;<code>alwaysUseFullPath == true</code> ? <code>getPathWithinApplication()</code> : <code>getPathWithinServletMapping()</code></p>
-<p>&emsp;&emsp;UrlPathHelper#getLookupPathForRequest()：从下图代码可以了解到，在本方法中alwaysUseFullPath决定了使用哪个get path方法来进行具体的解析，这里的两种解析方式将在后文进一步说明。</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/4.png" alt="image-20240124204639528"></p>
-<p>&emsp;&emsp; alwaysUseFullPath 值在 <code>spring-boot &lt;=2.3.0-release</code> 下默认被赋值为 false ，即getPathWithinServletMapping；在 <code>spring-boot&gt;=2.3.1-release</code> 中被配置为true，getPathWithinApplication。</p>
-<p>&emsp;&emsp;下图代码中可以看到，在 spring-boot-autoconfigure-2.3.1.RELEASE 中通过 WebMvcAutoConfigurationAdapter 进行自动装配，将alwaysUseFullPath设置为 true。</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/5.png" alt="image-20240124220239219"></p>
-<h3 id="3-2-getPathWithinServletMapping解析方式"><a href="#3-2-getPathWithinServletMapping解析方式" class="headerlink" title="3.2.getPathWithinServletMapping解析方式"></a>3.2.getPathWithinServletMapping解析方式</h3><p>&emsp;&emsp;alwaysUseFullPath为false时，spring通过getPathWithinServletMapping方法解析并获取路径，之后用于路由匹配中。</p>
-<p>&emsp;&emsp;getPathWithinServletMapping 方法可以简单看作getServletPath方法所获得的值（笔者对这里的方法的业务逻辑与目标没看得很懂，但这样理解是没问题的）：</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/6.png" alt="image-20240126135520866"></p>
-<p>&emsp;&emsp;UrlPathHelper#getServletPath方法最终获取的tomcat容器提供的servlet path，调用流程如下，实际与与</p>
-<p>&emsp;&emsp; org.apache.catalina.connector.Request#getServletPath() 值一样：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">UrlPathHelper#getPathWithinServletMapping</span><br><span class="line"></span><br><span class="line">	-&gt; UrlPathHelper#getServletPath</span><br><span class="line"></span><br><span class="line">		-&gt; javax.servlet.http.HttpServletRequestWrapper#getServletPath()</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;getServletPath方法值来源于web容器tomcat，tomcat在协议层连接器connector就对器进行了初始化。</p>
-<p>&emsp;&emsp;通过debug我们可以发现getServletPath()的值来源于decodedURI变量，有如下反向数据流说明：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HttpServletRequestWrapper#getServletPath()</span><br><span class="line"></span><br><span class="line">		&lt;- org.apache.catalina.mapper.MappingData#wrapperPath</span><br><span class="line"></span><br><span class="line">			&lt;- org.apache.catalina.connector.CoyoteAdapter#postParseReques()：decodedURI变量</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;进一步阅读代码可知，tomcat使用 normalize方法 对uri进行格式化</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CoyoteAdapter#postParseRequest()中的decodedURI变量</span><br><span class="line"></span><br><span class="line">	-&gt; parsePathParameters()：解析路径参数，如“&#x2F;path;name&#x3D;value;name2&#x3D;value2&#x2F;”，格式化为“&#x2F;path&#x2F;”</span><br><span class="line">	</span><br><span class="line">	-&gt; normalize() ：对uri进行格式化，包括 反斜线替换为斜线、多斜线归化、目录跳转递归还原，未处理分号</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="3-3-getPathWithinApplication解析方式"><a href="#3-3-getPathWithinApplication解析方式" class="headerlink" title="3.3.getPathWithinApplication解析方式"></a>3.3.getPathWithinApplication解析方式</h3><p>&emsp;&emsp;alwaysUseFullPath为true时，spring通过getPathWithinApplication方法解析并获取路径，之后用于路由匹配中。</p>
-<p>重点解析逻辑在decodeAndCleanUriString中，其做了 移除分号内容、URL解码、归化等操作，调用流程可参考下面：</p>
-<p>UrlPathHelper#getPathWithinApplication</p>
-<p>​    -&gt;getRequestUri</p>
-<p>​            -&gt;decodeAndCleanUriString</p>
-<p>​                    -&gt;removeSemicolonContent  ：移除分号及分号后面的内容</p>
-<p>​                    -&gt;decodeRequestString ：URL解码</p>
-<p>​                    -&gt;getSanitizedPath：归化“//”为“/”</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/7.png" alt="image-20240126133953847"></p>
-<h2 id="4-路由匹配模式下变化"><a href="#4-路由匹配模式下变化" class="headerlink" title="4.路由匹配模式下变化"></a>4.路由匹配模式下变化</h2><h3 id="4-1-路由匹配"><a href="#4-1-路由匹配" class="headerlink" title="4.1.路由匹配"></a>4.1.路由匹配</h3><p>&emsp;&emsp;springmvc目前有PathMatcher、AntPathMatcher 两个内置的路由匹配模式，前者为spring5.0新增的，在 spring-boot&gt;=2.6.0 的情况下，由于PathMatcher默认非空 且 AntPathMatcher为空，导致默认启用PathMatcher匹配模式，关于这点的逻辑我们可以在 RequestMappingInfo#getMatchingCondition 方法中了解到。</p>
-<p>&emsp;&emsp;如下图代码所示，RequestMappingInfo#getMatchingCondition 中会获取用于路由匹配的Condition，spring5新增的PathMatcher模式对应着下图第一个红框的代码 pathPatternsCondition。通过阅读代码可以了解到，spring5有PathMatcher、AntPathMatcher、custom 三个选项的路由匹配方式。另外在代码开头可以看到，这里也针对 方法、参数、头部等 获取了相应的匹配Condition，如果我们设置的Mapping为GetMapping，这里的 methods 则会过滤 GET 外的其他请求。 </p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/8.png" alt="image-20240125102627951"></p>
-<p>&emsp;&emsp;下图为类继承关系：匹配模式的业务类需要继承AbstractRequestCondition，图片下面的二者分别承载了PathPattern、AntPathMatcher的配置、逻辑。</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/9.png" alt="image-20240124231206626"></p>
-<p>&emsp;&emsp;下图为关系依赖图：我们关注红圈的关系线即可，实际上，RequestMappingInfo执行路由匹配时用到的Condition(PathPatternsRequestCondition、PatternsRequestCondition)最终依赖PathPattern、AntPathMatcher</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/10.png" alt="image-20240125160555657"></p>
-<h3 id="4-2-AntPathMatcher路由解析"><a href="#4-2-AntPathMatcher路由解析" class="headerlink" title="4.2.AntPathMatcher路由解析"></a>4.2.AntPathMatcher路由解析</h3><p>&emsp;&emsp;我们先了解一下AntPathMatcher路由匹配模式下的关键选项：</p>
-<ul>
-<li>useSuffixPatternMatch：<ul>
-<li>后缀名匹配，置为ture后，当前路由可以命中带某些后缀的路径，如/hello路由可命中 /hello 与 /hello.do 的请求路径</li>
-<li><code>&gt;=spring-webmvc 5.3.x</code> 情况下默认为false；spring-boot 2中皆为false，这是由于</li>
+<li>数据库表：表在设计时已经含有了“用户”与“用户数据”关系的这一逻辑，而这个逻辑是通过关联user_id一类的表字段来进行的。<ul>
+<li>用户表：unique key一类的表字段都进行关注，都具有和user_id具备“标记同一个用户的功能”，本文记为 owner column</li>
+<li>用户数据表：包含owner column的表，而某些表需要人工手动排除，如商品评论表，包含user_id这一owner column，但商品评论信息的查询不需要鉴别用户权限。</li>
+<li>被忽略的表：不包含owner column的表默认被忽略，或人工手动将其他表添加到忽略中，被忽略的表表示不需要进行水平越权检测。</li>
 </ul>
 </li>
-<li>useTrailingSlashMatch：<ul>
-<li>尾部匹配，置为true后，当前路由可以命中尾部带目录分隔符的路径，如/hello和/hello</li>
-<li>全版本都为true</li>
+<li>SQL语句：SQL执行在 JDBC层，而通过DAO我们得以将其与业务层的对象进行关联<ul>
+<li>SQL类型：存在update、query两种SQL执行，针对query，当且其结果输出给到前端时，我们才能判断其是否存在越权，为了简化表述，本文后续只讨论query。</li>
 </ul>
 </li>
-<li>trimTokens：<ul>
-<li>用于消除路径中各个content的空格，如 “/test1%20/test2%20” 消除后变为”/test1/test2”</li>
-<li><code>&gt;=spring 4.3.0 /spring-boot&gt;=1.4.0.RELEASE</code> 情况下，AntPathMatcher模式默认为 false</li>
+<li>分层：<ul>
+<li>控制层：应用在fliter/interceptor控制层对用户进行了鉴权，走到业务层的都是有效凭证的用户（在水平越权视角下）</li>
+<li>业务层：业务层可获取缓存的凭证/对象，操作DAO层时需要利用缓存的凭证与DAO交互，避免单纯采信用户的输入导致越权（用户访问的数据与所属用户不符）</li>
+<li>DAO层：封装SQL执行，且DAO层的输入与输出对于运行时的RASP/IAST都是易得的</li>
+</ul>
+</li>
+<li>数据类型：与 白盒/被动IAST 一样，大的框架上是需要跟踪数据的传播，而说到数据的传播，经典的概念也随之而来（source/sink）<ul>
+<li>source：来自用户的输入，默认是不可信任的</li>
+<li>pure：来自缓存的凭证/对象，或是被pure影响的数据也可能会标记未pure，表示这是一个可信任的数据</li>
+<li>sink：query情况下的漏洞检测点最终在controller mapping方法的返回结果出，检查该结果对象是否存在字段内容值来源于越权查询出的数据。</li>
+<li>DAO层与业务操作者之间进行数据流转，DAO层的数据来源可能是HTTP输入、其他DAO Query的结果、缓存的凭证等等，在数据流转的过程中，我们进行数据跟踪，根据算法逻辑对其进行标记</li>
 </ul>
 </li>
 </ul>
-<p>&emsp;&emsp;useSuffixPatternMatch在spring-boot中收到spring-boot-autoconfigure的PathMatch影响，由于其默认为false，所以用户未配置的情况下，spring-boot2皆为false</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/11.png" alt="image-20240126101421376"></p>
-<p>&emsp;&emsp;我们前面有说到，AntPathMatcher是由PatternsRequestCondition来引导实现的。</p>
-<p>&emsp;&emsp;具体来看下图的PatternsRequestCondition.getMatchingPattern方法，入参分别为路由、被匹配的路径，这里可以看到 useSuffixPatternMatch、useTrailingSlashMatch选项的实现，另外trimTokens选项则在 pathMatcher.match 中通过调用tokenizePattern来实现。</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/12.png" alt="image-20240126013924527"></p>
-<p>&emsp;&emsp;而pathMatcher.match也就是AntPathMatcher.match，AntPathMatcher实现了 ant风格的匹配，可以让路由拥有 “？”、“<em>”、“*</em>”等灵活的匹配方式：</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/13.png" alt="image-20240126015741715"></p>
-<h3 id="4-3-PathPattern"><a href="#4-3-PathPattern" class="headerlink" title="4.3.PathPattern"></a>4.3.PathPattern</h3><p>&emsp;&emsp;PathPattern路由匹配方式在spring-boot&gt;=2.6.0下默认开启</p>
-<h4 id="4-3-1-PathPattern下的资源路径解析"><a href="#4-3-1-PathPattern下的资源路径解析" class="headerlink" title="4.3.1.PathPattern下的资源路径解析"></a>4.3.1.PathPattern下的资源路径解析</h4><p>&emsp;&emsp;是这样的，该模式下有个 usePathPatterns  被置为 true，如下图所见，这样一来就不会走到我们前文所说的 getPathWhithin 一类的资源解析流程（图片中的else），而是走到 if 中，但是，需要注意的是，这里返回的对象实际没被使用，也就是说我们不需要关注这里的代码（好吧~）。</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/14.png" alt="image-20240125173513477"></p>
-<p>&emsp;&emsp;HTTP请求的资源路径实际上会被解析为Element数组对象，斜线即目录分隔符“/”使用Separator封装，目录内容则使用PathSegment来封装，且这个Element数组对象保存在 MatchingContext中，以供 PathPattern对象使用。</p>
-<p>&emsp;&emsp;下图展现了Element的子类，且 MatchingContext 依赖了 Element （保持数组对象）。</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/15.png" alt="image-20240125224130158"></p>
-<p>&emsp;&emsp;PathPattern$MatchingContext：</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/C:%5CUsers%5Cwork%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20240125220427699.png" alt="image-20240125220427699"></p>
-<p>&emsp;&emsp;elements数组对象实际为PathContainer对象中的一个字段，PathContainer对象即下面方法中的 this.pathWithinApplication/this.fullPath 对象（区别不大）</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//DefaultRequestPath#DefaultRequestPath(java.lang.String, java.lang.String)</span></span><br><span class="line">	DefaultRequestPath(String rawPath, <span class="meta">@Nullable</span> String contextPath) &#123;</span><br><span class="line">		<span class="keyword">this</span>.fullPath = PathContainer.parsePath(rawPath);</span><br><span class="line">		<span class="keyword">this</span>.contextPath = initContextPath(<span class="keyword">this</span>.fullPath, contextPath);</span><br><span class="line">		<span class="keyword">this</span>.pathWithinApplication = extractPathWithinApplication(<span class="keyword">this</span>.fullPath, <span class="keyword">this</span>.contextPath);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;断点下到DefaultRequestPath构造方法，查看前面的代码流程可以发现这里的 rawPath 值实际来源于 o.a.c.c.Request#getRequestURI，也就是说 elements分割的请求的路径的值和我们编写程序时候 拿到的req.getRequestURI()值是一样的，该值为 MessageBytes.uriMB，未经过处理。</p>
-<p>&emsp;&emsp;createFromUrlPath方法将 rawPath  转换为我们需要的 PathContainer对象，通过“/”分割路径的过程中，对遇到的content会进行URL解码，因此，路由匹配时被匹配的路径实际是经过URL解码的； 但pathContainter路径解析过程中，只通过“/”来分割路径，所以在此情况下会将“%2f”看作目录contont而非slash。</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/16.png" alt="image-20240126000922217"></p>
-<h4 id="4-3-2-PathPattern下的路由匹配"><a href="#4-3-2-PathPattern下的路由匹配" class="headerlink" title="4.3.2.PathPattern下的路由匹配"></a>4.3.2.PathPattern下的路由匹配</h4><p>&emsp;&emsp;路由匹配中，会将Mapping注解路径解析为一个双向链表数据结构的对象，对应的类为 PathElement，并将这个路由匹配对象保存在PathPatterns的heads。</p>
-<p>&emsp;&emsp;从 PathElement的相关字段 next、prev 可以看出其为链表数据结构：</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/17.png" alt="image-20240125222720546"></p>
-<p>&emsp;&emsp;资源路径解析中的PathContainer将路径分为两种类型，PathPatterns除了通过下图左边的 SeparatorPathElement、LiteralPathElement来覆盖与之类似的两种类型外，为了提供丰富的路由匹配模式，如通配符匹配，则会通过使用各类型PathElement来实现这些功能。</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/18.png" alt="image-20240126104640627"></p>
-<p>&emsp;&emsp;前文我们有说到，PathPattern的路由匹配是由PathPatternsRequestCondition来引导实现的。</p>
-<p>&emsp;&emsp;下图代码中可以了解到，路由匹配的匹配者为PathPattern，被匹配者为 PathContainer，由于二者都是 “节点”类型的数据结构，所以其匹配逻辑也就可以理解了。</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/19.png" alt="image-20240126103715717"></p>
-<p>&emsp;&emsp;PathPattern的matchOptionalTrailingSeparator字段的值默认为true，即该模式下允许尾部匹配，当然，实际处理逻辑则是在 LiteralPathElement 中实现的，下图为PathPattern的相关字段：</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/20.png" alt="image-20240125220417300"></p>
-<h2 id="5-漏洞模式与案例"><a href="#5-漏洞模式与案例" class="headerlink" title="5.漏洞模式与案例"></a>5.漏洞模式与案例</h2><h3 id="5-1-鉴权框架下的解析不一致"><a href="#5-1-鉴权框架下的解析不一致" class="headerlink" title="5.1.鉴权框架下的解析不一致"></a>5.1.鉴权框架下的解析不一致</h3><p>&emsp;&emsp;在过滤器层面对用户的请求路径做鉴权处理，和应用类似，这里有两个解析处理点：</p>
+<p><strong>SQL语句中的taint</strong>：普通用户接口下的业务层代码和“用户数据表”打交道时就会产生是否存在水平越权的问题，而这个代码最终体现在sql执行上的约束上，我们需要跟踪约束项的数据来源（静态代码或运行时中，针对数据流，从用户输入source到污点sink过程中可能会存在流中继，流中继的上游入口数据可以简称taint）。</p>
 <ul>
-<li>资源路径的解析处理，结果也是作为被匹配的对象</li>
-<li>鉴权路由的匹配或排除：使用用户配置的匿名接口、鉴权接口 去匹配 当前解析到的资源路径</li>
+<li>约束项taint：这里有两个要点需要理解，其一，SQL语句中的约束项视为taint，因此其对应着具体的表列；其二，不是所有的taint都需要关注，通常unique column/owner column外的其他列不需要关注。</li>
+<li>SQL约束：SQL约束有三个场景<ul>
+<li>场景1，开发者需要通过SQL执行的约束where指定owner column值来避免数据被非属用户访问（因此，SQL约束也应该是我们运行时跟踪的关键点，当然，具体实现上不会了解约束的语义，只解析出约束项）。demo sql语句为，select * from order where user_id = ? </li>
+<li>场景2，通过非onwer column而是unique column来约束SQL执行，那么，unqiue column指定的数据值的来源必然是场景1</li>
+<li>场景3，此外，也可能存在SQL执行语句未作约束的情况，普通用户接口下直接查询所有用户数据，此情况下可对未做unique column/owner column约束的SQL执行进行告警</li>
 </ul>
-<h4 id="shiro"><a href="#shiro" class="headerlink" title="shiro"></a>shiro</h4><p>&emsp;&emsp;下面以shiro 1.5.1权限绕过作为案例。</p>
-<p>&emsp;&emsp;通过debug shiro的认证处理流程PathMatchingFilter，我们可以发现 shiro 针对 资源路径的解析方式是模仿的spring getPathWithinApplication的，而其 鉴权路由的匹配 则也是类似 spring <strong>AntPathMatcher</strong>的。</p>
-<p>&emsp;&emsp;在spring-boot 2.3.0 集成 shiro 1.5.1 情况下，针对资源路径的解析有如下差异问题：</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/21.png" alt="image-20240126151007518"></p>
-<p>&emsp;&emsp;于是，在这种分层的情况中，对于资源路径“/image/..;/test”的资源路径解析有：</p>
+</li>
+</ul>
+<h2 id="4-数据跟踪"><a href="#4-数据跟踪" class="headerlink" title="4.数据跟踪"></a>4.数据跟踪</h2><p>数据跟踪包括几个关键要点：对象拆分、对象标记、DAO流中继</p>
 <ul>
-<li>shiro ，“/image/..”</li>
-<li>spring mvc，“/test”</li>
+<li>对象拆分：除了被动IAST中关注的情况List/Set/…，对于POJO/Bean对象，我们也需要进行拆分，获取到其各个字段值的对象；通常POJO的拆分只需要在source、DAO 这两个地方进行即可。</li>
+<li>对象标记：维护 SourceMap、PureMap、TaintMap分别记录对象是否为soure、是否为pure、是否为query的结果数据，被动IAST的数据跟踪这一抽象话术，落到实际来看，其中一点就是对象标记。v</li>
+<li>DAO流中继：DAO是一个上层封装，底下会涉及到许多关键逻辑<ul>
+<li>分析DAO执行的SQL语句：对于入参，如果其是SQL约束项，解析出其表列，并从后台获取该表列的“标记”（owner/unique /是否ignore）；对于查询结果，解析出查询结果数据对应的表列（这么做的具体原因稍后说明）</li>
+<li>依赖关系map：DAO结果对象通常是POJO，由于其是从数据库查询出来的，是“一体”的，因此保存它们的一体关系，当其一者的标记发生变化时，则应都进行同样的标记变化。。</li>
 </ul>
-<h4 id="spring-security"><a href="#spring-security" class="headerlink" title="spring security"></a>spring security</h4><h3 id="5-2-黑白鉴权逻辑问题"><a href="#5-2-黑白鉴权逻辑问题" class="headerlink" title="5.2.黑白鉴权逻辑问题"></a>5.2.黑白鉴权逻辑问题</h3><p>&emsp;&emsp;这里做一个简单的定义，如果一个逻辑单元为需要鉴权，对应的配置数据可以看作黑名单，该方式我们简称黑名单鉴权；如果一个逻辑单元为不进行鉴权，对应的配置数据可以看作白名单，该方式我们简称白名单免鉴权。</p>
-<p>如下面的代码为黑名单鉴权：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span></span>&#123;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">if</span>(request.getRequestURI().startswith(<span class="string">"/admin"</span>))&#123;</span><br><span class="line">        <span class="comment">// 鉴权操作 </span></span><br><span class="line">        <span class="comment">// TODO</span></span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">// 免鉴权接口  </span></span><br><span class="line">        <span class="comment">// TODO </span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;假设一个攻击目标，攻击者需要绕过该逻辑判断，访问 /admin 路径</p>
-<p>&emsp;&emsp;我们打开前文的“解析差异总览”，找到“资源路径处理表”与“接口方法处理表”，对比可知，在不同版本下我们都可以针对该判断条件进行绕过，全版本通杀的方式是对请求的路径进行 URL编码，即可绕过 。</p>
-<p><img src="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/22.png" alt="image-20240126155306284"></p>
-<p>如下面的代码为白名单免鉴权：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span></span>&#123;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">if</span>(request.getRequestURI().startswith(<span class="string">"/static"</span>))&#123;</span><br><span class="line">        <span class="comment">// 免鉴权接口  </span></span><br><span class="line">        <span class="comment">// TODO</span></span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">// 鉴权操作 </span></span><br><span class="line">        <span class="comment">// TODO</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;假设一个攻击目标，攻击者需要利用该逻辑判断，从而能访问其他需要鉴权的接口。</p>
-<p>&emsp;&emsp;继续查看 “资源路径处理表”与“接口方法处理表” 两种表格，我们需要让过滤层认为当前路径为 /static，那么我们可以利用目录跳转符号，但是，根据表格，该手法只在 spring-boot&lt;=2.3.0 或 springmvc&lt;5.3.0 下生效，对应的poc为 “/static/../admin”</p>
-<h2 id="6-总结"><a href="#6-总结" class="headerlink" title="6.总结"></a>6.总结</h2><p>&emsp;&emsp;匆忙之下编写的此文，对spring下路由匹配前面还有一些逻辑本文未尽善说明，另外这块细节较多，本文难免错漏，欢迎大家补充或修正。此外，本文所总结的问题模型却也不仅仅局限于spring web，以此为思路模板也能让我们分析不同鉴权框架与web容器/mvc框架的情况。</p>
-<p>&emsp;&emsp;本文算是对这块的总结与笔记，仔细分析下来，这块比想象中的多了一些门道。</p>
-<h2 id="7-参考"><a href="#7-参考" class="headerlink" title="7.参考"></a>7.参考</h2><p>浅谈springweb路由解析与权限绕过 <a href="https://bytedance.larkoffice.com/file/QMAWb533wo7eHExGRMGcZFM7nkh" target="_blank" rel="noopener">https://bytedance.larkoffice.com/file/QMAWb533wo7eHExGRMGcZFM7nkh</a></p>
-<p>这个鉴权到底能不能绕 <a href="https://forum.butian.net/share/829" target="_blank" rel="noopener">https://forum.butian.net/share/829</a></p>
-<p>Shiro 历史漏洞分析 <a href="https://xz.aliyun.com/t/11633" target="_blank" rel="noopener">https://xz.aliyun.com/t/11633</a></p>
+</li>
+</ul>
+<p>当pure数据与其他类型数据发生关系（数据传播、流程控制）时我们需要关注的，因为这意味着可能有新的pure数据产生，项目中的核心逻辑之一也是在这一点的处理上：</p>
+<ul>
+<li>DAO的数据传播：如果SQL执行中的约束项（unique/owner）是pure，则SQL执行结果也为pure；此外，如果SQL执行的其他入参的表列与执行结果的表列一直，则该入参对象也标记为pure</li>
+<li>流程控制：当一个数据对象与pure进行equals对比且return为true，则该数据对象也被标记为pure。这个判断逻辑的依据是，我们假设这里发生会流程控制（与pure对比，false就中断流程/抛异常）。如查询订单，订单号来自HTTP输入，开发者应先查询这个订单的所属用户，之后有 “订单用户ID”.equals(“凭证用户ID”) 的判断，当结果为true时  “订单用户ID” 才能被使用，否则应抛出异常。</li>
+</ul>
+<h2 id="5-结语"><a href="#5-结语" class="headerlink" title="5.结语"></a>5.结语</h2><p>&emsp;&emsp;运行时检测下，具备被动IAST一样的优势，无需构建扫描器进行发包，部署在测试环境随业务测试进行即可，也具有被动IAST一样的缺点，不适合部署在生产环境（消耗性能）。此外，项目方案技术难度较高，需要适配的框架较多，在技术上，通常只跟踪引用类型数据（因此建议POJO Class的字段不要使用非boxed的基本数据类型，如int修改为Integer），否则误报率会提升。</p>
+<p>&emsp;&emsp;本文想着把这块思路稍作分享，但似乎有些复杂，导致写下来可能难以做到易懂，其中的逻辑一环套一环，写起来也是麻烦。但根本上来说，项目方案就是利用了数据库中用户表与其他数据表的关系，这是最底层的基石。</p>
+<p>&emsp;&emsp;此前的单机版本通过高starts开源项目mall4j测试，测试中对该商场系统的各个普通用户接口进行了全量测试（接口无越权、接口修改为有越权 两面测试），阶段性来看方案是可行的。</p>
+<p>&emsp;&emsp;而目前笔者在改造为微服务版本，为了应对微服务问题 ，IAST各处逻辑需要重构到云端进行处理；此外，需要适配HTTP Client/Server、内容解析等等从而实现跨进程数据跟踪问题。当然，这些问题也基本一一解决了，后面完成云端后台的算法处理后，可以开始在业务方进行部署测试了，也期待后续在业务方的测试情况吧~不过，相信会存在很多问题…</p>
 
       
 
@@ -352,7 +254,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2024/01/24/SpringWeb%E4%B8%8B%E7%9A%84%E8%B7%AF%E5%BE%84%E9%89%B4%E6%9D%83%E9%97%AE%E9%A2%98/">展开全文 >></a>
+          <a class="article-more-a" href="/2024/07/03/%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8B%E7%9A%84%E6%B0%B4%E5%B9%B3%E8%B6%8A%E6%9D%83%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B/">展开全文 >></a>
         </p>
       
 
@@ -384,7 +286,7 @@
   
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/36/">36</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/37/">37</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
     </nav>
   
 
